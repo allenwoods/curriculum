@@ -1,108 +1,110 @@
 # DockYard Academy
 
-The DockYard Academy curriculum is an open source Elixir curriculum built with Livebook.
-We're proud to offer our open-source curriculum free of charge for anyone to learn from at their own pace.
+DockYard 学院的课程是一个使用 Livebook 构建的开源 Elixir 课程。
 
-We also offer a paid course where you can learn from an instructor alongside a cohort of your peers. Applications will be accepted soon.
+我们很自豪能够免费为任何人提供我们的开源课程，让大家按照自己的节奏学习。
 
-Email the instructor Brooklin at brooklin.myers@dockyard.com or direct message [@BrooklinJMyers](https://twitter.com/BrooklinJMyers) on Twitter if you would like more information.
+我们还提供付费课程，您可以在讲师的指导下，与一群同龄人一起学习。申请即将开始受理。
 
-## Prerequisites
-* Install [Elixir](https://elixir-lang.org/install.html)
-* Install [Livebook](https://github.com/livebook-dev/livebook)
-* Install [Postgres](https://www.postgresql.org/download/) (optional to get started)
-* Install [Phoenix](https://hexdocs.pm/phoenix/installation.html) (optional to get started)
-* Setup [WSL with Visual Studio Code](https://code.visualstudio.com/docs/remote/wsl) (Windows Users Only)
-* Optionally Install [asdf](https://asdf-vm.com/guide/getting-started.html) to manage Elixir and Erlang versions.
+如果您想要了解更多信息，请给讲师 Brooklin 发送电子邮件至 brooklin.myers@dockyard.com ，或者在 Twitter 上直接给 [@BrooklinJMyers](https://twitter.com/BrooklinJMyers) 发私信。 
 
-While we strongly recommend the [Visual Studio Code](https://code.visualstudio.com/) editor for its LiveShare capability, you may use any code editor you prefer.
+**课程前提条件：**
+- 安装 [Elixir](https://elixir-lang.org/install.html)
+- 安装 [Livebook](https://github.com/livebook-dev/livebook)
+- 安装 [Postgres](https://www.postgresql.org/download/) （可选，用于入门）
+- 安装 [Phoenix](https://hexdocs.pm/phoenix/installation.html) （可选，用于入门）
+- 设置 [WSL 与 Visual Studio Code](https://code.visualstudio.com/docs/remote/wsl) （仅 Windows 用户）
+- 可选安装 [asdf](https://asdf-vm.com/guide/getting-started.html) 来管理 Elixir 和 Erlang 版本
 
-This course is intended to be approachable to students with no computer science background.
+虽然我们强烈推荐使用具有 LiveShare 功能的 [Visual Studio Code](https://code.visualstudio.com/) 编辑器，但您可以使用任何您喜欢的代码编辑器。
 
-## Getting Started
+本课程旨在让没有计算机科学背景的学生也能够学习。
 
-Download and extract the [Latest Release](https://github.com/DockYard-Academy/curriculum/releases) source code zip file.
+**开始学习：**
 
-Open the extracted `curriculum` folder in Livebook and open the `start.livemd` file to see all project lessons and exercises.
+下载并解压 [最新版本](https://github.com/DockYard-Academy/curriculum/releases) 的源代码压缩文件。
 
-Optionally [Create a GitHub Repository](https://github.com/new) and follow the instructions on GitHub to manage your downloaded `curriculum` with Git and GitHub.
+在 Livebook 中打开解压后的 `curriculum` 文件夹，并打开 `start.livemd` 文件，以查看所有的课程和练习。
 
-See the [Troubleshooting Guide](https://github.com/DockYard-Academy/curriculum/wiki/Troubleshooting) if you encounter issues setting up the curriculum.
+可选 [创建一个 GitHub 仓库](https://github.com/new) ，并按照 GitHub 上的说明使用 Git 和 GitHub 来管理您下载的 `curriculum` 。
 
-## Course Outcome
-Our program is designed to produce highly qualified Elixir developers. Upon completion, students will possess a thorough understanding of Elixir fundamentals, project development using Elixir and Phoenix, LiveView, and OTP. They will have the expertise and problem-solving skills necessary to tackle complex coding challenges and continue to grow and excel in their careers. Graduates will be well-equipped to deliver idiomatic and well-tested features to production codebases.
+如果在设置课程时遇到问题，请查看 [故障排除指南](https://github.com/DockYard-Academy/curriculum/wiki/Troubleshooting) 。
 
-## Curriculum Outline
-See [start.livemd](https://github.com/DockYard-Academy/curriculum/blob/main/start.livemd) for a full breakdown of our lessons and exercises.
+**课程成果：**
 
-<!-- course-outline-start -->
-## Elixir Fundamentals
-* Prerequisites
-* Course Tools
-* Basics
-* Data Structures And Intro To Pattern Matching
-* Control Flow And Abstraction
-* Modules And Structs
-* Enumeration
-* Built-in Modules
-* Comprehensions And Non-Enumerable Data Types
-* Reduce
-* Dates And Time
-* String Manipulation
-* Recursion
-## Mix Projects
-* Elixir Build Tooling
-* Testing With ExUnit
-* Documentation And Static Analysis
-* Executables
-## Advanced Syntax
-* Advanced Pattern Matching
-* Guarding
-* Protocols
-* Persistence Using The File System
-## OTP
-* Processes
-* GenServers
-* Testing GenServers
-* Supervisor Basics And Fault Tolerance
-* Concurrency With Tasks
-## Phoenix
-* HTML And CSS
-* APIs
-* Relational Databases
-* Phoenix
-* Group Project Blog
-* Phoenix And Ecto
-* Testing Phoenix
-* Phoenix Forms And Components
-* Phoenix And Ecto One-to-Many Associations
-* Phoenix Authentication
-* Phoenix And Ecto Many-to-Many Relationships
-* Phoenix And Ecto One-to-One Relationships
-* Tailwind
-* Deployment
-* Custom Feature
-* Group Project Presentation
-## Capstone Project Preparation
-* Capstone Project
-## LiveView
-* LiveView
-* LiveView And Ecto
-* LiveView Authentication
-* LiveView Image Uploads
-* PubSub
-* LiveView JS Interoperability And Pagination
-* Scheduling And Emailing With Swoosh And Oban
-## Bonus Topics
-* Performance Optimization
-* Benchmarking And Performance
-* Ecto Changesets
-* State Management With Agents And ETS
-* Metaprogramming
-* Queues
-* Worker Pools
-* Rubix Cube Project
+我们的课程旨在培养高素质的 Elixir 开发人员。完成课程后，学生将全面了解 Elixir 基础知识、使用 Elixir 和 Phoenix 进行项目开发、LiveView 和 OTP 。他们将具备解决复杂编码挑战所需的专业知识和解决问题的技能，并能够在职业生涯中不断成长和出色表现。毕业生将有能力为生产代码库提供符合习惯和经过良好测试的功能。
 
+**课程大纲：**
+
+请查看 [start.livemd](https://github.com/DockYard-Academy/curriculum/blob/main/start.livemd) 以获取我们课程和练习的完整细分。
+
+- Elixir 基础知识
+    - 前提条件
+    - 课程工具
+    - 基础
+    - 数据结构和模式匹配简介
+    - 控制流和抽象
+    - 模块和结构体
+    - 枚举
+    - 内置模块
+    - 理解和非可枚举数据类型
+    - 规约
+    - 日期和时间
+    - 字符串操作
+    - 递归
+- Mix 项目
+    - Elixir 构建工具
+    - 使用 ExUnit 进行测试
+    - 文档和静态分析
+    - 可执行文件
+- 高级语法
+    - 高级模式匹配
+    - 保护
+    - 协议
+    - 使用文件系统进行持久化
+- OTP
+    - 进程
+    - GenServers
+    - 测试 GenServers
+    - 主管基础和容错
+    - 使用任务进行并发
+- Phoenix
+    - HTML 和 CSS
+    - API
+    - 关系数据库
+    - Phoenix
+    - 小组项目博客
+    - Phoenix 和 Ecto
+    - 测试 Phoenix
+    - Phoenix 表单和组件
+    - Phoenix 和 Ecto 一对多关联
+    - Phoenix 认证
+    - Phoenix 和 Ecto 多对多关系
+    - Phoenix 和 Ecto 一对一关系
+    - Tailwind
+    - 部署
+    - 自定义功能
+    - 小组项目展示
+- 顶点项目准备
+    - 顶点项目
+- LiveView
+    - LiveView
+    - LiveView 和 Ecto
+    - LiveView 认证
+    - LiveView 图片上传
+    - PubSub
+    - LiveView JavaScript 互操作性和分页
+    - 使用 Swoosh 和 Oban 进行调度和邮件发送
+- 附加主题
+    - 性能优化
+    - 基准测试和性能
+    - Ecto 变更集
+    - 使用 Agents 和 ETS 进行状态管理
+    - 元编程
+    - 队列
+    - 工作池
+    - Rubix Cube 项目
+    
 <!-- course-outline-end -->
 
 
