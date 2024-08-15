@@ -1,14 +1,10 @@
-import os
-import requests
-import base64
-from pathlib import Path
+# Using Azure OpenAI API to translate markdown files in batch
+# See https://learn.microsoft.com/zh-cn/azure/ai-services/openai/how-to/batch?tabs=standard-input&pivots=programming-language-ai-studio
 
-# Configuration
-API_KEY = 'dfba866f864c4af3be3b1542b9358747'
-headers = {
-    "Content-Type": "application/json",
-    "api-key": API_KEY,
-}
+import requests
+from pathlib import Path
+import json
+
 
 # Payload for the request
 def gen_payload(file_path):
@@ -38,21 +34,6 @@ def gen_payload(file_path):
     }
     return payload
 
-ENDPOINT = "https://allenwoods42.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-02-15-preview"
-
-def translate(file_path, translated_file_path):
-    payload = gen_payload(file_path)
-    # Send request
-    try:
-        response = requests.post(ENDPOINT, headers=headers, json=payload)
-        response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
-    except requests.RequestException as e:
-        raise SystemExit(f"Failed to make the request. Error: {e}")
-
-    # Handle the response as needed (e.g., print or process)
-    translated_content = response.json()['choices'][0]['message']['content']
-    with open(translated_file_path, 'w') as file:
-        file.write(translated_content)
 
 def get_files(dir_name):
     files = Path(__file__).parent / f"{dir_name}_en"
@@ -66,25 +47,29 @@ def get_files(dir_name):
     return files_need_translate
 
 if __name__ == "__main__":
+    count = 0
+    json_content = []
     for dir_name in ["reading", "exercises"]:
       files_need_translate = get_files(dir_name)
       print(f"Translating {len(files_need_translate)} files...")
 
-      success_files = []
-      failed_files = []
-      for file, translated_file in files_need_translate.items():
-          try:
-            print(f"Translating {file}")
-            translate(file, translated_file)
-            success_files.append(file)
-          except Exception as e:
-            print(f"Failed to translate {file}: {e}")
-            failed_files.append(file)
-            continue
-
-      print(f"Translated {len(success_files)} files:")
-      print(success_files)
-      print(f"Failed to translate {len(failed_files)} files:")
-      print(failed_files)
-    
-  #TODO: check if translated files are the same as origin files
+      for ix, (file, translated_file) in enumerate(files_need_translate.items()):
+            content = gen_payload(file)
+            payload = {
+            "custom_id": f"task-{count}-{file.name.replace('.livemd', '')}",
+            "method": "POST",
+            "url": "/chat/completions",
+            "body": {
+                "model": "gpt-4o-mini-batch",
+                "messages": content["messages"],
+                "temperature": 0,
+                "top_p": 0.95,
+                "max_tokens": 16384
+                }
+            }
+            json_content.append(payload)
+            count += 1
+      
+      with open(f"payload.jsonl", "w", encoding="utf-8") as f:
+          f.writelines([json.dumps(item) + "\n" for item in json_content])
+      print(f"{count} files translated")

@@ -1,0 +1,572 @@
+# 高级模式匹配
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Advanced Pattern Matching">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_menu.livemd">游戏：菜单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/treasure_matching.livemd">训练：模式匹配</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应理解：
+
+* 如何通过多个函数头和 case 语句实现多态性。
+* 如何使用多态性简化程序的控制流。
+* 如何在枚举中使用模式匹配。
+
+## 概述
+
+### 多态性
+
+在函数式编程中，多态性指的是程序在不同条件下表现出不同的能力。
+
+在 Elixir 中，有多种方式可以实现多态性，例如模式匹配、高阶函数和多子句函数。
+
+在基于数据的多态性中，函数可以处理多种类型的输入。例如，[Enum](https://hexdocs.pm/elixir/Enum.html) 模块是多态的，因为它与数据无关，并且可以在任何可枚举的数据结构上工作。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 模式匹配
+
+使用 `=` 进行模式匹配会强制运算符的左侧与右侧匹配。
+
+```
+left = right
+```
+
+我们可以用它来匹配表达式右侧的值并将其绑定到变量。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{a, b} = {1, 2}
+```
+
+除了绑定值外，我们还可以使用模式匹配来触发功能。
+
+例如，当我们在 `case` 语句中使用模式匹配时，可以根据数据的形状触发不同的 case 子句。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case {1, 2} -> do
+  [a, b] -> "列表的行为" 
+  {a, b} -> "元组的行为"
+end
+```
+
+如果您需要复习如何对每种数据类型进行模式匹配，请参见之前的阅读材料。
+
+* [原子](./atoms.livemd)
+* [元组](./tuples.livemd)
+* [列表](./lists.livemd)
+* [关键字列表](./keyword_lists.livemd)
+* [映射](./maps.livemd)
+
+## 使用匹配运算符进行模式匹配
+
+我们可以使用匹配运算符进行模式匹配。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:ok, one} = {:ok, 1}
+```
+
+我们可以在比你想象的更多地方使用匹配运算符。每当我们有一个 Elixir 术语绑定到参数或变量时，我们都可以使用 `=` 运算符。这对于绑定整个函数参数，同时仍然使用模式匹配来匹配参数内的值非常有用。
+
+```elixir
+defmodule PatternParamExample do
+  def inspect([a, b, c] = param1) do
+    IO.inspect(a, label: "a")
+    IO.inspect(b, label: "b")
+    IO.inspect(c, label: "c")
+    IO.inspect(param1, label: "c")
+  end
+end
+
+PatternParamExample.inspect([1, 2, 3])
+```
+
+有时我们使用此模式来验证特定参数是否是我们期望的数据形状。例如，以下确认函数中的参数是一个 `map`。
+
+```elixir
+defmodule MapsOnly do
+  def inspect(%{} = map) do
+    IO.inspect(map)
+  end
+end
+
+MapsOnly.inspect(%{})
+```
+
+任何非 map 数据类型都会导致函数崩溃，并出现 [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
+
+```elixir
+MapsOnly.inspect("这应该崩溃")
+```
+
+我们可以在 `case` 语句中或与其他数据类型（如列表）一起执行相同的操作。
+
+```elixir
+case [1, 2, 3] do
+  [head | tail] = list ->
+    IO.inspect(head, label: "头")
+    IO.inspect(tail, label: "尾")
+    IO.inspect(list, label: "列表")
+end
+```
+
+每当我们有一个值绑定到参数或变量，我们想要匹配时，我们都可以使用匹配运算符。模式匹配还可以与控制流结合使用，以根据模式是否匹配来触发应用程序行为。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+创建一个 `case` 语句，返回一个 2 元组中的第一个元素，或一个 2 元组中的第一个元素。
+
+```elixir
+
+```
+
+使用模式匹配确保 `Check.must_have_elements!/1` 函数在调用时返回 true，当传入的列表有多个元素时，否则会导致 [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Check do
+  def must_have_elements!([_head | _tail] = list) do
+    true
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule Check do
+  @doc """
+  将列表中的元素翻倍
+
+  ## 示例
+
+      iex> Check.must_have_elements!([1, 2, 3])
+      true
+
+      iex> Check.must_have_elements!([1])
+      true
+
+      iex> Check.must_have_elements!([])
+      ** (FunctionClauseError) 在 Check.must_have_elements!/1 中没有匹配的函数子句
+  """
+  def must_have_elements!(list) do
+    true
+  end
+end
+```
+
+## 函数子句中的模式匹配
+
+我们可以在函数中进行模式匹配时省略 `=`。
+
+```elixir
+defmodule Coords do
+  def inspect({x, y}) do
+    IO.inspect(x, label: "x 轴")
+    IO.inspect(y, label: "y 轴")
+  end
+end
+
+Coords.inspect({1, 2})
+```
+
+### 多子句函数
+
+我们可以使用模式匹配与多子句函数。这本质上使用多子句函数来复制与使用 case 语句的单个函数相同的行为。
+
+```elixir
+defmodule SingleCaseExample do
+  def run(param) do
+    case param do
+      [] -> "1"
+      [_] -> "2"
+      [_, _] -> "3"
+    end
+  end
+end
+
+SingleCaseExample.run([]) |> IO.inspect(label: "第一个")
+SingleCaseExample.run([1]) |> IO.inspect(label: "第二个")
+SingleCaseExample.run([1, 1]) |> IO.inspect(label: "第三个")
+```
+
+```elixir
+defmodule MultiClauseExample do
+  def run([]) do
+    "1"
+  end
+
+  def run([_]) do
+    "2"
+  end
+
+  def run([_, _]) do
+    "3"
+  end
+end
+
+MultiClauseExample.run([]) |> IO.inspect(label: "第一个")
+MultiClauseExample.run([1]) |> IO.inspect(label: "第二个")
+MultiClauseExample.run([1, 1]) |> IO.inspect(label: "第三个")
+```
+
+这通常用于高级控制流。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 匿名函数
+
+我们还可以在匿名回调函数的多个函数头中进行模式匹配。
+
+```elixir
+anonymous_run = fn
+  [] -> "1"
+  [_] -> "2"
+  [_, _] -> "3"
+end
+
+anonymous_run.([]) |> IO.inspect(label: "第一个")
+anonymous_run.([1]) |> IO.inspect(label: "第二个")
+anonymous_run.([1, 1]) |> IO.inspect(label: "第三个")
+```
+
+### 你的回合
+
+使用多子句函数创建一个 `Greeter` 模块，根据提供给 `hello/1` 函数的输入返回不同的问候语。
+
+```elixir
+defmodule Greeter do
+  @moduledoc """
+  问候者
+  """
+
+  @doc """
+  根据提供的列表中元素的数量返回不同的问候语。
+
+  ## 示例
+
+      iex> Greeter.hello(["Russel"])
+      "嗨 Russel!"
+
+      iex> Greeter.hello(["Icia", "Stephen"])
+      "嗨 Icia, 你好 Stephen!"
+
+      iex> Greeter.hello(["Swamy", "Jeff", "Jeremy"])
+      "大家好!"
+  """
+  def hello(names) do
+  end
+end
+```
+
+## 在枚举中进行模式匹配
+
+我们可以将函数中的模式匹配与枚举结合使用，以实现可枚举数据结构的多态行为。
+
+```elixir
+enumerable = [double: 1, double: 2, triple: 3, quadruple: 4]
+
+Enum.map(enumerable, fn
+  {:double, value} -> value * 2
+  {:triple, value} -> value * 3
+  {:quadruple, value} -> value * 4
+end)
+```
+
+同样可以使用其他接受回调函数的 [Enum](https://hexdocs.pm/elixir/Enum.html) 函数，例如 [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 和 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3)。
+
+```elixir
+enumerable = [add: 1, subtract: 2, add: 4, multiply: 3]
+
+Enum.reduce(enumerable, 0, fn
+  {:add, value}, acc -> acc + value
+  {:subtract, value}, acc -> acc - value
+  {:multiply, value}, acc -> acc * value
+end)
+```
+
+```elixir
+enumerable = [keep: 1, remove: 2, keep: 4, remove: 1]
+
+Enum.filter(enumerable, fn
+  {:keep, _} -> true
+  {:remove, _} -> false
+end)
+```
+
+### 你的回合
+
+使用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 结合模式匹配和多子句函数，将以下列表中的 `{:double, integer}` 元组翻倍，并将 `{:halve, integer}` 元组除以 2。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+[{:double, 2}, {:halve, 10}, {:double, 4}] -> [4, 5, 8]
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+Enum.map([{:double, 2}, {:halve, 10}, {:double, 4}], fn
+  {:double, integer} -> integer * 2
+  {:halve, integer} -> div(integer, 2)
+end)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 模式匹配与 if
+
+通常我们有许多工具可以完成相同的操作。
+例如，假设我们正在构建一个应用程序，用户可以相互发送消息。
+但是，只有管理员用户被允许发送消息。
+
+使用 `if`，我们可以写如下代码。
+
+```elixir
+defmodule MessageIfExample do
+  def send(user, message) do
+    if user.is_admin do
+      message
+    else
+      {:error, :not_authorized}
+    end
+  end
+end
+```
+
+假设我们还需要处理空消息。
+
+```elixir
+defmodule MessageNestedIfExample do
+  def send(user, message) do
+    if user.is_admin do
+      if message == "" do
+        {:error, :empty_message}
+      else
+        message
+      end
+    else
+      {:error, :not_authorized}
+    end
+  end
+end
+
+MessageNestedIfExample.send(%{is_admin: true}, "")
+```
+
+嵌套的 `if` 语句通常是一个提示，表明我们应该考虑替代实现。
+
+让我们看看如何使用模式匹配解决这个问题。
+
+```elixir
+defmodule MessageMatchExample do
+  def send(%{is_admin: true}, "") do
+    {:error, :empty_message}
+  end
+
+  def send(%{is_admin: true}, message) do
+    {:ok, message}
+  end
+
+  def send(%{is_admin: false}, _) do
+    {:error, :not_authorized}
+  end
+end
+```
+
+```elixir
+MessageMatchExample.send(%{is_admin: true}, "")
+```
+
+```elixir
+MessageMatchExample.send(%{is_admin: false}, "错误！")
+```
+
+```elixir
+MessageMatchExample.send(%{is_admin: true}, "成功！")
+```
+
+## 引用运算符
+
+**引用运算符** 允许我们将变量用作硬编码值，而不是重新绑定变量。
+
+我们通常在测试代码时使用引用运算符，以断言值是否正确。
+
+例如，以下代码将重新绑定 **received** 变量为 `[1, 2, 3]`。
+
+```elixir
+received = [1, 2]
+expected = [1, 2, 3]
+
+received = expected
+```
+
+但相反，我们可能会使用匹配运算符来检查接收到的值是否与预期值匹配。
+
+```elixir
+received = [1, 2]
+expected = [1, 2, 3]
+
+^received = expected
+```
+
+通过使用上面的引用运算符，我们实现了与以下代码相同的效果：
+
+```elixir
+[1, 2] = [1, 2, 3]
+```
+
+我们还可以将其用于集合中的内部值。以下代码与 `[1, 2, 3] = [2, 2, 3]` 相同。
+
+```elixir
+first = 1
+actual = [2, 2, 3]
+[^first, 2, 3] = actual
+```
+
+以下代码与 `[1, 2, 3] = [1, 2, 3]` 相同。
+
+```elixir
+first = 1
+actual = [1, 2, 3]
+[^first, 2, 3] = actual
+```
+
+当使用模式匹配触发控制流时，我们也会使用引用运算符。例如，我们可能会在 case 语句中使用它。
+
+```elixir
+pinned_value = 1
+
+case {:ok, 1} do
+  {:ok, ^pinned_value} -> "子句 1"
+  {:ok, generic_value} -> "子句 2"
+end
+```
+
+如果我们不对值进行引用，绑定的变量将被视为我们正在重新绑定变量，并且第一个 case 子句将始终匹配。
+
+```elixir
+pinned_value = 1
+
+# 尽管是 2，而不是 1，但由于我们没有引用值，子句 1 被触发。
+case {:ok, 2} do
+  {:ok, pinned_value} -> "子句 1"
+  {:ok, generic_value} -> "子句 2"
+end
+```
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+使用引用运算符使以下代码因 `expected` 与 `actual` 不匹配而崩溃，并产生 [MatchError](https://hexdocs.pm/elixir/MatchError.html)，而不是像当前那样重新绑定 `expected`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+expected = {"hello"}
+actual = {"hello", "hi"}
+
+^expected = actual
+```
+
+</details>
+
+```elixir
+expected = {"hello"}
+actual = {"hello", "hi"}
+
+expected = actual
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Elixir 学校：模式匹配](https://elixirschool.com/en/lessons/basics/pattern_matching)
+* [Exercism.io：模式匹配](https://exercism.org/tracks/elixir/concepts/pattern-matching)
+* [elixir-lang.org：模式匹配](https://elixir-lang.org/getting-started/pattern-matching.html)
+* [HexDocs：模式和守卫](https://hexdocs.pm/elixir/master/patterns-and-guards.html)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成高级模式匹配阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Advanced Pattern Matching">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_menu.livemd">游戏：菜单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/treasure_matching.livemd">训练：模式匹配</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
