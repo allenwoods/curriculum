@@ -65,7 +65,7 @@ def get_files(dir_name):
 
 if __name__ == "__main__":
     files_need_translate = get_files("reading")
-    print("Translating...")
+    print(f"Translating {len(files_need_translate)} files...")
 
     success_files = []
     failed_files = []
@@ -78,7 +78,7 @@ if __name__ == "__main__":
           print(f"Failed to translate {file}: {e}")
           failed_files.append(file)
           continue
-        
+
     print(f"Translated {len(success_files)} files:")
     print(success_files)
     print(f"Failed to translate {len(failed_files)} files:")
