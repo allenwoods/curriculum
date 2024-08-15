@@ -1,0 +1,204 @@
+# 有趣的公式
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Fun Formulas">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/match_operator.livemd">匹配运算符</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/card_counting.livemd">牌计数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 有趣的公式
+
+作为开发者，我们的工作是将业务需求转化为计算机可以理解的内容。
+
+这些练习将让你把一个常见的公式转换为Elixir程序。
+
+## 加载条百分比
+
+我们经常需要向用户显示加载条。加载条使用当前**百分比**来显示加载进度。
+
+你可以用 $\frac{actual\ value}{total\ value}\times100$ 来计算百分比。
+
+例如，如果我们完成了 `7` 个中的 `10` 个项目，我们将完成 `70.0%`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+(7 / 10) * 100 # 70.0
+```
+
+使用算术运算符来确定我们完成了 `12` 个中的 `42` 个项目的**百分比**。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+actual = 12
+total = 42
+
+(actual / total) * 100
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 火箭飞船
+
+我们正在构建一个火箭飞船应用程序，以教人们物理学。
+
+用户可以输入飞船的 `mass` 和 `acceleration` 来可视化生成的 `force`。
+
+给定 ${mass} * {acceleration} = force$，计算当质量为 `10` 和加速度为 `50` 时的力。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+mass = 10
+acceleration = 50
+
+mass * acceleration
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 你应该给多少小费？
+
+在许多文化中，买餐时留下小费是很常见的。通常将小费计算为餐费的百分比。
+
+给定餐费的初始成本为 `20`，你想留下 `15%` 的小费，使用算术运算符来确定餐费的总成本。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+initial_cost = 20
+tip_percent = 1.15
+
+initial_cost * tip_percent
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 勾股定理
+
+要计算三角形的最长边，我们使用 $a^2 + b^2 = c^2$。
+
+给定一个三角形，其中边 $a$ 为 `4`，边 $b$ 为 `10`，计算 $c^2$。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+a = 4
+b = 10
+
+a ** 2 + b ** 2
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 奖励：平方根
+
+之前我们计算了勾股定理的 $c^2$。给定 $c^2$ 为 `116`，确定 $c^2$ 的平方根以计算 $c$。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+c_squared = 116
+:math.sqrt(c_squared)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成有趣的公式练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Fun Formulas">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/match_operator.livemd">匹配运算符</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/card_counting.livemd">牌计数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

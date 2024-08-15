@@ -1,0 +1,235 @@
+# Web 服务器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:finch, "~> 0.16.0"}
+])
+
+Finch.start_link(name: MyApp.Finch)
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Web Servers">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_1.7.livemd">Phoenix 1.7</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phoenix_follow_along_counter_app.livemd">跟随练习：Phoenix 计数器应用</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是 TCP？
+* TCP 请求的生命周期是什么？
+
+## 概述
+
+Web 开发是编程中的一个子领域。广义上讲，Web 开发者创建网站。
+
+网站是运行在 Web 服务器上的程序。客户端通过计算机网络与这些 Web 服务器进行通信。我们已经在 [APIs](./apis.livemd) 部分看到如何使用 HTTP 请求作为客户端连接到 Web 服务器。
+
+在本课中，我们将讨论如何创建客户端连接的 Web 服务器。我们将从头开始创建一个 Web 服务器，以揭示它们是如何构建的。
+
+然而，请注意，我们通常会依赖于 Phoenix 框架，这是一个用于 Elixir 的 Web 框架，而不是从头开始构建自己的 Web 服务器。
+
+此外，本课依赖于端口 `4000` 是空闲的。如果您有任何程序使用端口 `4000`，本课可能无法正常工作。
+
+## 传输控制协议 (TCP)
+
+[传输控制协议 (TCP)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) 是应用程序用于在网络上进行通信和交换数据的通信协议。TCP 是 HTTP 请求使用的底层协议。
+
+我们使用 Erlang 的内置 [`:gen_tcp`](https://www.erlang.org/doc/man/gen_tcp.html) 库来启动一个使用 TCP 监听网络连接的服务器。
+
+该服务器在机器的指定 **端口** 上创建一个 **套接字** 连接。
+端口是特定服务的通信端点。例如，默认情况下，此 livebook 应用程序在端口 `8080` 上运行，您可以在浏览器的 URL 中看到 `http://localhost:8080/sessions/`。套接字允许通过此端口进行双向通信，以发送和接收数据。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+graph LR;
+  S[服务器]
+  P[端口]
+  LSO[监听套接字]
+  C[客户端]
+  S --listen on --> P --establish--> LSO
+  C --request --> LSO
+  LSO --response--> C
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+该套接字监听来自客户端的连接，并在它们连接时接受它们，读取请求，然后向客户端发送响应。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+sequenceDiagram
+participant C as 客户端
+participant S as 服务器
+S->> S: 启动套接字
+C--> S: 接受连接
+C->> S: 发送请求
+S->> S: 读取请求
+S->> C: 发送响应
+C--> S: 关闭连接
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+下面，我们模拟一个仅接受单个请求并向客户端返回 `"Hello, world!"` 的 Web 服务器。然后我们向 Web 服务器发送请求并接收响应。
+
+```elixir
+port = 4000
+
+spawn(fn ->
+  # 启动套接字
+  {:ok, listen_socket} = :gen_tcp.listen(port, active: false, reuseaddr: true)
+
+  # 接受连接
+  {:ok, connection} = :gen_tcp.accept(listen_socket)
+
+  # 读取请求
+  {:ok, request} = :gen_tcp.recv(connection, 0)
+  IO.inspect(request, label: "客户端请求")
+
+  # 发送响应
+  response = "HTTP/1.1 200\r\nContent-Type: text/html\r\n\r\n Hello world!"
+  :gen_tcp.send(connection, response)
+
+  # 关闭连接
+  :gen_tcp.close(connection)
+
+  # 我们杀死 listen_socket 以避免地址已在使用的问题。
+  # 通常，监听套接字将保持打开状态并递归接受连接。
+  Process.exit(listen_socket, :kill)
+end)
+
+# 发送请求
+Finch.build(:get, "http://localhost:#{port}") |> Finch.request!(MyApp.Finch)
+```
+
+上面的代码纯粹用于演示目的。我们不需要编写自己的 Web 服务器，而是依赖于像 [Phoenix](https://www.phoenixframework.org/) 这样的框架来为我们完成所有这些工作。
+
+## Web 服务器
+
+将所有这些结合在一起，我们可以创建一个 `WebServer` 模块。`WebServer` 模块将监听端口 `4000` 并递归接受客户端请求。
+
+通过执行代码单元启动 `WebServer` 套接字，然后在浏览器的新标签页中导航到 http://localhost:4000。您应该会看到来自 Web 服务器的当前时间消息。
+
+```elixir
+defmodule WebServer do
+  def start(port) do
+    {:ok, listen_socket} = :gen_tcp.listen(port, active: false, reuseaddr: true)
+
+    accept(listen_socket)
+  end
+
+  def accept(listen_socket) do
+    # 接受连接
+    {:ok, connection} = :gen_tcp.accept(listen_socket)
+
+    # 发送响应
+    current_time = Time.to_string(Time.utc_now())
+    response = "HTTP/1.1 200\r\nContent-Type: text/html\r\n\r\n 现在是 #{current_time}"
+    :gen_tcp.send(connection, response)
+
+    # 关闭连接
+    :gen_tcp.close(connection)
+
+    accept(listen_socket)
+  end
+end
+
+WebServer.start(4000)
+```
+
+该服务器将无限期保持打开状态，并在每次新客户端连接到端口 `4000` 的套接字时递归调用 `accept/2`。
+
+所有网站都使用类似（尽管功能更全面）的 Web 服务器来接受客户端连接、接收请求并发送响应。
+
+希望这个例子能为您提供 Web 服务器在底层如何运作的背景。然而，构建自己的 Web 服务器通常并不实用，我们将依赖于 Phoenix 框架，它将这些实现细节隐藏在我们面前。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+我们已经看到一个简单的文本响应，但 Web 服务器也能够发送包含整个网页的更复杂的响应。
+
+在上面的 `WebServer` 模块中，修改原始响应：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+response = "HTTP/1.1 200\r\nContent-Type: text/html\r\n\r\n 现在是 #{current_time}"
+```
+
+为使用 [超文本标记语言 (HTML)](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics) 的响应。HTML 是用于构建网页的代码。例如，我们可以修改响应以使用 HTML 标头标签 `<h1>`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+response = "HTTP/1.1 200\r\nContent-Type: text/html\r\n\r\n <h1>现在是 #{current_time}<h1/>"
+```
+
+访问 http://localhost:4000 查看您修改的内容。您可能需要停止 `WebServer` Elixir 单元并重新启动它。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Web 服务器阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Web Servers">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_1.7.livemd">Phoenix 1.7</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phoenix_follow_along_counter_app.livemd">跟随练习：Phoenix 计数器应用</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

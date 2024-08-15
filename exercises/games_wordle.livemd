@@ -1,0 +1,190 @@
+# 游戏：Wordle
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Wordle">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/exunit.livemd">ExUnit</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/documentation_and_static_analysis.livemd">文档和静态分析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 游戏：Wordle
+
+### 需求
+
+在你现有的 [Games](./games.livemd) 项目中，你将创建一个 Wordle 游戏。
+
+Wordle 是一个流行的游戏，玩家有六次机会来猜测一个单词。
+他们会得到反馈线索来猜测这个单词。
+
+* **绿色** 如果字母在单词中并且在正确的位置。
+* **黄色** 如果字母在单词中但在错误的位置。
+* **灰色** 如果字母不在单词中。
+
+例如，对于单词 "TOAST"，猜测 "TARTS" 将会是
+
+```mermaid
+flowchart LR
+style 1 fill:green
+style 2 fill:yellow
+style 3 fill:gray
+style 4 fill:yellow
+style 5 fill:yellow
+
+1[T] --- 2[A] --- 3[R] --- 4[T] --- 5[S]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试
+
+你将为 Wordle 游戏创建一个完整的测试套件。编写（至少）以下测试用例
+
+* 全部绿色
+* 全部黄色
+* 全部灰色
+* 一些绿色、黄色和灰色
+
+> **奖励：边缘情况**：同一个字母是所有 3 种颜色
+> 
+> ```elixir
+> Games.Wordle.feedback("XXXAA", "AAAAY") == [:yellow, :grey, :grey, :green, :grey]
+> ```
+> 首先处理绿色，然后按顺序填充黄色。剩余的字符为灰色。
+> 
+> 请注意，这是一个 **困难** 的奖励挑战，显著增加了解决方案的复杂性。考虑先解决没有这个边缘情况的练习。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 反馈/0
+
+你应该能够通过在命令行中从 `game` 文件夹运行以下命令来启动你的项目。
+
+```
+iex -S mix
+```
+
+给定一个答案和一个猜测，你的 `Games.Wordle` 模块将提供作为颜色原子 `:green`、`:yellow` 和 `:grey` 的反馈。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+                         #answer   #guess
+iex> Games.Wordle.feedback("aaaaa", "aaaaa")
+[:green, :green, :green, :green, :green]
+
+iex> Games.Wordle.feedback("aaaaa", "aaaab")
+[:green, :green, :green, :green, :grey]
+
+iex> Games.Wordle.feedback("abdce", "edcba")
+[:yellow, :yellow, :yellow, :yellow, :yellow]
+
+# 如果猜测中有重复字符，优先考虑精确匹配。
+iex> Games.Wordle.feedback("aaabb", "xaaaa")
+[:grey, :green, :green, :yellow, :grey]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 玩
+
+使用 IEx shell 开始一局 Wordle 游戏。这应该提示用户猜测一个五个字母的单词。
+
+```
+iex> Games.Wordle.play()
+输入一个五个字母的单词：  
+```
+
+随机生成一个单词用于 Wordle 游戏。你可以从一个单词列表中随机获取一个单词，例如 `["toast", "tarts", "hello", "beats"]`。
+
+获取用户输入并根据他们的猜测提供反馈。例如，如果随机生成的单词是 `toast`，则输出将是。
+
+```
+输入一个五个字母的单词： tarts
+[:green, :yellow, :grey, :yellow, :yellow]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 奖励：六次猜测
+
+在六次猜测后，如果玩家没有得到正确答案，则应输掉游戏。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 奖励：颜色反馈
+
+使用 [IO.ANSI](https://hexdocs.pm/elixir/IO.ANSI.html) 提供实际的颜色反馈。
+
+```elixir
+IO.puts(IO.ANSI.green() <> "green")
+IO.puts(IO.ANSI.yellow() <> "yellow")
+IO.puts(IO.ANSI.light_black() <> "grey")
+```
+
+确保重置颜色。
+
+```elixir
+IO.puts(IO.ANSI.green() <> "green" <> IO.ANSI.reset() <> " 重置颜色")
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在命令行中从 `curriculum` 文件夹运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成游戏：Wordle 练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Wordle">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/exunit.livemd">ExUnit</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/documentation_and_static_analysis.livemd">文档和静态分析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

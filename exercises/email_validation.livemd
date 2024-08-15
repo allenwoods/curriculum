@@ -1,0 +1,149 @@
+# 邮件验证
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Email Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/regex.livemd">正则表达式</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/caesar_cypher.livemd">凯撒密码</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 邮件验证
+
+大多数有用户的应用程序和网站都有一个带有电子邮件输入的注册表单。
+
+通常，我们会验证此输入，以确保用户输入有效的电子邮件。
+
+你将构建一个 `Email.validate/1` 函数，用于检查电子邮件地址是否有效。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Email.valid?("mail@mail.com")
+true
+
+Email.valid?("mail.com")
+false
+```
+
+为了本练习的目的，如果电子邮件的格式为 `string@string.string`，则认为其有效。请注意，这对于真正的电子邮件验证来说是不够的，因为并非所有字符都是允许的。
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+考虑使用 [Regex.match/2](https://hexdocs.pm/elixir/Regex.html#match/2)。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Email do
+  def valid?(email) do
+    Regex.match?(~r/\w+\@\w+\.\w+/, email)
+  end
+end
+```
+
+</details>
+
+按照文档实现 `Email` 模块。
+
+```elixir
+defmodule Email do
+  @moduledoc """
+  `Email` 的文档
+  """
+
+  @doc """
+  检查电子邮件是否有效。
+
+  ## 示例
+
+    iex> Email.valid?("mail@mail.com")
+    true
+
+    iex> Email.valid?("string@string.string")
+    true
+
+    iex> Email.valid?("string")
+    false
+
+    iex> Email.valid?(".string")
+    false
+
+    iex> Email.valid?("string.string")
+    false
+
+    iex> Email.valid?("string@string")
+    false
+
+    iex> Email.valid?("string@string.")
+    false
+  """
+  def valid?(email) do
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成邮件验证练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Email Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/regex.livemd">正则表达式</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/caesar_cypher.livemd">凯撒密码</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

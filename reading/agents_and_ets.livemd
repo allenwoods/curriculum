@@ -1,0 +1,611 @@
+# 状态：Agent 和 ETS
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=State: Agent And ETS">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/book_changeset.livemd">书籍变更集</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/agent_journal.livemd">Agent 日志</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 为什么要使用 Agent 而不是 GenServer？
+* 为什么可能会使用 `:ets` 而不是 Agent？
+* 为什么以及如何实现缓存？
+
+## 状态
+
+状态允许我们在应用程序运行期间持久化一个值。我们已经看到如何启动一个 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 进程，该进程存储和操作其内部状态。
+
+现在我们将学习如何使用 [Agent](https://hexdocs.pm/elixir/Agent.html) 和 [ETS (Erlang Term Storage)](https://elixir-lang.org/getting-started/mix-otp/ets.html) 来管理状态。
+
+## Agents
+
+[Agent](https://hexdocs.pm/elixir/Agent.html) 是对状态的封装。它们比 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 更简单，功能也更少。与 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 不同的是，它们不发送和接收消息。相反，[Agent](https://hexdocs.pm/elixir/Agent.html) 模块提供了诸如 [Agent.get/3](https://hexdocs.pm/elixir/Agent.html#get/3) 和 [Agent.update/3](https://hexdocs.pm/elixir/Agent.html#update/3) 的函数来获取和更新 [Agent](https://hexdocs.pm/elixir/Agent.html) 进程的状态。
+
+```elixir
+{:ok, counter_pid} = Agent.start_link(fn -> 0 end)
+```
+
+```elixir
+Agent.update(counter_pid, fn state -> state + 1 end)
+```
+
+```elixir
+Agent.get(counter_pid, fn state -> state end)
+```
+
+通常，我们会将 Agent 函数放入一个模块中，以抽象状态的存储和操作方式，并仅暴露所需的功能。
+
+```elixir
+defmodule Counter do
+  use Agent
+
+  def start_link(_opts) do
+    Agent.start_link(fn -> 0 end)
+  end
+
+  def increment(pid) do
+    Agent.update(pid, fn state -> state + 1 end)
+  end
+
+  def get_count(pid) do
+    Agent.get(pid, fn state -> state end)
+  end
+end
+
+{:ok, counter_pid} = Counter.start_link([])
+
+:ok = Counter.increment(counter_pid)
+:ok = Counter.increment(counter_pid)
+2 = Counter.get_count(counter_pid)
+```
+
+你可以用 [Agent](https://hexdocs.pm/elixir/Agent.html) 完成的任何事情，你也可以用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 完成。然而，如果你只需要管理状态，使用 [Agent](https://hexdocs.pm/elixir/Agent.html) 更轻量且有效。
+
+## Erlang Term Storage (ETS)
+
+我们可以使用 [ETS](https://elixir-lang.org/getting-started/mix-otp/ets.html) 表作为方便的内存缓存。`:ets` 是 Erlang 通过 `:ets` 模块提供的一个库。
+
+虽然 [Agent](https://hexdocs.pm/elixir/Agent.html) 是一个简单的内存缓存解决方案，适合小负载或非并发操作，但 `:ets` 表通常性能更好，并且可以支持并发的读写操作。
+
+通常，我们可以使用 `:ets` 作为更高效的内存键值存储。
+
+`:ets` 表与 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 非常相似，但专门设计用于内存键值存储。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+subgraph ETS
+  Process[进程] --> State
+  State --> KV[键值存储]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+Livebook 允许我们将 `:ets` 进程视为一个表。让我们开始一个新的 `:ets` 表，称为 `:example_table`。
+
+```elixir
+table = :ets.new(:example_table, [])
+```
+
+然后，我们可以使用 `:ets.insert/2` 向表中插入值。我们以 `{key, value}` 元组的形式插入值。
+
+键和值几乎可以是任何值，但我们通常会使用原子作为键。
+
+### 你的回合
+
+尝试更改 `:key` 和 `value`，看看 `:ets` 表将存储任何键值对。然而，`:ets` 表只会为给定的键存储一个值。
+
+```elixir
+:ets.insert(table, {:hello, "hi"})
+```
+
+```elixir
+kw_list = :ets.lookup(table, :key)
+
+value = kw_list[:key]
+```
+
+### 命名表
+
+`:ets` 表可以使用 `:named_table` 选项创建。这允许我们创建表并在不绑定到其 pid 的情况下引用它们。
+
+```elixir
+:ets.new(:my_table, [:named_table])
+```
+
+现在我们可以使用原子名称 `:my_table` 而不是 PID 向表中插入值。
+
+```elixir
+:ets.insert(:my_table, {:key, "value"})
+```
+
+查找值时也是如此。
+
+```elixir
+:ets.lookup(:my_table, :key)
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，创建一个 `:super_heros` `:ets` 表。
+你应该能够插入超级英雄及其秘密身份。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:ets.insert(:super_heros, {"Spider Man", "Peter Parker"})
+```
+
+```elixir
+
+```
+
+## ETS 配置
+
+`:ets` 表通过 **表类型** 和 **访问控制** 进行配置。
+
+**表类型**
+
+* `:set`（默认）。每个唯一键一个值。
+* `:ordered_set` 每个唯一键一个值，按 Elixir 术语排序。
+* `:bag` 每个键多个值，但每个键仅一个实例的值。
+* `:duplicate_bag` 每个键多个值，允许重复。
+
+**访问控制**
+
+* `:protected`（默认）所有进程可读。仅允许父进程写入。
+* `:public` 所有进程可读/写。
+* `:private` 仅允许父进程读/写。
+
+默认情况下，`:ets` 表使用 `:set` 和 `:protected` 配置值。因此，我们在启动 `:ets` 表时可以包含或排除它们，这不会产生任何影响。
+
+```elixir
+default_table = :ets.new(:default_table, [:set, :protected])
+:ets.insert(default_table, {:key, "value"})
+
+# 我们返回默认表以在 Livebook 中显示表。
+default_table
+```
+
+使用 `:protected` 访问控制，如果另一个进程尝试写入，`:ets` 会引发 [ArgumentError](https://hexdocs.pm/elixir/ArgumentError.html)。
+
+取消注释并执行此代码。注意子进程崩溃。
+
+```elixir
+# Task.start(fn ->
+# :ets.insert(default_table, {:new_key, "new value"})
+# End)
+```
+
+然而，允许从其他进程读取。
+
+```elixir
+Task.start(fn ->
+  :ets.lookup(default_table, :key) |> IO.inspect(label: "lookup result")
+end)
+```
+
+**:public**
+
+公共表可以被任何进程读写，因此以下操作不再崩溃。
+
+```elixir
+public = :ets.new(:public_example, [:public])
+
+Task.start(fn ->
+  :ets.insert(public, {:key, "value"})
+end)
+
+# 我们返回公共表以在 Livebook 中显示它。
+public
+```
+
+**:bag**
+
+`:bag` 表类型允许多个键，但不允许在同一键下有相同的值。
+
+```elixir
+bag = :ets.new(:bag_example, [:bag])
+
+:ets.insert(bag, {:key, "duplicate value"})
+:ets.insert(bag, {:key, "duplicate value"})
+:ets.insert(bag, {:key, "non-duplicate value"})
+
+# 我们返回袋子表以在 Livebook 中显示它。
+bag
+```
+
+```elixir
+:ets.lookup(bag, :key)
+```
+
+**:duplicate_bag**
+
+`:duplicate_bag` 允许重复键和相同值。
+
+```elixir
+bag = :ets.new(:bag_example, [:duplicate_bag])
+
+:ets.insert(bag, {:key, "duplicate value"})
+:ets.insert(bag, {:key, "duplicate value"})
+:ets.insert(bag, {:key, "non-duplicate value"})
+
+# 我们返回袋子表以在 Livebook 中显示它。
+bag
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 `:ordered_set` 和 `:private` 配置值创建一个有序且私有的 `:ets` 表。
+
+演示该表将不允许来自另一个进程的读/写操作。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+table = :ets.new(:example, [:private, :ordered_set])
+
+# 从拥有者进程写入是允许的。
+:ets.insert(table, {:key, "value"})
+
+# 以下将导致崩溃。
+spawn(fn ->
+  :ets.insert(table, {:key, "value"})
+end)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 竞争条件
+
+并发是一个强大的工具，但它引入了一类新的错误。
+例如，**竞争条件** 是一个常见问题。
+
+竞争条件发生在操作事件以意外顺序发生时。
+
+下面我们有一个 `:ets` 表，存储一个计数。两个任务读取当前计数，然后将其递增。我们使用 `Process.sleep(100)` 来模拟耗时的计算，然后插入新的计数。
+
+如果这些任务是同步的，我们会期望计数递增两次并返回二。然而，当这两个操作是并发的时，两个任务在计数为零时读取计数，然后将计数递增到一。然后它们将结果计数保存到 `:ets` 表中。因此，计数是一个，而不是预期的二。这是你在处理并发时经常会遇到的经典问题。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+ETS Table->>ETS Table: sets count = 0
+    ETS Table->>Task 1: reads count (0)
+    ETS Table->>Task 2: reads count (0)
+    Task 1->>ETS Table: sets count = 1
+    Task 2->>ETS Table: sets count = 1
+```
+
+```
+activate Child Process
+Child Process-->>Parent Process: pid
+deactivate Child Process
+```
+
+```elixir
+table = :ets.new(:concurrent, [:public])
+
+:ets.insert(table, {:count, 0})
+
+increment_task1 =
+  Task.async(fn ->
+    [count: count] = :ets.lookup(table, :count)
+    Process.sleep(100)
+    :ets.insert(table, {:count, count + 1})
+  end)
+
+increment_task2 =
+  Task.async(fn ->
+    [count: count] = :ets.lookup(table, :count)
+    Process.sleep(100)
+    :ets.insert(table, {:count, count + 1})
+  end)
+
+Task.await(increment_task1)
+Task.await(increment_task2)
+
+table
+```
+
+关于竞争条件以及大型系统如何处理许多并发操作的概述，可以观看 Tom Scott 的一段精彩视频。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=RY_2gElt3SA")
+```
+
+## 缓存
+
+缓存允许我们存储数据以避免计算值。
+
+我们通常使用缓存来避免性能要求高的函数或重新获取外部资源。
+
+```mermaid
+flowchart LR
+input --> e[耗时计算] --> output
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+缓存可以存储给定输入的预期输出，以便更快访问。
+
+```mermaid
+flowchart
+input --> cache --cached value--> output
+cache --no cached value --> e[耗时计算] --> output
+```
+
+一些缓存是智能的，会将新计算的值保存在缓存中，以避免重新计算相同的值。
+
+其他缓存可能是静态的或不经常变化的数据，偶尔在后台更新。
+
+让我们以 Fibonacci 序列的慢实现 $fib(n) = fib(n - 1) + fib(n-2)$ 为例。目前，`Fib` 将重新计算许多相同的输入。在下面的示例中，我们打印每次计算 `fib(n)` 的结果。注意许多相同的输入重复出现。
+
+```elixir
+defmodule SlowFib do
+  def of(0), do: 0
+  def of(1), do: 1
+
+  def of(n) do
+    IO.puts("计算 fib(#{n})")
+    of(n - 1) + of(n - 2)
+  end
+end
+
+SlowFib.of(10)
+```
+
+我们可以通过将每个输入/输出保存在缓存中来提高性能，这样我们就不必一次又一次地重新计算相同的值。你可以将这个缓存视为一个输入和输出的表。对于每个输入，我们存储计算出的输出，而不是重新执行计算。
+
+<!-- livebook:{"attrs":{"source":"defmodule Fib do\n  def get(n) do\n    sequence =\n      Stream.unfold({1, 1}, fn {a, b} ->\n        {a, {b, a + b}}\n      end)\n      |> Enum.take(n)\n\n    [0 | sequence]\n  end\nend\n\nFib.get(150)\n|> Enum.with_index()\n|> Enum.map(fn {value, index} -> %{input: index, output: value} end)\n|> Kino.DataTable.new()","title":"Fib 缓存"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+defmodule Fib do
+  def get(n) do
+    sequence =
+      Stream.unfold({1, 1}, fn {a, b} ->
+        {a, {b, a + b}}
+      end)
+      |> Enum.take(n)
+
+    [0 | sequence]
+  end
+end
+
+Fib.get(150)
+|> Enum.with_index()
+|> Enum.map(fn {value, index} -> %{input: index, output: value} end)
+|> Kino.DataTable.new()
+```
+
+对于任何已经计算的输入，缓存将返回缓存的输出。这显著提高了我们的性能，但代价是内存和初始设置时间。
+
+然而，请注意，缓存可能会导致问题，应该仔细考虑。缓存在你的程序中永久占用内存，因此有相当大的内存成本。通常最好考虑如何提高应用程序的性能，而不是立即使用缓存。
+
+例如，带有缓存的慢 Fibonacci 函数并不能替代快速的 Fibonacci 函数！
+
+有许多方法可以实现缓存。例如 [GenServer](https://hexdocs.pm/elixir/GenServer.html)、[Agent](https://hexdocs.pm/elixir/Agent.html) 和 `:ets` 都暴露了可以用作缓存的状态。我们甚至可以使用模块属性来实现简单的静态缓存。
+
+这是一个使用 [Agent](https://hexdocs.pm/elixir/Agent.html) 的示例缓存，可以获取和设置值。
+
+```elixir
+defmodule AgentCache do
+  use Agent
+
+  def start_link(opts \\ []) do
+    Agent.start_link(fn -> %{} end, opts)
+  end
+
+  def get(pid, input) do
+    Agent.get(pid, fn state -> state[input] end)
+  end
+
+  def set(pid, input, output) do
+    Agent.update(pid, fn state -> Map.put(state, input, output) end)
+  end
+end
+```
+
+我们可以使用这个缓存在应用程序运行期间存储值。例如，以下是如何将此缓存与我们的 `Fib` 模块一起使用。注意我们不再重新计算已经缓存的值。
+
+```elixir
+# 命名进程简化了访问缓存。
+AgentCache.start_link(name: :fib_cache)
+# 重置缓存以保留示例。
+Agent.update(:fib_cache, fn state -> %{} end)
+
+defmodule CachedFib do
+  def of(0), do: 0
+  def of(1), do: 1
+
+  def of(n) do
+    cached_value = AgentCache.get(:fib_cache, n)
+
+    if cached_value do
+      cached_value
+    else
+      IO.puts("计算 fib(#{n})")
+      result = of(n - 1) + of(n - 2)
+      AgentCache.set(:fib_cache, n, result)
+      result
+    end
+  end
+end
+
+CachedFib.of(100)
+```
+
+### 你的回合
+
+比较 `SlowFib` 模块和 `CachedFib` 模块。它们都能处理多大的 `n` 值，才不会失去性能？
+
+根据你的计算机，我们建议你不要使用 `SlowFib` 处理大于 `25` 的值，否则你可能会崩溃这个 Livebook！
+
+然而，`CachedFib` 应该能够处理更大的数字。
+
+```elixir
+
+```
+
+### 你的回合
+
+使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 创建一个缓存。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule GenServerCache do
+  use GenServer
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, [], opts)
+  end
+
+  def get(pid, key) do
+    GenServer.call(pid, {:get, key})
+  end
+
+  def set(pid, key, value) do
+    GenServer.call(pid, {:set, key, value})
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, %{}}
+  end
+
+  @impl true
+  def handle_call({:get, key}, _from, state) do
+    {:reply, state[key], state}
+  end
+
+  def handle_call({:set, key, value}, _from, state) do
+    {:reply, :ok, Map.put(state, key, value)}
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule GenServerCache do
+  use GenServer
+end
+```
+
+### 你的回合
+
+使用 `:ets` 创建一个缓存。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule ETSCache do
+  def new(opts \\ []) do
+    :ets.new(:cache, opts)
+  end
+
+  def set(ref, key, value) do
+    :ets.insert(ref, {key, value})
+  end
+
+  def get(ref, key) do
+    case :ets.lookup(ref, key) do
+      [{_key, value}] -> value
+      _ -> nil
+    end
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule ETSCache do
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir Lang: Agent](https://elixir-lang.org/getting-started/mix-otp/agent.html)
+* [HexDocs: Agent](https://hexdocs.pm/elixir/Agent.html)
+* [Elixir Schools: ETS](https://elixirschool.com/en/lessons/storage/ets).
+* [Elixir Lang: ETS](https://elixir-lang.org/getting-started/mix-otp/ets.html).
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成状态：Agent 和 ETS 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=State: Agent And ETS">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/book_changeset.livemd">书籍变更集</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/agent_journal.livemd">Agent 日志</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

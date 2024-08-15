@@ -1,0 +1,108 @@
+# IO
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=IO">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/strings.livemd">字符串</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/booleans.livemd">布尔值</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## IO
+
+我们可以使用 [IO](https://hexdocs.pm/elixir/IO.html) 模块来获取用户输入和显示输出。
+
+我们可以使用 [IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2) 和 [IO.puts/2](https://hexdocs.pm/elixir/IO.html#puts/2) 来打印显示信息。
+
+我们还可以使用 [IO.gets/2](https://hexdocs.pm/elixir/IO.html#gets/2) 来获取用户的输入。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> input = IO.gets("给我一些输入: ")
+给我一些输入: sure!
+"sure!\n"
+iex> input
+"sure!\n"
+```
+
+请记住，这在运行 Elixir 项目或在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中时会正常工作，但在 Livebook 中运行时会因 `:enotsup`（错误不支持）而失败。
+
+```elixir
+IO.gets("我会失败！")
+```
+
+这是因为没有命令行或其他设备来获取用户输入。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 的命令行中运行 [IO.gets/2](https://hexdocs.pm/elixir/IO.html#gets/2)，并将返回值绑定到 `input` 变量。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> input = IO.gets("给我一些输入: ")
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹的命令行中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 IO 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=IO">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/strings.livemd">字符串</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/booleans.livemd">布尔值</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

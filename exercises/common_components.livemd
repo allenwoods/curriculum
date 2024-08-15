@@ -1,0 +1,147 @@
+<!-- livebook:{"file_entries":[{"name":"card_component_light_mode.png","type":"attachment"},{"name":"outline-button-hover.png","type":"attachment"},{"name":"outline-button.png","type":"attachment"},{"name":"rainbow_component.png","type":"attachment"}]} -->
+
+# 常见组件
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Common Components">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/html_css.livemd">HTML & CSS</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/apis.livemd">APIs</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 常见组件
+
+你将使用 HTML 和 CSS 来复制一些样式组件。
+
+创建一个 `.html` 文档或使用 [CodePen](https://codepen.io/pen/) 来创建这些组件。
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    </style>
+  </head>
+  <body>
+    <!-- 组件在这里 -->
+  </body>
+</html>
+```
+
+## 可悬停的轮廓按钮
+
+尽可能接近地复制以下轮廓按钮。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/outline-button.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+在悬停时，按钮应更改 `background-color`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/outline-button-hover.png)
+
+## 彩虹盒子
+
+创建一系列彩虹色的盒子，如下所示。
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+研究 `padding`、`margin`、`background-color` 和 `border`，并考虑使用嵌套元素。
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/rainbow_component.png)
+
+## 卡片组件
+
+像下面这样的组件通常被称为 **卡片组件**。创建一个与以下内容匹配的卡片组件，包含图像、标题、副标题、正文和底部装饰条。
+
+你可以使用 https://picsum.photos/200/100 来获取一张假图像：
+
+```html
+<img src="https://picsum.photos/200/100"></img>
+```
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+你可以使用 `border-radius` 和 `border` 声明来创建圆角边框。
+
+你可以使用 `<hr></hr>` 元素或一个空的 `div` 元素来创建一个水平条。
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/card_component_light_mode.png)
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成常见组件练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Common Components">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/html_css.livemd">HTML & CSS</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/apis.livemd">APIs</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

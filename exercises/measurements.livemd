@@ -1,0 +1,174 @@
+# 测量
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Measurements">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/named_number_lists.livemd">命名数字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/built-in_modules.livemd">内置 Elixir 模块</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 测量
+
+你将要创建一个用于处理测量的实用模块。
+这个练习的灵感来源于 [Advent of Code 2021](https://adventofcode.com/)，这是一个通过实际问题学习 Elixir 的绝佳资源。
+
+<details style="background-color: lightgreen; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Measurements do
+  def increments(measurements) do
+    measurements
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.map(fn [x, y] -> y - x end)
+  end
+
+  def increased(measurements) do
+    measurements
+    |> increments()
+    |> Enum.count(&(&1 > 0))
+  end
+
+  def increased_by(measurements) do
+    measurements
+    |> increments()
+    |> Enum.filter(&(&1 > 0))
+    |> Enum.sum()
+  end
+
+  def average(measurements) do
+    div(Enum.sum(measurements), Enum.count(measurements))
+  end
+end
+```
+</details>
+
+根据文档中的函数示例实现 `Measurements` 模块。
+
+```elixir
+defmodule Measurements do
+  @doc """
+  给定一个整数列表，确定每个整数之间的增量。
+
+  ## 示例
+
+    iex> Measurements.increments([100, 150, 120, 130])
+    [50, -30, 10]
+
+    iex> Measurements.increments([10, 20, 10, 40])
+    [10, -10, 30]
+  """
+  def increments(measurements) do
+  end
+
+  @doc """
+  给定一个整数列表，确定有多少个数值增加。
+  每个自上一个整数以来的正变化都应计为增加。
+
+  ## 示例
+
+    iex> Measurements.increased([1, 1, 2, 3, 1])
+    2
+
+    iex> Measurements.increased([1, 2, 1])
+    1
+
+    iex> Measurements.increased([3, 1, 2])
+    1
+  """
+  def increased(measurements) do
+  end
+
+  @doc """
+  给定一个整数列表，计算它们增加的总量。
+  仅考虑正增量。
+
+  ## 示例
+
+    iex> Measurements.increased_by([100, 150, 120, 130])
+    60
+
+    iex> Measurements.increased_by([10, 20, 10, 40])
+    40
+  """
+  def increased_by(measurements) do
+  end
+
+  @doc """
+  找到一组数字的平均值。
+  你可以通过整数的总和 / 列表的长度来计算平均值。
+
+  ## 示例
+
+    iex> Measurements.average([4, 5, 6])
+    5.0
+
+    iex> Measurements.average([2, 10])
+    6.0
+  """
+  def average(measurements) do
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成测量练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，完全免费。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Measurements">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/named_number_lists.livemd">命名数字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/built-in_modules.livemd">内置 Elixir 模块</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

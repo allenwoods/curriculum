@@ -1,0 +1,134 @@
+# 斐波那契数列
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:benchee, "~> 1.1"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Fibonacci Sequence">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mapset_drills.livemd">MapSet 练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/big_o_notation.livemd">性能</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 斐波那契数列
+
+斐波那契数列是一系列如下的数字。
+
+```mermaid
+flowchart LR
+a[0] --> b[1] --> c[1] --> d[2] --> e[3] --> f[5] --> g[8] --> h[13] --> i[21] --> k[34] --> ...
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+它是通过将前两个数字相加来得到下一个数字。
+
+所以 $fib(n) = fib(n-1) + fib(n - 2)$
+
+在下面实现 `Fibonacci.sequence/1` 函数。对于这个解决方案，不用担心性能。
+
+```elixir
+defmodule Fibonacci do
+  @doc """
+  生成给定长度的斐波那契数列。
+
+  ## 示例
+
+    iex> 
+  """
+  def sequence(length) do
+  end
+end
+```
+
+## 竞赛：基准测试
+
+在下面的 Elixir 单元中，创建一个 `FastFib` 模块。`FastFib` 模块应该是你能创建的性能最好的斐波那契数列版本。
+
+```elixir
+defmodule FastFib do
+  def sequence(length) do
+  end
+end
+```
+
+使用 [Benchee](https://hexdocs.pm/benchee/Benchee.html) 来基准测试 `FastFib.sequence/1` 函数的性能。班级中运行时间最快的 `FastFib` 的学生获胜。
+
+```elixir
+Benchee.run(
+  %{
+    fast_fib: fn n -> FastFib.sequence(n) end
+  },
+  inputs: %{
+    "1: small" => 10,
+    "2: medium" => 30
+    # 如果你的解决方案可以处理，请取消注释以下内容！ 
+    # 确保在上面添加逗号。
+    # "3: large" => 100,
+    # "4: xl" => 1000,
+    # "6: 2xl" => 10000,
+    # "7: 3xl" => 100_000
+  },
+  memory_time: 2
+)
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成斐波那契数列练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Fibonacci Sequence">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mapset_drills.livemd">MapSet 练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/big_o_notation.livemd">性能</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

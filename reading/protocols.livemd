@@ -1,0 +1,321 @@
+# 协议
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Protocols">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/math_with_guards.livemd">带守卫的数学</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_with_protocols.livemd">带协议的数学</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何使用协议实现基于数据的多态性？
+* 为什么你可能会使用协议而不是某种控制流结构或其他实现基于数据的多态性的方法？
+
+## 协议
+
+在英语中，协议意味着一组规则或程序。在Elixir中，协议允许我们创建一个通用功能，具有不同的实现。
+
+具体来说，协议使得基于数据的多态行为成为可能。
+
+```mermaid
+flowchart
+  A -- data --> B
+  B --> C
+  B --> D
+  B --> E
+  B --> F
+
+  A[调用者]
+  B[协议]
+  C[实现]
+  D[实现]
+  E[实现]
+  F[实现]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+例如，[Enum](https://hexdocs.pm/elixir/Enum.html)模块可以处理任何集合数据类型。在底层，它使用
+[Enumerable](https://hexdocs.pm/elixir/Enumerable.html)协议。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  E[Enum]
+  EN[Enumerable]
+  E --> EN
+  EN --> Map
+  EN --> List
+  EN --> k[关键字列表]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+然后，它根据调用[Enum](https://hexdocs.pm/elixir/Enum.html)函数时的数据类型执行适当的指令。
+
+```elixir
+Enum.random(%{one: 1, two: 2})
+```
+
+```elixir
+Enum.random(1..20)
+```
+
+```elixir
+Enum.random(one: 1, two: 2)
+```
+
+## 简单数据类型上的协议
+
+每当你需要一个适用于多种数据类型或结构的通用函数时，你可以考虑使用协议。
+
+例如，让我们创建一个`Adder`协议，它将把两个值相加。它将接受整数、字符串和列表，并隐藏添加不同类型所需的具体操作符。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Adder.add(1, 2)
+3
+
+Adder.add("hello, ", "world")
+"hello, world"
+
+Adder.add([1], [2])
+[1, 2]
+```
+
+因此，如果我们给协议一个整数，它将使用[Integer](https://hexdocs.pm/elixir/Integer.html)的实现。如果我们提供一个字符串，它将使用`BitString`的实现，如果我们提供一个列表，它将使用[List](https://hexdocs.pm/elixir/List.html)的实现。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  A -- Integer --> B
+  B -- Integer --> C
+  B -- BitString --> D
+  B -- List --> E
+  style C color:green
+  style D color:red
+  style E color:red
+  A[调用者]
+  B[Adder协议]
+  C[整数实现]
+  D[字符串实现]
+  E[列表实现]
+```
+
+[List](https://hexdocs.pm/elixir/List.html)、[Integer](https://hexdocs.pm/elixir/Integer.html)和`BitString`都是内置的Elixir模块，用于定义协议实现所针对的数据类型。
+
+我们使用`defprotocol`定义一个协议，并定义一个函数子句。我们只需要函数头，而不需要函数体。
+
+```elixir
+defprotocol Adder do
+  def add(value, value)
+end
+```
+
+我们在上面定义了一个协议，但尚未为任何数据类型实现它。
+
+注意，当用两个整数调用`Adder.add/2`时，错误信息显示`protocol Adder not implemented for 1 of type Integer`
+
+```elixir
+Adder.add(1, 2)
+```
+
+要为协议定义实现，我们使用`defimpl`并提供协议的名称。我们还声明协议所针对的结构或数据类型`for:`。
+
+```elixir
+defimpl Adder, for: Integer do
+  def add(int1, int2) do
+    int1 + int2
+  end
+end
+
+Adder.add(1, 2)
+```
+
+我们还希望`Adder`协议能够处理字符串和列表。这意味着我们需要为列表和字符串创建实现。在Elixir中，字符串的底层类型是`BitString`。
+
+为什么是`BitString`？在Elixir中，字符串以[位字符串](https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html#bitstrings)的形式存储。
+
+```elixir
+defimpl Adder, for: BitString do
+  def add(string1, string2) do
+    string1 <> string2
+  end
+end
+
+Adder.add("hello, ", "world")
+```
+
+### 你的回合
+
+在下面的Elixir单元中，为列表创建`Adder`的实现。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defimpl Adder, for: List do
+  def add(list1, list2) do
+    list1 ++ list2
+  end
+end
+```
+
+</details>
+
+```elixir
+
+```
+
+## 结构上的协议
+
+我们可以为基于简单数据类型（如`integer`和`string`）的协议创建实现。除了这些简单数据类型外，我们还可以为特定的结构创建实现。
+
+例如，假设我们正在制作一个老式儿童玩具，它会发出不同动物的声音。
+
+我们将创建一个`Sound`协议，根据给定的结构打印不同的声音。
+
+```elixir
+defprotocol Sound do
+  def say(struct)
+end
+```
+
+我们将创建一个`Cat`结构。
+
+```elixir
+defmodule Cat do
+  defstruct [:mood]
+end
+```
+
+然后为`Sound`协议创建一个`Cat`实现。
+
+```elixir
+defimpl Sound, for: Cat do
+  def say(cat) do
+    case cat.mood do
+      :happy -> "Purr"
+      :angry -> "Hiss!"
+    end
+  end
+end
+```
+
+```elixir
+Sound.say(%Cat{mood: :happy})
+```
+
+```elixir
+Sound.say(%Cat{mood: :angry})
+```
+
+### 你的回合
+
+```elixir
+defmodule Dog do
+  defstruct []
+end
+```
+
+为上面的`Dog`结构定义一个`Sound`实现。当用`Dog`结构调用`Sound.say/1`时，它应该返回`"Woof!"`
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Sound.say(%Dog{})
+"Woof!"
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defimpl Sound, for: Dog do
+  def say(dog) do
+    "woof!"
+  end
+end
+```
+
+</details>
+
+```elixir
+
+```
+
+有关更多信息，可以观看Kevin Rockwood的演讲。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=sJvfCE6PFxY\")","title":"Kevin Rockwood | A Practical Guide to Elixir Protocols"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=sJvfCE6PFxY")
+```
+
+## 提交你的进度
+
+DockYard Academy现在建议你使用最新的[Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成协议阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Protocols">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/math_with_guards.livemd">带守卫的数学</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_with_protocols.livemd">带协议的数学</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

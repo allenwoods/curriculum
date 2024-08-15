@@ -1,0 +1,391 @@
+# Maps
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## Navigation
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Maps">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/keyword_lists.livemd">关键字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/shopping_list.livemd">购物清单</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是映射？它们与关键字列表有什么不同？
+* 我们如何创建一个映射？
+* 我们如何使用点符号和方括号符号访问映射中的值？
+* 我们如何对映射进行模式匹配？
+
+## Maps
+
+映射是另一种关联数据结构。您可以使用 `%{}` 创建映射。映射几乎可以使用任何 Elixir 术语作为键。然而，最常用的键是字符串和原子。
+
+映射有一个键和一个值，用箭头 `=>` 分隔，这实际上是一个等号符号 `=` 和一个大于符号 `>`。
+
+```elixir
+# 字符串键
+%{"key" => "value"}
+
+# 原子键
+%{:key => "value"}
+```
+
+多个键值对用逗号 `,` 分隔。
+
+```elixir
+%{:key => "value", "key" => "value"}
+```
+
+只有原子作为键的映射可以使用一种特殊的语法糖，使其更方便书写和阅读。这纯粹是语法糖，并不会改变它们的行为。
+
+```elixir
+%{key1: "value", key2: "value"}
+```
+
+映射是键值数据结构的常用选择。它们在创建时的性能开销比关键字列表更大，但访问值的速度非常快。与关键字列表不同，映射中的键必须是唯一的。此外，与关键字列表不同，映射也不保证键的顺序。
+
+出于这些原因，您通常会在大量数据或希望键唯一且不关心顺序时使用映射。
+
+我们通常使用映射来表示某物的属性。例如，您可能有一个 `user` 映射，表示有关书籍的信息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%{
+  title: "Name of the Wind",
+  author: "Patrick Rothfuss",
+  description: """
+  The Name of the Wind is a fantasy novel by Patrick Rothfuss. It is the first book in the
+  Kingkiller Chronicle series and tells the story of Kvothe, a young orphan who becomes a
+  legendarily talented musician and magician. The novel is known for its intricate
+  world-building, complex characters, and themes of power, love, and loss.
+  """  
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+Elixir 非常有用，并提供警告以让我们知道我们正在覆盖重复的键。
+
+```elixir
+%{duplicate_key: "value1", duplicate_key: "value2"}
+```
+
+如前所述，映射不保证键的顺序，这就是为什么您会注意到下面返回的映射值与 Elixir 单元返回的映射顺序不同。
+
+```elixir
+%{one: "one", two: "two", three: "three"}
+```
+
+映射可以有任何 Elixir 术语作为键，这使它们非常灵活。
+
+```elixir
+%{1 => "value"}
+
+%{[1, 2, 3] => "value"}
+```
+
+## 访问映射值
+
+与其他数据类型不同，映射没有特定的映射运算符。要操作映射，我们使用一个不同的工具，称为 [Map](https://hexdocs.pm/elixir/Map.html) 模块，您将在以后的课程中了解更多。
+
+现在，知道您可以使用几种不同的方法访问原子键映射中的值就足够了。
+
+您可以使用 **map.key** 符号检索映射中的值，如下所示。这仅适用于具有原子键的映射。
+
+```elixir
+%{key: "value"}.key
+```
+
+或者，您可以使用方括号符号访问映射值 **map[key]**。
+
+```elixir
+%{key: "value"}[:key]
+```
+
+方括号符号对于具有非原子键的映射特别有用。
+
+```elixir
+%{"key" => "value"}["key"]
+```
+
+```elixir
+%{1 => "value"}[1]
+```
+
+使用 **map.key** 符号，如果您的映射没有预期的值，程序将抛出错误。
+
+```elixir
+%{}.key
+```
+
+如果键不存在，方括号符号将返回 `nil`，而不是抛出错误。
+
+```elixir
+%{}[:key]
+```
+
+我们可以使用点符号和方括号符号访问深层嵌套的值。
+
+```elixir
+%{key1: %{key2: %{key3: "value"}}}.key1.key2.key3
+```
+
+```elixir
+%{1 => %{2 => %{3 => "value"}}}[1][2][3]
+```
+
+方括号符号在访问深层嵌套的值时特别有用，如果值不存在不会导致崩溃。
+
+```elixir
+%{}[1][2][3]
+```
+
+您可以通过将映射绑定到变量来完成上述所有相同行为，而不是直接从映射访问值。
+
+```elixir
+map = %{key: "value"}
+map.key
+```
+
+```elixir
+map = %{key: "value"}
+map[:key]
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，访问 `map` 中的 `:hello` 键。使用 **map[key]** 和 **map.key** 符号检索值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+**map.key** 符号。
+
+```elixir
+map = %{hello: "world"}
+map.hello
+```
+
+**map[]** 符号。
+
+```elixir
+map = %{hello: "world"}
+map[:hello]
+```
+
+</details>
+
+```elixir
+map = %{hello: "world"}
+```
+
+### 更新映射
+
+您可以使用 `%{initial_map | updated_values}` 语法更新映射中的值，如下所示。
+
+```elixir
+initial = %{key: "value"}
+
+%{initial | key: "new value"}
+```
+
+Elixir 不允许您改变值。这意味着变量 `initial` 仍然是 `%{key: "value"}`
+
+```elixir
+initial
+```
+
+您可以为更新后的映射存储一个新变量。
+
+```elixir
+updated = %{initial | key: "new value"}
+updated
+```
+
+或者重新绑定现有的 `initial` 变量。
+
+```elixir
+initial = %{initial | key: "new value"}
+initial
+```
+
+您只能更新映射中现有的原子键值，否则会导致错误。
+
+```elixir
+initial = %{}
+%{initial | new_key: "value"}
+```
+
+### 你的回合
+
+使用映射表示一个待办事项项。待办事项映射应具有 `:title` 和 `:completed` 键。
+
+* title: "完成映射练习", completed: false
+
+将您的映射绑定到 `todo` 变量，并更新值，使 `completed` 为 `true`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+todo = %{title: "完成映射练习", completed: false}
+
+%{todo | completed: true}
+```
+
+</details>
+
+```elixir
+
+```
+
+## 模式匹配
+
+我们可以对映射中的值进行模式匹配。
+
+```elixir
+%{hello: my_variable} = %{hello: "world"}
+my_variable
+```
+
+与关键字列表不同，我们在对映射进行模式匹配时不必匹配每个键/值对。
+
+```elixir
+%{one: one} = %{one: 1, two: 2}
+one
+```
+
+这也适用于非原子键映射。
+
+```elixir
+%{"hello" => world} = %{"hello" => "world"}
+```
+
+我们只能对映射中的值进行模式匹配，而不能对键进行匹配。映射中的键必须是 **字面量**，例如原子、字符串、元组等。
+
+```elixir
+%{hello => world} = %{"hello" => "world"}
+```
+
+### 引用运算符
+
+您会注意到我们可以使用模式匹配重新绑定变量。
+
+```elixir
+name = "Jon"
+
+%{name: name} = %{name: "Bill"}
+
+name
+```
+
+如果我们想使用变量的字面值而不是重新绑定变量，可以使用引用运算符 `^`。
+
+```elixir
+name = "Jon"
+
+%{name: ^name} = %{name: "Bill"}
+
+name
+```
+
+上述代码会导致 [MatchError](https://hexdocs.pm/elixir/MatchError.html)，因为左侧和右侧不匹配。这就像我们写了以下内容一样。
+
+```elixir
+%{name: "Jon"} = %{name: "Bill"}
+```
+
+我们可能会用这个来确认我们的映射匹配某种形状。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+将以下映射中的 `2` 和 `4` 绑定到变量 `two` 和 `four`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+%{two: two, four: four} = %{one: 1, two: 2, three: 3, four: 4}
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+%{one: 1, two: 2, three: 3, four: 4}
+```
+
+## 进一步阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Elixir 学校：映射](https://elixirschool.com/en/lessons/basics/collections#maps-6)
+* [Exercism：映射](https://exercism.org/tracks/elixir/concepts/maps)
+* [Elixir Lang：模式匹配](https://elixir-lang.org/getting-started/pattern-matching.html)
+* [Elixir Lang：映射](https://elixir-lang.org/getting-started/keywords-and-maps.html#maps)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成映射阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## Navigation
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Maps">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/keyword_lists.livemd">关键字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/shopping_list.livemd">购物清单</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

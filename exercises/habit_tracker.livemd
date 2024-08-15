@@ -1,0 +1,222 @@
+# 习惯追踪器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Habit Tracker">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/card_counting.livemd">卡片计数</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mad_libs.livemd">疯狂填词</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 习惯追踪器
+
+你将为一个习惯追踪应用构建一些逻辑。习惯追踪应用如 [Habitica](https://habitica.com/) 帮助用户养成健康的习惯。
+
+每个习惯被分配一个大小，如小、中或大。每个大小被分配不同的点数值。用户根据完成的习惯获得点数。
+
+* 大习惯值30点
+* 中习惯值20点
+* 小习惯值5点。
+
+```mermaid
+flowchart
+  A["大 (30点)"]
+  B["中 (20点)"]
+  C["小 (5点)"]
+```
+
+## 绑定习惯变量
+
+绑定变量 `small`、`medium` 和 `large` 来表示每个习惯的点数值（见上文）。你将在后续的解答中使用这些变量。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解答</summary>
+
+```elixir
+large = 30
+medium = 20
+small = 5
+```
+
+</details>
+
+在下面输入你的解答。
+
+```elixir
+
+```
+
+## 小、中、大
+
+假设用户完成了一个小习惯、一个中习惯和一个大习惯，使用算术运算符和你之前绑定的变量 `small`、`medium` 和 `large` 来确定他们总共获得了多少点数。
+
+```mermaid
+flowchart LR
+  A["大 (30点)"]
+  B["中 (20点)"]
+  C["小 (5点)"]
+  T[总计?]
+  A --+--> B
+  B --+--> C
+  C --+--> T
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解答</summary>
+
+```elixir
+small + medium + large
+```
+
+</details>
+
+在下面的代码单元中输入你的答案。
+
+```elixir
+
+```
+
+## 多重习惯
+
+假设用户完成了**十个小**习惯、**五个中**习惯和**三个大**习惯，使用算术运算符来确定他们总共获得了多少点数。
+
+<details style="background-color: lightgreen; padding: 1rem;">
+<summary>示例解答</summary>
+
+```elixir
+small * 10 + medium * 5 + large * 3
+```
+
+</details>
+
+在下面输入你的答案。
+
+```elixir
+
+```
+
+## 进度条
+
+用户定义了每天要获得的 `goal` 点数。确定他们在想要获得 `40` 点并完成了一个 `small` 和一个 `medium` 习惯的情况下，取得了多少百分比的进度。
+
+记住，你可以用 $\frac{points}{goal} * 100$ 来计算百分比。
+
+<details style="background-color: lightgreen; padding: 1rem;">
+<summary>示例解答</summary>
+
+```elixir
+goal = 40
+((small + medium) / goal) * 100
+```
+
+或者你可以考虑将 `points` 绑定为一个变量。
+
+```elixir
+goal = 40
+points = small + medium 
+(points / goal) * 100
+```
+
+</details>
+
+在下面输入你的答案。
+
+```elixir
+
+```
+
+## 罚款与奖励
+
+为了激励用户快速完成他们的习惯，我们添加了一个时间限制功能，如果用户提前完成习惯，将获得 `60%` 的点数奖励，如果他们迟完成习惯，将受到 `50%` 的点数惩罚。
+
+确定用户在完成以下习惯时的总点数：
+
+* 三个提前完成的小习惯
+* 两个正常完成的中习惯
+* 两个迟完成的大习惯
+
+<details style="background-color: lightgreen; padding: 1rem;">
+<summary>示例解答</summary>
+
+```elixir
+goal = 40
+
+small * 1.6 * 3 + medium * 2 + large * 2 * 0.5
+```
+
+</details>
+
+在下面输入你的答案。
+
+```elixir
+
+```
+
+## 奖励：添加你自己的功能
+
+为习惯追踪应用添加你自己的功能。使用注释描述你的功能，并展示它将如何影响总分的计算和/或完成习惯的总百分比。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成习惯追踪器练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Habit Tracker">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/card_counting.livemd">卡片计数</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mad_libs.livemd">疯狂填词</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

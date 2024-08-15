@@ -1,0 +1,358 @@
+# 跟随学习：LiveView 计数器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Follow Along: LiveView Counter">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/liveview.livemd">LiveView</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_game.livemd">数学游戏</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在路由器中挂载一个 LiveView？
+* LiveView 的生命周期是什么？
+* 信息如何存储和设置在 socket 中？
+* 我们如何向 LiveView 发送消息并处理它们？
+
+## 跟随学习：计数器
+
+我们将构建一个 `LiveViewCounter` 应用程序，以深入了解 LiveView。用户将点击一个按钮，增加页面上的计数。
+
+你还将创建一个带有文本输入的表单，可以按特定数量增加计数。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建应用程序
+
+首先，让我们创建一个新的 `LiveViewCounter` Phoenix 应用程序。
+
+```
+$ mix phx.new live_view_counter --no-ecto
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 启动服务器
+
+我们可以正常启动服务器。
+
+```
+$ mix phx.server
+```
+
+每次我们更改代码时，服务器应该会自动重新加载。如果你是 Linux 用户，可能需要安装 [inotify-tools](https://hexdocs.pm/phoenix/installation.html#inotify-tools-for-linux-users)。
+
+## 定义 Live 路由
+
+[Phoenix.Router](https://hexdocs.pm/phoenix/Phoenix.Router.html) 使用 [Phoenix.LiveView.Router.live/4](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Router.html#live/4) 宏来定义由 [Phoenix.LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) 处理的路由。
+
+让我们用 LiveView 替换默认的索引路由。我们还没有创建 `CounterLive` LiveView，但我们接下来会这样做。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Counter_web/router.ex
+scope "/", LiveViewCounterWeb do
+  pipe_through :browser
+
+  live "/", CounterLive, :counter
+end
+```
+
+## 创建 LiveView
+
+### CounterLive
+
+现在，创建一个新的 `live_view_counter_web/live` 文件夹。这个文件夹将存储我们的 LiveViews。在该文件夹中，创建一个 `live_view_counter_web/live/counter_live.ex` 文件，内容如下。
+
+`~H` 是一个用于定义 HEEX（HTML + EEx）模板的符号。请记住，[符号](https://elixir-lang.org/getting-started/sigils.html) 是在 Elixir 中处理数据的一种文本方式。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLive do
+  use LiveViewCounterWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <h1>计数器</h1>
+    """
+  end
+end
+```
+
+## 显示计数
+
+在 socket 中存储初始计数，并使用嵌入的 Elixir 语法在页面上显示它。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLive do
+  use LiveViewCounterWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :count, 0)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <h1>计数器</h1>
+    <p>计数：<%= @count %></p>
+    """
+  end
+end
+```
+
+## 增加计数
+
+为了增加这个计数，我们将制作一个用户可以点击的按钮。这个按钮将触发一个带有 `"increment"` 消息的 `phx-click` 事件。然后由相应的处理程序处理此事件，增加状态中的计数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLive do
+  use LiveViewCounterWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :count, 0)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <p>计数：<%= @count %></p>
+    <.button id="increment-button" phx-click="increment">增加</.button>
+    """
+  end
+
+  def handle_event("increment", _, socket) do
+    {:noreply, assign(socket, count: socket.assigns.count + 1)}
+  end
+end
+```
+
+## 增加计数表单
+
+这是一个简单的表单，提交提供的值并按该值增加计数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLive do
+  use LiveViewCounterWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, count: 0, form: to_form(%{"increment_by" => 1}))}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <h1>计数器</h1>
+    <p>计数：<%= @count %></p>
+    <.button id="increment-button" phx-click="increment">增加</.button>
+    <.simple_form id="increment-form" for={@form} phx-submit="increment_by">
+      <.input type="number" field={@form[:increment_by]} label="增加计数"/>
+      <:actions>
+        <.button>增加</.button>
+      </:actions>
+    </.simple_form>
+    """
+  end
+
+  def handle_event("increment", _, socket) do
+    {:noreply, assign(socket, count: socket.assigns.count + 1)}
+  end
+
+  def handle_event("increment_by", params, socket) do
+    {:noreply,
+     assign(socket,
+       count: String.to_integer(params["increment_by"]) + socket.assigns.count
+     )}
+  end
+end
+```
+
+## 增加计数表单验证
+
+这个表单演示了如何使用 `phx-change` 和 `phx-submit` 事件来验证计数并显示错误。如果数据有效，则计数将按表单的 `:increment_by` 字段中的数量增加。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLive do
+  use LiveViewCounterWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, count: 0, form: to_form(%{"increment_by" => 1}))}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <h1>计数器</h1>
+    <p>计数：<%= @count %></p>
+    <.button id="increment-button" phx-click="increment">增加</.button>
+    <.simple_form id="increment-form" for={@form} phx-change="change" phx-submit="increment_by">
+      <.input type="number" field={@form[:increment_by]} label="增加计数"/>
+      <:actions>
+        <.button>增加</.button>
+      </:actions>
+    </.simple_form>
+    """
+  end
+
+  def handle_event("increment", _, socket) do
+    {:noreply, assign(socket, count: socket.assigns.count + 1)}
+  end
+
+  def handle_event("change", params, socket) do
+    socket =
+      case Integer.parse(params["increment_by"]) do
+        :error ->
+          assign(socket,
+            form: to_form(params, errors: [increment_by: {"必须是有效的整数", []}])
+          )
+
+        _ ->
+          assign(socket, form: to_form(params))
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("increment_by", params, socket) do
+    socket =
+      case Integer.parse(params["increment_by"]) do
+        :error ->
+          assign(socket,
+            form: to_form(params, errors: [increment_by: {"必须是有效的整数", []}])
+          )
+
+        {int, _rest} ->
+          assign(socket, count: socket.assigns.count + int)
+      end
+
+    {:noreply, socket}
+  end
+end
+
+```
+
+## 测试
+
+以下是一些简单的测试示例，用于测试我们 LiveView 中的增加按钮和增加表单。它们并不全面，但为你理解 LiveView 测试的基础提供了良好的框架。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Test/live_view_counter_web/live/counter_live_test.exs
+defmodule LiveViewCounterWeb.CounterLiveTest do
+  use LiveViewCounterWeb.ConnCase, async: true
+  import Phoenix.LiveViewTest
+
+  test "增加计数", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/")
+    assert html =~ "计数：0"
+
+    assert view
+           |> element("#increment-button", "增加")
+           |> render_click() =~ "计数：1"
+  end
+
+  test "按计数增加", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/")
+    assert html =~ "计数：0"
+
+    assert view
+           |> form("#increment-form")
+           |> render_submit(%{increment_by: "3"}) =~ "计数：3"
+  end
+end
+
+```
+
+## 完成工作
+
+确保所有测试都通过。删除 Phoenix 生成的任何不必要的样板代码，例如页面控制器和页面控制器测试。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 奖励：轮到你了
+
+让计数每秒自动增加。
+
+## 深入阅读
+
+考虑以下资源，以加深你对该主题的理解。
+
+* [HexDocs: LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html)
+* [HexDocs: Phoenix.HTML](https://hexdocs.pm/phoenix_html/Phoenix.HTML.html)
+* [Elixir Schools: LiveView](https://elixirschool.com/blog/phoenix-live-view/)
+* [PragProg: Programming Phoenix LiveView](https://pragprog.com/titles/liveview/programming-phoenix-liveview/)
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成跟随学习：LiveView 计数器练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Follow Along: LiveView Counter">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/liveview.livemd">LiveView</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_game.livemd">数学游戏</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

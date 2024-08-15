@@ -1,0 +1,232 @@
+# 任务监视器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task Supervisor">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/task.livemd">任务</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/task_drills.livemd">任务练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* 我们为什么要监视一个任务？
+* 我们如何监视任务？
+
+## 任务监视器
+
+我们可以在 `Task.Supervisor` 下启动 [Task](https://hexdocs.pm/elixir/Task.html) 进程，该监视器可以动态监视任务。如果任务遇到错误，监视器将自动重启任务。
+
+一般来说，我们应该在监视器下启动 [Task](https://hexdocs.pm/elixir/Task.html) 进程。
+
+> 我们鼓励开发者尽可能依赖受监视的任务。受监视的任务提高了在给定时刻运行的任务数量的可见性，并启用了多种模式，使您可以明确控制如何处理结果、错误和超时。以下是总结：
+> 
+> 使用 `Task.Supervisor.start_child/2` 允许您启动一个不关心其结果或是否成功完成的火并忘任务。
+> 
+> 使用 `Task.Supervisor.async/2 + Task.await/2` 允许您并发执行任务并检索其结果。如果任务失败，调用者也会失败。
+> 
+> 使用 `Task.Supervisor.async_nolink/2` + [Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2) + [Task.shutdown/2](https://hexdocs.pm/elixir/Task.html#shutdown/2) 允许您并发执行任务并在给定时间内检索其结果或失败原因。如果任务失败，调用者不会失败。您将在 yield 或 shutdown 时收到错误原因。
+> 
+> * [Hexdocs: 动态监视的任务](https://hexdocs.pm/elixir/Task.html#module-dynamically-supervised-tasks)
+
+`Task.Supervisor` 作为普通监视器的子进程启动。我们使用原子或模块名称以命名进程的方式启动 `Task.Supervisor`。
+
+```elixir
+children = [
+  {Task.Supervisor, name: MyTaskSupervisor}
+]
+
+{:ok, supervisor_pid} =
+  Supervisor.start_link(children, strategy: :one_for_one, name: :parent_supervisor)
+```
+
+我们不需要定义 `MyTaskSupervisor` 模块。监视器使用此名称启动 `Task.Supervisor` 进程。我们可以看到 `MyTaskSupervisor` 是我们监视器的子进程。
+
+```elixir
+Supervisor.which_children(supervisor_pid)
+```
+
+我们还可以在以下图表中看到这一点。
+
+<!-- livebook:{"attrs":{"source":"Kino.Process.sup_tree(supervisor_pid)","title":"监视器可视化"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.Process.sup_tree(supervisor_pid)
+```
+
+## 异步任务
+
+现在我们可以使用 `Task.Supervisor.async/3` 在 `MyTaskSupervisor` 下生成受监视的 [Task](https://hexdocs.pm/elixir/Task.html) 进程。
+
+```elixir
+task =
+  Task.Supervisor.async(MyTaskSupervisor, fn ->
+    IO.puts("任务开始")
+    Process.sleep(1000)
+    IO.puts("任务完成")
+    "响应!"
+  end)
+
+Task.await(task)
+```
+
+我们可以在监视器下生成多个任务。
+
+```elixir
+tasks =
+  Enum.map(1..5, fn int ->
+    task =
+      Task.Supervisor.async(MyTaskSupervisor, fn ->
+        IO.puts("任务开始")
+        Process.sleep(30000)
+        IO.puts("任务完成")
+        int * 2
+      end)
+  end)
+```
+
+评估下面的图表以查看在 `MyTaskSupervisor` 进程下生成的任务。
+
+<!-- livebook:{"attrs":{"source":"Kino.Process.sup_tree(supervisor_pid)","title":"监视器可视化"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.Process.sup_tree(supervisor_pid)
+```
+
+然后我们可以等待所有任务的响应。
+
+```elixir
+Task.await_many(tasks)
+```
+
+## 火并忘任务
+
+`Task.Supervisor.start_child/2` 允许我们启动一个 **火并忘** 任务，该任务将执行一些工作而不返回响应。
+
+```elixir
+Task.Supervisor.start_child(MyTaskSupervisor, fn ->
+  IO.puts("火并忘任务开始")
+  Process.sleep(60000)
+  IO.puts("火并忘任务完成")
+end)
+```
+
+重新评估上面的单元几次，您将看到多个任务在 `MyTaskSupervisor` 下。
+
+```elixir
+children = Supervisor.which_children(MyTaskSupervisor)
+```
+
+我们可以在启动进程时提供 `:restart` 策略。默认情况下，`Task.Supervisor.start_child/2` 使用 `:temporary` 的 `:restart` 策略。这些 [Task](https://hexdocs.pm/elixir/Task.html) 进程将永远不会被重启。
+
+```elixir
+{:ok, pid} =
+  Task.Supervisor.start_child(MyTaskSupervisor, fn ->
+    Process.sleep(60000)
+  end)
+
+Supervisor.which_children(MyTaskSupervisor)
+|> IO.inspect(label: "已启动的子进程")
+
+Process.exit(pid, :kill)
+
+Process.sleep(1000)
+
+Supervisor.which_children(MyTaskSupervisor)
+|> IO.inspect(label: "退出后的子进程")
+```
+
+相反，我们可以使用 `:permanent` 进程始终重启 [Task](https://hexdocs.pm/elixir/Task.html)，或使用 `:transient` 在退出原因不是 `:normal`、`:shutdown` 或 `{:shutdown, reason}` 时重启 [Task](https://hexdocs.pm/elixir/Task.html)。
+
+请参见 [Task.Supervisor.start_child/3#options](https://hexdocs.pm/elixir/Task.Supervisor.html#start_child/3-options) 以获取更多信息。
+
+现在，当我们杀死一个使用 `:transient` 策略启动的 [Task](https://hexdocs.pm/elixir/Task.html) 时，请注意在 `MyTaskSupervisor` 下启动了一个具有不同 `pid` 的新进程。
+
+```elixir
+{:ok, pid} =
+  Task.Supervisor.start_child(
+    MyTaskSupervisor,
+    fn ->
+      Process.sleep(60000)
+    end,
+    restart: :transient
+  )
+
+Supervisor.which_children(MyTaskSupervisor)
+|> IO.inspect(label: "已启动的子进程")
+
+Process.exit(pid, :kill)
+
+Process.sleep(1000)
+
+Supervisor.which_children(MyTaskSupervisor)
+|> IO.inspect(label: "退出后的子进程")
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [HexDocs: Task.Supervisor](https://hexdocs.pm/elixir/Task.Supervisor.html)
+* [ElixirSchools: Task.Supervisor](https://elixirschool.com/en/lessons/advanced/otp_supervisors#task-supervisor-4)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成任务监视器阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task Supervisor">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/task.livemd">任务</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/task_drills.livemd">任务练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

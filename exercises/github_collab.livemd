@@ -1,0 +1,121 @@
+# Github 协作
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Github Collab">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/github_engineering_journal.livemd">Github 工程日志</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comments.livemd">评论</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 协作
+
+与一个伙伴一起，你将创建一个协作的 GitHub 项目。
+
+一个伙伴将是 **创建者**，另一个伙伴将是 **贡献者**。
+决定你的角色并完成练习。
+
+* **创建者**：设置一个名为 `collab` 的 git 项目。
+* **创建者**：将 git 项目连接到一个公共的 GitHub 仓库。
+* **创建者**：[将你的伙伴添加为贡献者](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository)
+  到 GitHub 项目中。
+* **贡献者**：将 GitHub 项目克隆到你的本地机器上。
+* **贡献者**：创建一个新的分支 `bug-fix`
+* **贡献者**：暂存、提交并推送一个新文件 `your_name.txt`（其中 your_name 是你的名字）。
+* **贡献者**：为 bug-fix 分支创建一个拉取请求。
+* **创建者**：审查拉取请求并接受更改。
+* **创建者**：拉取主分支并查看你本地 git 项目中的更改。
+
+## 合并冲突
+
+有时，当你创建拉取请求时，其他拉取请求可能会被接受，这会导致
+合并冲突。
+
+你和你的伙伴将一起解决合并冲突的流程。
+
+使用你现有的 `collab` 项目：
+
+* **贡献者**：创建一个新的分支 `conflict-your_name`，其中 `your_name` 是 **贡献者** 的名字。
+* **创建者**：创建一个新的分支 `conflict-your_name`，其中 `your_name` 是 **创建者** 的名字。
+* **贡献者**：暂存、提交并推送一个新文件 `conflict.txt`。将 **贡献者** 的名字作为文件内容。
+* **创建者**：暂存、提交并推送一个新文件 `conflict.txt`。将 **创建者** 的名字作为文件内容。
+* **贡献者**：为 `conflict-your_name` 分支创建一个拉取请求。
+* **创建者**：为 `conflict-your_name` 分支创建一个拉取请求。
+* **创建者**：审查 **贡献者** 的拉取请求并接受更改。
+* **创建者**：注意到你的 `conflict-your_name` 分支现在有合并冲突，无法合并。
+* **创建者**：解决冲突并合并你的拉取请求。
+
+## 开源
+
+有时你希望一个项目对其他开发者开放，而不仅仅是允许的贡献者。我们将使用你现有的 `collab` 项目来演示为开源项目贡献的流程。
+
+`collab` 项目的创建者将继续是 **创建者**，而你当前项目中的 **贡献者** 将各自找到一个不同的组作为 **OSS 贡献者**。
+
+* **OSS 贡献者**：创建一个 **创建者** 项目的分叉。
+* **OSS 贡献者**：将分叉克隆到你的本地机器上。
+* **OSS 贡献者**：创建一个新的分支。
+* **OSS 贡献者**：暂存、提交并推送一个新文件 `your_name.txt`（其中 `your_name` 是你的名字）。
+* **OSS 贡献者**：从你的分叉创建一个拉取请求到 **创建者** 的项目。
+* **创建者**：审查并接受拉取请求。
+* **OSS 贡献者**：拉取主分支并查看你本地 git 项目中的更改。
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Github 协作练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Github Collab">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/github_engineering_journal.livemd">Github 工程日志</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comments.livemd">评论</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

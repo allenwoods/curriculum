@@ -1,0 +1,653 @@
+# 函数
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:smart_animation, github: "brooklinjazz/smart_animation"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Functions">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mazes.livemd">迷宫</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/control_flow.livemd">控制流</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何定义一个函数？
+* 我们如何调用一个函数？
+* 我们如何使用管道操作符 `|>` 将函数调用连接在一起？
+
+## 函数
+
+Elixir 是一种函数式编程语言。因此你可以想象函数一定很重要。但什么是函数呢？
+
+### 输入和输出 (IO)
+
+函数是一组可重复的指令。一个函数接受一些 **输入**，并返回一些 **输出**。
+
+```mermaid
+  flowchart LR
+    Input --> Output
+```
+
+### 黑箱
+
+函数如何将某些输入转换为某些输出通常被称为 **黑箱**。它是一个黑箱，因为你不需要知道（或无法知道）它是如何工作的细节。
+
+```mermaid
+  flowchart LR
+    Input --> B[Black Box] --> Output
+```
+
+### 创建一个函数
+
+让我们创建一个名为 `double` 的函数，它将接受一个数字并将其值加倍。
+
+```mermaid
+flowchart LR
+  A[2] --> B[double] --> C[4]
+```
+
+现在，让我们创建我们的第一个函数。起初，它将什么也不做。一个函数必须有一个输出。我们现在可以返回 `nil`。
+
+```elixir
+double = fn -> nil end
+```
+
+你可能会看到一些奇怪的输出，比如 `#Function<45.65746770/0 in :erl_eval.expr/5>`。不要太担心。这是 Elixir 内部表示函数的方式。
+
+### 函数的组成部分
+
+让我们分解一下我们上面所做的。
+
+1. `double` 是一个变量名。通常你会将其称为 **函数名**。它可以是任何有效的变量名。
+
+2. 我们将 `double` 绑定到一个 **匿名函数**。匿名函数是从 `fn` 到 `end` 的所有内容。
+
+   ```mermaid
+   flowchart LR
+    A[function name] --> B[=]
+    B --> C[anonymous function]
+   ```
+
+3. Elixir 使用 `fn` 关键字来定义一个函数。
+
+4. 下一个值 `->` 将 **函数头** 和 **函数体** 分开。
+
+5. **函数头** 描述了函数的输入。在这个例子中，它是空的。
+
+6. **函数体** 包含函数的实现或 **黑箱**。在这个例子中，它返回 `nil`。
+
+7. Elixir 使用 `end` 关键字来结束函数的创建。
+
+<!--  -->
+
+```mermaid
+flowchart LR
+   direction LR
+   a[function name] --> B
+   b[function head] --> A
+   b[function head] --> B
+   c[function body] --> C
+   subgraph a[Breaking Down A Function]
+      direction LR
+      A[fn] ---- B
+      B[->] --- C
+      C[nil] --- D
+      D[end]
+   end
+```
+
+### 调用一个函数
+
+我们的 `double` 函数此时并没有做太多，但让我们看看它返回的 **输出**。
+
+我们在 Elixir 中使用 `.()` 语法来获取函数的输出。我们通常说我们在 **执行** 或 **调用** 一个函数。
+
+```elixir
+double.()
+```
+
+`double` 应该返回 `nil`，因为这就是我们迄今为止告诉它要做的事情。然而，我们希望它将一个数字乘以 `2`。
+
+为此，我们需要让函数接受一些输入。为此，我们在函数中定义一个 **参数**，如下所示。
+
+```elixir
+double = fn parameter -> nil end
+```
+
+你会注意到上面有一个警告。这是因为 Elixir 很聪明，它让我们知道我们创建了一个参数，但我们没有使用它。
+
+在 Elixir 中，你可以通过以 `_` 开头来忽略未使用变量的警告。
+
+```elixir
+double = fn _parameter -> nil end
+```
+
+没有更多的警告 😀 但我们实际上想使用那个参数，所以让我们修改函数以返回参数。
+
+```elixir
+double = fn parameter -> parameter end
+```
+
+参数在这里被命名为 `parameter` 只是为了示例。但它的工作方式与变量非常相似，可以命名为任何有效的变量名。
+
+让我们将其重命名为 `number`，以明确我们期望输入为一个数字。
+
+```elixir
+double = fn number -> number end
+```
+
+现在函数头接受一个值。我们在调用它时必须传递一个 **参数**。当函数执行时，参数将绑定到传入的值。我们将给它整数 `2`。
+
+```elixir
+double.(2)
+```
+
+请注意，如果你尝试在没有参数的情况下调用函数，它会失败，因为它期望一个参数。并不是所有语言都这样做，但 Elixir 非常聪明 😎
+
+```elixir
+double.()
+```
+
+很好，现在剩下的就是将参数乘以 `2`。你应该对这一点很熟悉。
+
+```elixir
+double = fn number -> number * 2 end
+```
+
+你可以用它来将任何数字加倍。
+
+```elixir
+double.(10)
+```
+
+```elixir
+double.(11)
+```
+
+```elixir
+double.(10 ** 2 - 1)
+```
+
+在底层，当函数运行时，参数被绑定到传入参数的值。
+
+让我们逐步分解函数执行的过程，以下是幻灯片。
+
+<!-- livebook:{"attrs":{"source":"frames =     [\n      \"\n  First, we define the `double` function and call it.\n  ```elixir\n  double = fn number -> number * 2 end\n  double.(3)\n  ```\n  \",\n      \"\n  The `double` function executes in place of the `double.(call)` with `number` bound to `3`.\n  ```elixir\n  double = fn number -> number * 2 end\n  fn 3 -> 3 * 2 end\n  ```\n  \",\n      \"\n  The function evaluates the function body between the `->` and the `end`\n  ```elixir\n  double = fn number -> number * 2 end\n  3 * 2\n  ```\n  \",\n      \"\n  `3` * `2` is `6`, so the function call returns `6`.\n  ```elixir\n  double = fn number -> number * 2 end\n  6\n  ```\n  \"\n    ]\n\nSmartAnimation.new(0..Enum.count(frames) - 1, fn i ->\n    Enum.at(frames, i) |> Kino.Markdown.new()\nend)","title":"Function Flow"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+````elixir
+frames = [
+  "
+  首先，我们定义 `double` 函数并调用它。
+  ```elixir
+  double = fn number -> number * 2 end
+  double.(3)
+  ```
+  ",
+  "
+  `double` 函数在 `double.(call)` 的位置执行，`number` 绑定为 `3`。
+  ```elixir
+  double = fn number -> number * 2 end
+  fn 3 -> 3 * 2 end
+  ```
+  ",
+  "
+  函数在 `->` 和 `end` 之间评估函数体。
+  ```elixir
+  double = fn number -> number * 2 end
+  3 * 2
+  ```
+  ",
+  "
+  `3` * `2` 是 `6`，所以函数调用返回 `6`。
+  ```elixir
+  double = fn number -> number * 2 end
+  6
+  ```
+  "
+]
+
+SmartAnimation.new(0..(Enum.count(frames) - 1), fn i ->
+  Enum.at(frames, i) |> Kino.Markdown.new()
+end)
+````
+
+如预期，`double.(3)` 返回 `6`。
+
+```elixir
+double.(3)
+```
+
+### 隐含返回值
+
+某些语言要求显式返回值。
+
+然而，在 Elixir 中，函数的输出始终是最后一行。
+
+例如，注意下面的返回值是 `first` + `second`，等于 `3`。
+
+```elixir
+multiline_function = fn ->
+  first = 1
+  second = 2
+  first + second
+end
+
+multiline_function.()
+```
+
+### 你的回合
+
+创建一个函数 `is_even?/1`，接受一个整数，如果该整数是偶数则返回 `true`，如果该整数是奇数则返回 `false`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+is_even?.(2) # true
+is_even?.(1) # false
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+is_even? = fn int -> rem(int, 2) == 0 end 
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 多参数函数
+
+函数可以接受多个输入。用逗号 `,` 分隔参数以创建多参数函数。
+
+```elixir
+sum3 = fn param1, param2, param3 -> param1 + param2 + param3 end
+
+sum3.(2, 3, 4)
+```
+
+请记住，第一个参数将是第一个参数的值，第二个参数将是第二个参数的值。你可以用任意数量的参数重复这一点！
+
+```elixir
+to_list = fn a, b, c, d, e -> [a, b, c, d, e] end
+
+to_list.(1, 2, 3, 4, 5)
+```
+
+但通常，你会想避免有太多参数，因为这会使你的函数难以理解。
+
+参数可以绑定到任何有效的数据类型，因此你可以使用关联数据结构，如映射或关键字列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 函数的元数
+
+函数接受的参数数量称为 **元数**。
+
+没有参数的函数的元数为零。一个参数的函数的元数为一，依此类推。
+
+你可以将函数称为 `function_name/arity`，因此一个名为 `add_two` 的函数有两个参数被称为 `add_two/2`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+创建一个函数 `calculate_force/2`，接受 `mass` 和 `acceleration` 参数。`calculate_force/2` 函数应返回 `mass * acceleration`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+calculate_force.(10, 10) # 100
+calculate_force.(2, 4) # 8
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+calculate_force = fn mass, acceleration -> mass * acceleration end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 简写语法
+
+匿名函数可以使用简写语法定义。这只是定义函数的一种替代且更简短的方式。你有时会看到简写语法，因此理解它是有帮助的。然而，不应过度使用。否则，你的程序可能会变得不清晰。
+
+你仍然可以使用简写语法将匿名函数绑定到变量。然而，你用 `&()` 定义函数，并将函数体放在括号之间。
+
+这是使用简写语法的相同 `double` 函数。
+
+```elixir
+double = &(&1 * 2)
+double.(5)
+```
+
+`&1` 表示第一个参数。如果函数有更多参数，你可以用 `&2`、`&3` 等访问它们。
+
+```elixir
+add_two = &(&1 + &2)
+add_two.(2, 3)
+```
+
+### 你的回合
+
+使用简写语法，创建一个 `subtract/2` 函数，该函数减去两个数字。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+subtract.(1, 1) # 0
+subtract.(20, 25) # -5
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+subtract = &(&1 - &2)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+### 你的回合
+
+使用简写语法，创建一个 `multiply_three/3` 函数，该函数将三个数字相乘。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+multiply_three.(2, 2, 2) # 8
+multiply_three.(2, 5, 3) # 30
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+multiply_three = &(&1 * &2 * &3)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 一等函数
+
+Elixir 中的函数是 [一等公民](https://en.wikipedia.org/wiki/First-class_citizen)。
+
+就我们的目的而言，这意味着我们可以将函数绑定到变量，将它们存储在其他数据类型中，将它们作为参数传递给其他函数。
+
+如果我们尝试将函数视为数据，我们会看到类似 `#Function<42.3316493/1 in :erl_eval.expr/6>` 的东西。这是 Elixir 中函数的内部表示。我们只能以这种方式查看函数，无法在代码中使用这种语法。
+
+```elixir
+[fn int -> int * 2 end, 2, 3, 4]
+```
+
+在我们的程序中，函数就像数据一样。我们可以像处理任何数据结构一样处理它们。
+
+```elixir
+[my_function | _tail] = [fn int -> int * 2 end, 2, 3, 4]
+
+my_function.(10)
+```
+
+如果一个函数接受另一个函数作为参数，它被称为 **高阶函数**。传入的函数称为 **回调函数**。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+callback_function = fn -> end
+
+higher_order_function.(callback_function)
+```
+
+例如，我们可以创建一个 `call_with_2/1` 高阶函数，它接受一个回调函数，并用整数 `2` 调用它。
+
+```elixir
+call_with_2 = fn callback -> callback.(2) end
+```
+
+然后我们可以使用 `call_with_2/1` 高阶函数与 `add_three/1` 回调函数。这将用 `2` 调用 `add_three/1` 返回 `5`。
+
+```elixir
+add_three = fn int -> int + 3 end
+
+call_with_2.(add_three)
+```
+
+我们可以直接将匿名函数传递给回调函数，而不是将其绑定到变量。
+
+```elixir
+call_with_2.(fn int -> int + 3 end)
+```
+
+回调函数对于创建可重用的行为并进行轻微修改非常有用。例如，在 Elixir 中，我们有一个内置函数 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)，我们将在后面的课程中介绍。
+
+[Enum](https://hexdocs.pm/elixir/Enum.html) 是一个模块。我们将在下一个 [模块](./modules.livemd) 阅读材料中介绍模块。
+
+[Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 可以接受一个列表作为第一个参数，接受一个回调函数作为第二个参数。回调函数应用于列表中的每个元素，以创建一个新列表。
+
+```elixir
+Enum.map([1, 2, 3], fn element -> element * 2 end)
+```
+
+### 你的回合
+
+创建一个 `call_with_10_and_20/1` 函数。`call_with_10_and_20/1` 函数应接受一个回调函数，并用 `10` 作为第一个参数，`20` 作为第二个参数调用该函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+add = fn int1, int2 -> end
+
+call_with_10_and_20.(add) # 30
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+call_with_10_and_20 = fn callback -> callback.(10, 20) end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+call_with_10_and_20 = nil
+```
+
+## 管道操作符
+
+为了创建更复杂的行为，你通常会将较小的函数组合在一起。组合函数反映了问题解决的本质，我们将大问题分解为更小的问题。
+
+为了帮助组合函数，Elixir 提供了管道 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;">|></span> 操作符。那是 `|` 符号，可能在你的回车键上方，和大于 `>` 符号并排放置，形成 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;">|></span>。
+
+管道操作符允许你将一个函数的输出作为另一个函数的输入参数。
+
+```mermaid
+flowchart LR
+  A[Input] --> B[Function1]
+  B --> C[Pipe]
+  C --> D[Function2]
+  D --> E[Output]
+```
+
+这有什么用呢？没有管道操作符，你可能会写出深度嵌套的函数调用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+four.(three.(two.(one.())))
+```
+
+或者在函数调用之间重新绑定值。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+a = one.()
+b = two.(a)
+c = three.(b)
+d = four.(c)
+```
+
+但使用管道操作符，你可以将函数链在一起。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+one.() |> two.() |> three.() |> four.()
+```
+
+如果一个函数被多个参数调用，管道中的函数将是第一个参数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+two(1, 2) # 如何单独调用 two/2。
+
+# 如何使用管道操作符
+# 将 one/1 作为第一个参数调用 two/2。
+one.() |> two.(2)
+```
+
+你也可以将一个值传递给管道。通常，对于单个值和函数，使用管道操作符是非惯用的（不符合社区标准）。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 非惯用
+1 |> two.()
+
+# 惯用
+two.(1)
+
+# 惯用
+1 |> two.() |> three()
+```
+
+管道操作符不会改变程序的行为。相反，管道操作符作为语法糖存在，以提高代码的清晰度。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+创建三个函数 `add/2`、`subtract/2` 和 `multiply/2`，分别用于加、减或乘以两个数字。
+
+使用这些函数与管道操作符 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;">|></span> 来：
+
+1. 从 `10` 开始。
+2. 加 `2`。
+3. 乘以 `5`。
+4. 减去 `4`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+add = fn int1, int2 -> int1 + int2 end
+subtract = fn int1, int2 -> int1 - int2 end
+multiply = fn int1, int2 -> int1 * int2 end
+
+10
+|> add.(2)
+|> multiply.(2)
+|> subtract.(4)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成函数阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Functions">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mazes.livemd">迷宫</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/control_flow.livemd">控制流</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

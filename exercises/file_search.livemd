@@ -1,0 +1,188 @@
+# 文件搜索
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File Search">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/document_tools.livemd">文档工具</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/processes.livemd">进程</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 精通
+
+精通作业是旨在以高级水平整合课程概念的额外项目。您可以完全自由地完成精通作业，并可以根据需要更改要求。每个精通作业都是一个独立的项目，您可以选择将其包含在您的项目组合中。
+
+## 文件搜索
+
+创建一个 `FileSearch` 模块，该模块可以递归搜索所有嵌套文件夹中的文件。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule FileSearch do
+  def all(folder) do
+    File.ls!(folder)
+    |> Enum.map(fn file_or_folder ->
+      path = Path.join(folder, file_or_folder)
+
+      if File.dir?(path) do
+        all(path)
+      else
+        file_or_folder
+      end
+    end)
+    |> List.flatten()
+  end
+
+  def by_extension(folder) do
+    all(folder) |> Enum.reduce(%{}, fn file_name, acc ->
+      extension = Path.extname(file_name)
+      Map.update(acc, extension, [file_name], fn files -> [file_name | files] end)
+    end)
+  end
+end
+```
+
+</details>
+
+按照文档实现 `FileSearch` 模块。
+
+```elixir
+defmodule FileSearch do
+  @moduledoc """
+  FileSearch 的文档
+  """
+
+  @doc """
+  查找所有嵌套文件。
+
+  例如，给定以下文件夹结构
+  /main
+    /sub1
+      file1.txt
+    /sub2
+      file2.txt
+    /sub3
+      file3.txt
+    file4.txt
+
+  它将返回：
+
+  ["file1.txt", "file2.txt", "file3.txt", "file4.txt"]
+  """
+  def all(folder) do
+  end
+
+  @doc """
+  查找所有嵌套文件并按其扩展名进行分类。
+
+  例如，给定以下文件夹结构
+  /main
+    /sub1
+      file1.txt
+      file1.png
+    /sub2
+      file2.txt
+      file2.png
+    /sub3
+      file3.txt
+      file3.jpg
+    file4.txt
+
+  精确的顺序和返回值由您决定，只要它找到所有文件并按文件扩展名进行分类。
+
+  例如，它可能返回以下内容：
+
+  %{
+    ".txt" => ["file1.txt", "file2.txt", "file3.txt", "file4.txt"],
+    ".png" => ["file1.png", "file2.png"],
+    ".jpg" => ["file3.jpg"]
+  }
+  """
+  def by_extension(folder) do
+  end
+end
+```
+
+### 将项目配置为脚本
+
+创建一个新的 mix 项目。
+
+```
+$ mix new file_search
+```
+
+将项目配置为脚本。您应该能够运行以下命令以列出所有文件。
+
+```
+$ mix escript.build
+$ ./file_search
+```
+
+您还应该能够使用标志按扩展名列出文件。
+
+```
+$ ./file_search --by_type
+```
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "完成文件搜索练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File Search">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/document_tools.livemd">文档工具</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/processes.livemd">进程</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

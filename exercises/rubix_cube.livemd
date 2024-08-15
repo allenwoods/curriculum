@@ -1,0 +1,103 @@
+<!-- livebook:{"file_entries":[{"name":"rubix.png","type":"attachment"}]} -->
+
+# 魔方
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rubix Cube">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/worker_pools.livemd">工作池</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href=""></a>
+<i style="display: none;" class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 魔方
+
+你将要创建一个魔方应用程序。
+
+[魔方](https://en.wikipedia.org/wiki/Rubik%27s_Cube) 是一种有六个面的玩具。每个面上有九个彩色方块。
+玩家通过旋转魔方的列和行，目标是让每个面都呈现出单一的匹配颜色。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/rubix.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+创建一个 `RubixCube` 监督的 mix 项目。
+
+```
+mix new rubix_cube --sup
+```
+
+你的 `RubixCube` 项目应具备以下功能：
+
+### 需求
+
+* 将魔方表示为进程中的数据。
+* 在监督者下启动魔方进程。
+* 水平向右和向左旋转魔方的一行。
+* 垂直向上和向下旋转魔方的一列。
+* 确定魔方是否已解决。
+* 使用 [File](https://hexdocs.pm/elixir/File.html) 系统保存魔方的状态。
+* 在启动应用程序时，使用 [File](https://hexdocs.pm/elixir/File.html) 系统加载魔方的先前状态。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成魔方练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rubix Cube">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/worker_pools.livemd">工作池</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href=""></a>
+<i style="display: none;" class="ri-arrow-right-fill"></i>
+</div>
+</div>

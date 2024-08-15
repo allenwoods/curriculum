@@ -1,0 +1,173 @@
+# 变位词
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Anagram">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/palindrome.livemd">回文</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/comprehension_search.livemd">理解产品搜索</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 变位词
+
+包含所有相同字母的两个单词是变位词。
+例如 **bored** 和 **robed** 是变位词。
+
+* 创建一个函数 `anagram?/2`，用于判断两个字符串是否是变位词。
+* 创建一个函数 `filter_anagrams/2`，用于根据提供的字符串过滤列表。
+
+<details style="background-color: lightgreen; padding: 12px">
+<summary>解决方案示例</summary>
+
+```elixir
+defmodule Anagram do
+  def anagram?(word, possible_anagram) do
+    sort_string(word) == sort_string(possible_anagram)
+  end
+
+  def filter_anagrams(words, string) do
+    Enum.filter(words, fn word -> anagram?(word, string) end)
+  end
+
+  defp sort_string(string) do
+    String.split(string, "", trim: true) |> Enum.sort() |> Enum.join()
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule Anagram do
+  @moduledoc """
+  Documentation for `Anagram`.
+  """
+
+  @doc """
+  Determine if two strings are anagrams.
+
+  ## Examples
+
+    iex> Anagram.anagram?("abc", "bac")
+    true
+
+    iex> Anagram.anagram?("sit", "its")
+    true
+
+    iex> Anagram.anagram?("cats", "dogs")
+    false
+
+    iex> Anagram.anagram?("robed", "bored")
+    true
+  """
+  def anagram?(word, possible_anagram) do
+  end
+
+  @doc """
+  Filter anagrams.
+
+  ## Examples
+
+    iex> Anagram.filter_anagrams(["abc", "bca", "abcd", "cat"], "bac")
+    ["abc", "bca"]
+
+    iex> Anagram.filter_anagrams(["rams", "mars", "arms", "alarms"], "arms")
+    ["rams", "mars", "arms"]
+
+    iex> Anagram.filter_anagrams(["stop"], "go")
+    []
+  """
+  def filter_anagrams(word_list, anagram) do
+  end
+end
+```
+
+## 奖励：变位词求解器
+
+给定一个字符串，返回该字符串的所有可能排列，以返回潜在的变位词列表。
+
+<div style="background-color: lightcoral; font-weight: bold; padding: 1rem; margin: 1rem 0;">
+这是一个困难的挑战。在尝试之前，请先完成常规练习。
+</div>
+
+```elixir
+defmodule AnagramSolver do
+  @doc """
+  Return a list of all string permutations to solve for all anagrams.
+
+  ## Examples
+
+    iex> AnagramSolver.solve("a")
+    ["a"]
+
+    iex> AnagramSolver.solve("ab")
+    ["ab", "ba"]
+
+    iex> AnagramSolver.solve("abc")
+    ["abc", "acb", "bac", "bca", "cab", "cba"]
+  """
+  def solve(string) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成变位词练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Anagram">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/palindrome.livemd">回文</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/comprehension_search.livemd">理解产品搜索</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

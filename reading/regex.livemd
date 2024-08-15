@@ -1,0 +1,505 @@
+# 正则表达式
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Regex">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/strings_and_binaries.livemd">字符串和二进制</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/email_validation.livemd">电子邮件验证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+<!-- livebook:{"break_markdown":true} -->
+
+* 正则表达式的一些常见用例是什么？
+* 我们如何使用正则表达式来操作字符串？
+* 我们如何使用 [Regexr](https://regexr.com/) 来实验和构建正则表达式？
+
+## 概述
+
+正则表达式是用于匹配基于模式的字符串的强大方式。
+
+我们可以在 Elixir 中使用 `~r` 符号创建正则表达式。
+
+```elixir
+~r/hello/
+```
+
+我们使用正则表达式在字符串中查找匹配模式。我们将使用 [Regex.scan/3](https://hexdocs.pm/elixir/Regex.html#scan/3) 来显示正则表达式匹配的所有值。
+
+例如，表达式 `~r/h/` 将匹配字符 `"h"`。
+
+```elixir
+Regex.scan(~r/h/, "hello")
+```
+
+[Regex.scan/3](https://hexdocs.pm/elixir/Regex.html#scan/3) 将在字符串中查找所有匹配项。
+
+下面我们看到 `~r/l/` 在字符串 `"hello"` 中匹配了两次 `"l"`。
+
+```elixir
+Regex.scan(~r/l/, "hello")
+```
+
+我们可以匹配精确的字符或单词。
+
+```elixir
+Regex.scan(~r/hello/, "hello, world!")
+```
+
+我们还可以使用特殊字符匹配模式。例如，`\d` 将匹配任何数字。
+
+```elixir
+Regex.scan(~r/\d/, "h3ll0")
+```
+
+## 构建正则表达式
+
+正则表达式的实现因编程语言而异。例如，Elixir 使用 [PCRE](http://www.pcre.org/) 标准（Perl 兼容正则表达式）。
+
+正则表达式使用特殊符号表示不同的模式。不幸的是，这些模式可能变得非常复杂，并且难以一目了然。
+
+然而，正则表达式也是强大的，是处理字符串的最佳方式之一。
+
+您可以在 [Regexr](https://regexr.com/) 上实验正则表达式并查看正则表达式参考指南。
+
+以下是一些帮助您入门的模式。
+
+* 字母数字字符。即 `h` 匹配 `"h"`，`-` 匹配 `"-"`，`1` 匹配 `"1"`。
+* `\d` 数字。
+* `\w` 单词字符。
+* `.` 非换行字符（基本上是任何东西）。
+* `\s` 空白字符。
+
+通常，将反斜杠字符大写会反转其用途。
+
+`\D` 非数字字符。
+`\W` 非单词字符。
+`\S` 非空白字符。
+
+<!-- livebook:{"break_markdown":true} -->
+
+正则表达式可以使用非特殊字符找到精确匹配。
+
+```elixir
+Regex.scan(~r/2/, "123")
+```
+
+`\d` 匹配任何数字 `0-9`。
+
+```elixir
+Regex.scan(~r/\d/, "abcd123")
+```
+
+`\w` 匹配任何单个字母、数字或下划线。
+
+```elixir
+Regex.scan(~r/\w/, "abcd123")
+```
+
+`.` 匹配任何非换行 `\n` 字符。
+
+```elixir
+Regex.scan(~r/./, "abcd\n123")
+```
+
+`\s` 匹配空格 `" "`。
+
+```elixir
+Regex.scan(~r/\s/, "a b c")
+```
+
+通过组合这些符号，我们可以创建更复杂的匹配。例如，我们可以匹配格式为 `999-999-9999` 的电话号码。
+
+```elixir
+Regex.scan(~r/\d\d\d-\d\d\d-\d\d\d\d/, "111-111-1111 222-222-2222 123-123-1234")
+```
+
+### 频率
+
+除了匹配字符模式外，我们还可以使用以下符号匹配频率。
+
+* `*` 0 次或多次。
+* `+` 一次或多次。
+* `?` 0 次或 1 次。
+* `{}` 指定次数。
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以找到重复零次或多次的匹配项，使用 `*`。
+
+`*` 使用前面的正则表达式，因此 `1*` 将匹配所有包含 `1` 的字符串，零次或多次。类似地，`A*` 将匹配所有包含零次或多次 `A` 的字符串。
+
+```elixir
+Regex.scan(~r/1*/, "1121")
+```
+
+`+` 将匹配匹配一次或多次前面的正则表达式的字符串。
+
+```elixir
+Regex.scan(~r/1+/, "11211")
+```
+
+`?` 的功能类似于条件匹配，其中匹配可能存在也可能不存在。
+例如，我们可以用 `ab?` 匹配 `a` 和 `ab`。
+
+```elixir
+Regex.scan(~r/ab?/, "a ab")
+```
+
+`{}` 允许我们指定特定范围的匹配。`{3}` 是恰好三次匹配。`{3,}` 是三次或更多匹配。`{3,4}` 是三到四次匹配。
+
+例如，我们可以用此创建电话号码的替代正则表达式。
+
+```elixir
+Regex.scan(~r/\d{3}-\d{3}-\d{4}/, "111-111-1111")
+```
+
+或者匹配所有 3 到 4 个字符之间的数字。
+
+```elixir
+Regex.scan(~r/\d{3,4}/, "111-111-1111")
+```
+
+### 条件和范围
+
+我们还可以匹配字符范围或使用特殊条件。
+
+使用 `[1-9]` 匹配数字或字母的范围。
+
+```elixir
+Regex.scan(~r/[1-4]/, "1234567")
+```
+
+```elixir
+Regex.scan(~r/[a-c]/, "abcd")
+```
+
+* `|` 匹配一个模式或另一个。
+
+```elixir
+Regex.scan(~r/a|2/, "abc123")
+```
+
+* `[^a]` 匹配除提供的字符以外的字符。
+
+```elixir
+Regex.scan(~r/[^a]/, "abc123")
+```
+
+## Regex 模块
+
+[Regex](https://hexdocs.pm/elixir/Regex.html#functions) 模块提供用于使用正则表达式处理字符串的函数。
+
+* `run/3` 在给定字符串上运行正则表达式，直到第一个匹配。
+* `scan/3` 在字符串中扫描所有匹配项。
+* `replace/4` 替换所有匹配项。
+* `split/3` 在匹配项上拆分字符串。
+* `match?/2` 如果字符串包含正则表达式，则返回布尔值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+[Regex.run/3](https://hexdocs.pm/elixir/Regex.html#run/3) 将运行正则表达式，直到第一个匹配。
+
+```elixir
+Regex.run(~r/\d/, "aa1234")
+```
+
+正如我们已经看到的，[Regex.scan/3](https://hexdocs.pm/elixir/Regex.html#scan/3) 运行正则表达式，查找所有匹配项。
+
+```elixir
+Regex.scan(~r/\d/, "aa1234")
+```
+
+[Regex.replace/4](https://hexdocs.pm/elixir/Regex.html#replace/4) 用给定字符串替换匹配项。
+
+```elixir
+Regex.replace(~r/Peter Parker/, "Peter Parker is spiderman", "--secret--")
+```
+
+[Regex.replace/3](https://hexdocs.pm/elixir/Regex.html#replace/3) 还可以接受一个匿名函数，以使用匹配的值来确定如何替换它。
+
+```elixir
+Regex.replace(~r/\d/, "12345", fn each ->
+  "#{String.to_integer(each) + 1}"
+end)
+```
+
+[Regex.split/3](https://hexdocs.pm/elixir/Regex.html#split/3) 在所有匹配项上拆分字符串，方式与 [String.split/3](https://hexdocs.pm/elixir/String.html#split/3) 按特定值拆分字符串相同。
+
+```elixir
+String.split("one,two,three", ",")
+```
+
+```elixir
+Regex.split(~r/\d/, "one1two2three")
+```
+
+[Regex.match/2](https://hexdocs.pm/elixir/Regex.html#match/2) 检查字符串是否包含正则表达式的任何匹配项。
+
+```elixir
+Regex.match?(~r/\d/, "hello")
+```
+
+```elixir
+Regex.match?(~r/\d/, "h3ll0")
+```
+
+[String](https://hexdocs.pm/elixir/String.html) 模块提供了一些用于正则表达式的函数。
+
+* `replace/3`
+* `match?/2`
+* `split?/3`
+
+这些函数与 [Regex](https://hexdocs.pm/elixir/Regex.html) 模块相同，只是它们将字符串作为第一个参数，以便更容易地将函数连接在一起。
+
+```elixir
+"1234"
+|> String.replace(~r/\d/, fn each -> "#{String.to_integer(each) + 1}" end)
+|> String.replace(~r/\d/, fn each -> each <> " " end)
+```
+
+## 捕获组
+
+您可以使用 `()` 构建捕获组。捕获组允许您将多个字符视为一个单元。
+
+在捕获组上进行匹配可能会感觉不直观。例如，使用 `a(b)` 而不是 `ab` 返回多个匹配，而不是单个匹配。
+
+```elixir
+Regex.run(~r/ab/, "ab")
+```
+
+```elixir
+Regex.run(~r/a(b)/, "ab")
+```
+
+捕获组在正则表达式中单独匹配。
+因此，首先，我们捕获 `ab`。然后我们捕获 `(b)`。请注意，如果我们创建另一个捕获组，我们也会返回匹配该组的值。因此，`(a)(b)` 匹配 `ab`，然后是 `a`，然后是 `b`。
+
+```elixir
+Regex.run(~r/(a)(b)/, "ab")
+```
+
+如果您想在替换时使用正则表达式的特定部分，这可能会很有用。例如，让我们模糊化电话号码，使 `111-111-1111` 变为 `XXX-111-1111`。
+
+我们可以将匹配分成多个捕获组。
+
+```elixir
+Regex.run(~r/\d{3}-(\d{3}-\d{4})/, "111-111-1111")
+```
+
+现在我们可以在 [Regex.replace/3](https://hexdocs.pm/elixir/Regex.html#replace/3) 中使用这些捕获组。
+
+```elixir
+Regex.replace(~r/\d{3}-(\d{3}-\d{4})/, "111-111-1111", fn full_match, capture_group ->
+  IO.inspect(full_match, label: "匹配")
+  IO.inspect(capture_group, label: "捕获组")
+  "XXX-" <> capture_group
+end)
+```
+
+正则表达式处理任意数量的捕获组。例如，让我们将电话号码 `111-111-1111` 模糊化为 `111-XXX-1111`。
+
+```elixir
+Regex.replace(~r/(\d{3}-)\d{3}(-\d{4})/, "111-111-1111", fn match, group1, group2 ->
+  IO.inspect(match, label: "匹配")
+  IO.inspect(group1, label: "组1")
+  IO.inspect(group2, label: "组2")
+  group1 <> "XXX" <> group2
+end)
+```
+
+### 你的回合
+
+使用 [Regex.replace/3](https://hexdocs.pm/elixir/Regex.html#replace/3) 来模糊化电话号码。将前三个数字以外的所有数字替换为 `X`，使 `999-999-9999` 变为 `999-XXX-XXXX`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+Regex.replace(~r/(\d{3}-)\d{3}-\d{4}/, "999-999-9999", fn _match, group1 ->
+  group1 <> "XXX-" <> "XXXX"
+end)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 选项
+
+正则表达式允许使用修饰符，例如多行 (`m`) 或自由间距 `x`。这些修饰符位于表达式之后，即 `~r/expression/mx`。
+
+* `m`: 模式如行首 `^` 和行尾 `$` 将匹配多行，而不仅仅是字符串。
+* `x`: 正则表达式可以在多行上编写并进行文档说明。
+
+```elixir
+Regex.match?(
+  ~r/
+\+\d{1,3} # 国家代码，例如 +1
+\s        # 空格  
+\(\d{3}\) # 区号，例如 (555)
+-         # 连字符
+(\d{3}    # 前缀，例如 555
+-         # 连字符
+\d{4})    # 行号，例如 5555
+/x,
+  "+1 (111)-111-1111"
+)
+```
+
+## 前瞻
+
+### 正向前瞻
+
+我们可以使用正向前瞻 `(?=)` 仅匹配后面跟着另一个表达式的表达式。
+
+例如，我们可以匹配所有后面跟着 `u` 字符的 `a` 字符。请注意，下面只有 `au` 会匹配，而 `a` 是匹配的值。
+
+```elixir
+Regex.scan(~r/a(?=u)/, "a au")
+```
+
+我们可以使用负向前瞻 `(?!)` 仅匹配后面不跟另一个表达式的表达式。
+
+例如，我们可以匹配不后跟 `u` 字符的 `a` 字符。请注意，`at` 和 `a` 匹配，但 `au` 不匹配。
+
+```elixir
+Regex.scan(~r/a(?!u)/, "at a au")
+```
+
+### 反向前瞻
+
+<!-- livebook:{"break_markdown":true} -->
+
+正向和负向反向前瞻（`(?<=)` 和 `(?<!)`）的工作方式与前瞻类似，只是它们匹配前面跟着另一个表达式的表达式。
+
+例如，我们可以使用正向反向前瞻找到前面跟着 `u` 字符的 `a` 字符。
+请注意，`ua` 匹配，但 `ta` 或 `a` 不匹配。
+
+```elixir
+Regex.scan(~r/(?<=u)a/, "ua ta a")
+```
+
+同样，负向反向前瞻可以找到前面不跟着另一个字符的字符。
+请注意，`a` 和 `ta` 匹配，但 `ua` 不匹配。
+
+```elixir
+Regex.scan(~r/(?<!u)a/, "ua ta a")
+```
+
+前瞻和反向前瞻适用于任何有效的正则表达式。
+
+例如，假设我们有一些文本
+包含几个编号的项目符号，但我们只想检索数字后的值。
+
+`(?<=\d\. )` 让我们找到前面是任何数字、一个句点和一个空格的表达式。
+
+然后 `\w+` 匹配当前行上的一个或多个单词。
+
+```elixir
+text = "
+1. one
+2. two
+3. three
+"
+
+Regex.scan(~r/(?<=\d\. )\w+/, text)
+```
+
+### 你的回合
+
+使用 [Regex.replace/3](https://hexdocs.pm/elixir/Regex.html#replace/3) 将格式为 `#9999999999` 的电话号码转换为格式 `999-999-9999`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+Regex.replace(~r/\#(\d{3})(\d{3})(\d{4})/, "#9999999999", fn _full, group1, group2, group3 -> 
+  "#{group1}-#{group2}-#{group3}"
+end)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 进一步阅读
+
+本课是一个入门，并深入到许多常见用例的深度。然而，正则表达式是一个复杂的主题，正则表达式通常很难构建和理解。
+
+我们建议您进一步研究并使用可用工具来根据需要了解更多关于正则表达式的信息。
+
+* [Regexr](https://regexr.com/) 提供正则表达式参考指南，并允许您构建和测试正则表达式。
+* [Regex 模块](https://hexdocs.pm/elixir/Regex.html) 文档，提供完整的 [Regex](https://hexdocs.pm/elixir/Regex.html) 函数和高级用法列表。
+* [regexone.com](https://regexone.com/) 提供正则表达式练习。
+
+并非所有语言都使用相同的正则表达式标准，因此您可能会发现在线信息不适用于 Elixir。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成正则表达式阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Regex">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/strings_and_binaries.livemd">字符串和二进制</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/email_validation.livemd">电子邮件验证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

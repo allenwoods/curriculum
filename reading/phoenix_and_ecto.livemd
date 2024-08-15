@@ -1,0 +1,527 @@
+# Phoenix 和 Ecto
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix And Ecto">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/group_project_blog.livemd">小组项目：博客</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_posts.livemd">博客：帖子</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在 Phoenix 应用程序中生成资源？
+* 解释上下文、模式、迁移和 Repo。
+
+## 概述
+
+这是 [博客：帖子](../exercises/blog_posts.livemd) 练习的配套阅读。本课概述了如何在 Phoenix 应用程序中使用 Ecto 与数据库进行交互。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Ecto
+
+[Ecto](https://hexdocs.pm/ecto/Ecto.html) 提供了一个标准的 API 层，用于与 Elixir 应用程序的数据库进行通信。
+
+默认情况下，[Ecto](https://hexdocs.pm/ecto/Ecto.html) 使用 [PostgreSQL](https://www.postgresql.org/) 数据库。确保您已经在计算机上安装了 [PostgreSQL](https://www.postgresql.org/) 。
+
+[Ecto](https://hexdocs.pm/ecto/Ecto.html) 分为四个主要模块。
+
+* [Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html) 处理应用程序与数据库之间的所有通信。`Ecto.Repo` 从底层的 PostgreSQL 数据库中读取和写入。
+* [Ecto.Query](https://hexdocs.pm/ecto/Ecto.Query.html) 构建查询以使用 `Ecto.Repo` 存储库检索和操作数据。
+* [Ecto.Schema](https://hexdocs.pm/ecto/Ecto.Schema.html) 将应用程序结构数据表示映射到底层 PostgreSQL 数据库表示。
+* [Ecto.Changeset](https://hexdocs.pm/ecto/Ecto.Changeset.html) 创建更改集以验证和应用约束到结构。
+
+[Phoenix](https://hexdocs.pm/phoenix/Phoenix.html) 使用 [Ecto](https://hexdocs.pm/ecto/Ecto.html) 来处理 Web 应用程序的数据层。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 领域
+
+在 Phoenix 应用程序中，默认情况下，有四个主要模块负责管理业务逻辑和应用程序的领域。它们是：
+
+* **上下文**：它们封装特定的领域区域，定义业务逻辑和数据访问函数，并提供 API 以向应用程序的其他部分公开功能。
+
+* **模式**：它们定义领域中数据实体的结构，包括字段、类型和约束。
+
+* **Repo**：它提供了与数据库交互的抽象层，封装查询，并提供一个干净的接口来对 **Schema** 模块中定义的实体执行 CRUD 操作。
+
+* **迁移**：它们定义随着时间推移对数据库模式的更改，例如创建或更新表和列。
+
+这些模块共同提供了一种在应用程序中建模业务逻辑和数据实体并与数据库交互的方法。请注意，我们并不局限于这些模块，但这是 Phoenix 默认组织应用程序的方式。
+
+## 生成器
+
+我们可以使用 Phoenix 生成器定义我们领域所需的所有模块和样板代码。
+
+例如，我们可以使用以下命令在博客项目中生成帖子。
+
+```
+mix phx.gen.html Posts Post posts title:string body:text
+```
+
+上述命令将执行以下操作：
+
+* 创建一个 **Posts** 上下文。
+* 创建一个 **Post** 模式。
+* 在数据库中创建一个 **posts** 表，包含 `title:string` 和 `body:text` 字段。有关属性类型的完整列表，请参见 [Attributes](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html#module-attributes) 文档。
+
+它还为我们应用程序的 Web 层生成样板代码，包括控制器、组件和模板。然而，它不会为我们的路由器生成路由，因为这些必须手动插入。
+
+请参见 [mix phx.gen](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.html) 以获取完整的 Phoenix 生成器列表。
+
+## 上下文
+
+Phoenix 上下文是一种在 Phoenix 应用程序中组织相关功能的方法。每个上下文代表一组与特定领域或应用程序功能相关的操作。
+
+例如，我们可能有一个 `Blog` 应用程序，其中有一个 `Posts` 上下文，管理创建、编辑和删除博客帖子的所有操作。
+
+以下是 `Posts` 上下文的示例模块。我们可以看到函数如何与 `Post` 模式和 `Repo` 模块一起工作，以在数据库中检索、创建、编辑和删除帖子。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Posts do
+  import Ecto.Query, warn: false
+  alias Blog.Repo
+
+  alias Blog.Posts.Post
+
+  def list_posts do
+    Repo.all(Post)
+  end
+
+  def get_post!(id), do: Repo.get!(Post, id)
+
+  def create_post(attrs \\ %{}) do
+    %Post{}
+    |> Post.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_post(%Post{} = post, attrs) do
+    post
+    |> Post.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_post(%Post{} = post) do
+    Repo.delete(post)
+  end
+
+  def change_post(%Post{} = post, attrs \\ %{}) do
+    Post.changeset(post, attrs)
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Ecto.Query
+
+`Ecto.Query` 在上面的示例中被导入。上下文在编写用于检索和操作数据库中数据的查询时，通常会使用 `Ecto.Query`。
+
+以下是一个示例查询，允许我们按不区分大小写和部分匹配的 `title` 字段过滤帖子列表查询。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def list_posts(title) do
+  search = "%#{title}%"
+  query = from p in Post, where: ilike(p.title, ^search)
+
+  Repo.all(query)
+end
+```
+
+[ilike](https://hexdocs.pm/ecto/Ecto.Query.API.html#ilike/2) 允许我们搜索不区分大小写的字符串。`%` 符号作为通配符，用于查找部分匹配的搜索。
+
+[from/2](https://hexdocs.pm/ecto/Ecto.Query.html#from/2) 选择要查询的表，而 [where/3](https://hexdocs.pm/ecto/Ecto.Query.html#where/3) 过滤结果列表。
+
+Ecto 允许使用可管道的语法，这也是一些开发人员所偏好的。例如，上述内容也可以写成：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  def list_posts(title) do
+    search = "%#{title}%"
+    Post
+    |> where([p], ilike(p.title, ^search))
+    |> Repo.all()
+  end
+```
+
+## 模式
+
+在 Ecto 中，模式是定义数据库表的结构和属性的模块。模式将表的字段映射到模块中的结构字段，并定义这些字段的任何约束或验证。
+
+以下是一个 `Post` 模式的示例，定义了一个具有 `title`、`subtitle` 和 `content` 字段的帖子。我们还看到 `changeset/2` 函数用于定义在 `Posts` 上下文中与 `Repo` 模块一起使用的 `Post` 更改集，以创建或更新数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Posts.Post do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "posts" do
+    field :content, :string
+    field :subtitle, :string
+    field :title, :string
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(post, attrs) do
+    post
+    |> cast(attrs, [:title, :subtitle, :content])
+    |> validate_required([:title, :subtitle, :content])
+  end
+end
+```
+
+[Ecto.schema/2](https://hexdocs.pm/ecto/Ecto.Schema.html#schema/2) 和 [field/3](https://hexdocs.pm/ecto/Ecto.Schema.html#field/3) 宏定义了字段及其数据类型。模式将 PostgreSQL 表的字段映射为有效的 Elixir 术语，以便在与数据库交互时使记录更易于使用。您可以在 [Ecto.Schema: Types and casting](https://hexdocs.pm/ecto/Ecto.Schema.html#module-types-and-casting) 中找到有效字段类型的完整列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 验证和约束
+
+验证确保数据在进入数据库之前是有效的。约束是数据库强制执行的规则。
+
+例如，[validate_required/3](https://hexdocs.pm/ecto/Ecto.Changeset.html#validate_required/3) 验证在将字段插入数据库之前该字段是否存在。
+
+然而，我们可能会添加一个 [unique_constraint](https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3)，确保标题在与数据库中的其他帖子比较时是唯一的。这需要在后台查询数据库。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def changeset(post, attrs) do
+    post
+    |> cast(attrs, [:title, :subtitle, :content])
+    |> validate_required([:title, :subtitle, :content])
+    |> unique_constraint(:title)
+  end
+```
+
+## 迁移
+
+迁移用于随着应用程序需求的演变而对数据库模式进行更改。以下是一个 `CreatePosts` 迁移的示例，该迁移将在数据库中创建一个 `posts` 表。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.CreatePosts do
+  use Ecto.Migration
+
+  def change do
+    create table(:posts) do
+      add :title, :string
+      add :subtitle, :string
+      add :content, :text
+
+      timestamps()
+    end
+    create unique_index(:posts, [:title])
+  end
+end
+```
+
+[Ecto.Migration](https://hexdocs.pm/ecto_sql/Ecto.Migration.html) 模块提供了用于操作表和表中字段的函数。[create/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#create/2) 宏在数据库中创建一个新表，而 [add/3](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#add/3) 则向表中添加一个新列。
+
+您可以使用任何 [Elixir 原始类型](https://hexdocs.pm/ecto/Ecto.Schema.html#module-primitive-types)，它们将被转换为适合您数据库的 [字段类型](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#module-field-types)。
+
+一些不是 Elixir 原始类型的数据库字段类型，例如 `:text`，可以直接给出。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 生成迁移
+
+迁移应始终生成，而不是手动创建，以便为迁移文件添加时间戳。例如，上述示例可能在文件 `priv/repo/migrations/20230508221034_create_posts.ex` 中。
+
+可以使用 [mix ecto.gen.migration](https://hexdocs.pm/ecto_sql/Mix.Tasks.Ecto.Gen.Migration.html) 命令和迁移名称单独创建迁移。
+
+以下是一个示例，其中 `create_posts` 是迁移的名称。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ mix ecto.gen.migration create_posts
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 运行迁移
+
+迁移按时间戳的顺序运行，因此可以随时使用以下命令运行或重置：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 运行迁移
+$ mix ecto.migrate
+
+# 重置数据库并重新运行迁移
+$ mix ecto.reset
+```
+
+您还可以使用 [mix ecto.rollback](https://hexdocs.pm/ecto_sql/Mix.Tasks.Ecto.Rollback.html) 回滚迁移。可以选择回滚特定的迁移。
+
+```
+$ mix ecto.rollback
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 操作表
+
+Ecto 提供了用于操作数据库中表的函数。以下是一些常见函数：
+
+* [create/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#create/2)：在数据库中创建一个新表
+* [alter/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#alter/2)：修改数据库中现有的表
+* [rename/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#rename/2)：重命名数据库中现有的表
+* [drop/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#drop/2)：从数据库中删除现有表
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 操作字段
+
+[Ecto.Migration](https://hexdocs.pm/ecto_sql/Ecto.Migration.html) 提供了用于操作表中字段的函数。以下是一些入门的函数。
+
+* [add/3](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#add/3) 向表中添加一个新字段。
+* [modify/2](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#modify/3) 修改表中现有字段。
+* [remove/2](https://hexdocs.pm/ecto/Ecto.Migration.html#remove/1) 从表中删除现有字段。
+
+以下是一个使用一些 Ecto 函数操作表字段的迁移示例：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyApp.Repo.Migrations.AlterUsersTable do
+  use Ecto.Migration
+
+  def change do
+    alter table(:users) do
+      add :phone, :string
+
+      modify :email, :string, unique: true
+      modify :name, :string, null: false
+
+      remove :age
+    end
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 模式反映迁移
+
+模式将数据库表的字段映射为 Elixir 数据。迁移可能涉及更改现有列的数据类型或结构，这将需要更新模式以反映这些更改。始终确保模式反映数据库中表的最新版本。
+
+## 查询
+
+[Ecto.Query](https://hexdocs.pm/ecto/Ecto.Query.html) 模块定义了创建数据库查询的函数。查询本身并不操作数据库中的数据，而是一组指令，用于在数据库中执行某些操作，通常由 [Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2) 提供，该模块在数据库上执行实际工作。
+
+以下是一些常见函数：
+
+* [from/2](https://hexdocs.pm/ecto/Ecto.Query.html#from/2)：定义要查询的表
+* [where/3](https://hexdocs.pm/ecto/Ecto.Query.html#where/3)：指定记录必须满足的条件，以便包含在查询结果中。
+* [order_by/3](https://hexdocs.pm/ecto/Ecto.Query.html#order_by/3)：按一个或多个字段对查询结果进行排序。
+* [select/3](https://hexdocs.pm/ecto/Ecto.Query.html#select/3)：指定要包含在查询结果中的字段。
+* [type](https://hexdocs.pm/ecto/Ecto.Query.API.html#type/2)：返回一个具有特定类型的新查询对象。通常在提供 Elixir 术语的查询中使用，以将其转换为数据库类型。
+
+以下是使用关键字列表语法的示例查询。`^` 符号用于将 Elixir 术语注入数据库查询。Elixir 术语必须绑定到变量才能注入它们。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+search = "%#{title}%"
+
+today = DateTime.utc_now()
+
+query =
+  from(p in Post,
+    where: ilike(p.title, ^search),
+    where: p.visible,
+    where: p.published_on <= type(^today, :utc_datetime),
+    order_by: [desc: p.published_on]
+  )
+```
+
+同样的查询可以使用替代的 [管道语法](https://hexdocs.pm/ecto/Ecto.Query.html#module-macro-api) 写成：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+query =
+  Post
+  |> where([p], ilike(p.title, ^search))
+  |> where([p], p.visible)
+  |> where([p], p.published_on <= type(^today, :utc_datetime))
+  |> order_by([p], desc: p.published_on)
+```
+
+## Repo
+
+[Ecto.Repo](https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2) 模块定义了与数据库交互的函数。每当我们需要操作数据库中的记录时，我们都会使用 `Repo` 模块。
+
+以下是一些常见函数：
+
+* [Repo.all](https://hexdocs.pm/ecto/Ecto.Repo.html#c:all/2)：获取所有记录。
+* [Repo.get!](https://hexdocs.pm/ecto/Ecto.Repo.html#c:get!/3)：获取一条记录。
+* [Repo.insert/2](https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2)：插入一条记录。
+* [Repo.update](https://hexdocs.pm/ecto/Ecto.Repo.html#c:update/2)：更新现有记录。
+* [Repo.delete](https://hexdocs.pm/ecto/Ecto.Repo.html#c:delete/2)：删除记录。
+
+这些涵盖了 CRUD（创建、读取、更新、删除）操作的完整范围。通常，这些函数将与定义结构和模式的 Schema 模块结合使用。
+
+例如，以下是我们如何使用 `Post` 结构创建一个更改集，然后将其传递给 `Repo.insert/2` 函数，以将新帖子插入数据库的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%Post{}
+|> Post.changeset(%{title: "some title", subtitle: "some subtitle", content: "some content"})
+|> Repo.insert()
+```
+
+## 实体关系图
+
+项目通常使用实体关系图或某种 UML（统一建模语言）图来表示应用程序的数据层。
+
+Livebook 允许我们直接编写实体关系图。有关语法的概述，请参见 [Mermaid: Entity Relationship Diagrams](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)。
+
+能够阅读这些图是很重要的。以下是一个示例：
+
+```mermaid
+erDiagram
+
+Comment {
+  id post_id
+  text content
+}
+
+Post {
+  string title
+  text content
+  date published_on
+  boolean visibility
+}
+
+Post ||--O{ Comment : "has many"
+```
+
+上述图描述了数据的字段和类型，以及数据之间的关联。
+
+`Post` 和 `Comment` 之间的线中的管道 `||` 表示 **一个**，而带圈的三重箭头表示 **零个或多个**。这描述了帖子和评论之间的 **一对多** 关系。
+
+`post_id` 字段并不是严格必要的，因为图中的箭头暗示子项包含外键 ID，但我们为了清晰起见包含了它。
+
+## 数据填充
+
+Phoenix 项目包括一个 `priv/repo/seeds.exs` 文件，用于创建数据（填充）数据库。
+
+可以使用以下命令从项目文件夹运行 `seed.exs` 文件：
+
+```
+mix run priv/repo/seeds.exs
+```
+
+通常，种子文件与 `Repo` 模块或上下文中的函数一起工作，以创建用于手动测试的数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Blog.Repo.insert!(%Blog.Posts.Post{
+  title: "Some Title",
+  subtitle: "Some Subtitle",
+  content: "Some Content",
+})
+
+Blog.Posts.create_post(%{
+  title: "Some Title",
+  subtitle: "Some Subtitle",
+  content: "Some Content",
+})
+```
+
+种子文件不应在测试环境中运行，因为它们可能会干扰测试断言。
+
+在重置数据库时，种子文件会自动运行。
+
+```
+mix ecto.reset
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Phoenix 生成器：mix phx.gen](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.html#content)
+* [Phoenix HTML 生成器：mix phx.gen.html](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.html#content)
+* [Phoenix 模式生成器类型](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html#module-attributes)
+* [Pragmatic Bookshelf: Programming Ecto](https://pragprog.com/titles/wmecto/programming-ecto/)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Phoenix 和 Ecto 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix And Ecto">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/group_project_blog.livemd">小组项目：博客</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_posts.livemd">博客：帖子</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

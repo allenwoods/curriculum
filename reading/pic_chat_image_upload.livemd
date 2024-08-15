@@ -1,0 +1,302 @@
+# PicChat: 图片上传
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Image Upload">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_authentication.livemd">PicChat: 认证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/pic_chat_pub_sub.livemd">PicChat: PubSub</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何在 Phoenix LiveView 或 LiveComponent 中允许图片上传？
+* 我们如何创建一个带有图片预览的文件输入以进行图片/文件上传？
+* 我们如何处理上传的文件并将其保存在本地或外部？
+* 我们如何启用文件/图片上传的拖放功能？
+
+## PicChat: 图片上传
+
+在接下来的几节课中，我们将构建一个 `PicChat` 应用程序，用户可以在其中创建带有上传图片的消息。本课将重点介绍如何上传带有消息的图片。
+
+Phoenix LiveView 支持 [文件上传](https://hexdocs.pm/phoenix_live_view/uploads.html)。为了处理图片上传，我们需要：
+
+1. 使用 [allow_upload/3](https://hexdocs.pm/phoenix_live_view/0.18.1/Phoenix.LiveView.html#allow_upload/3) 在 socket 中存储文件上传信息。
+2. 使用 [live_file_input/3](https://hexdocs.pm/phoenix_live_view/0.18.1/Phoenix.Component.html#live_file_input/1) 创建一个用于上传图片的文件输入。
+3. 使用 [consume_uploaded_entries](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#consume_uploaded_entries/3) 来处理存储在临时存储中的上传图片文件，并将其保存在某个永久存储中，例如文件系统或 [Amazon S3](https://aws.amazon.com/s3/)
+
+我们还将修改消息表/模式，以在 `:picture` 字段中存储图片的路径，并在索引和显示页面上显示图片。
+
+## 迁移和模式
+
+### 创建迁移
+
+为了在每条消息中存储图片，我们将添加一个 `:picture` 字段，该字段将存储图片的源，例如路径或 URL。
+
+创建一个新的迁移。
+
+```
+mix ecto.gen.migration add_picture_to_messages
+```
+
+在生成的迁移文件中，向现有的 `:messages` 表添加一个 `:picture` 列。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def change do
+  alter table(:messages) do
+    add :picture, :text
+  end
+end
+```
+
+运行迁移。
+
+```
+mix ecto.migrate
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 修改模式
+
+我们的模式应该反映数据库中的数据，因此让我们添加一个 `picture` 字段。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Chat.Message do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "messages" do
+    field :content, :string
+    # 添加的图片字段
+    field :picture, :string
+    belongs_to :user, PicChat.Accounts.User
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(message, attrs) do
+    message
+    # 添加 :picture 到可转换字段
+    |> cast(attrs, [:content, :user_id, :picture])
+    |> validate_required([:content])
+  end
+end
+```
+
+## 允许上传
+
+在表单组件中使用 [allow_upload/3](https://hexdocs.pm/phoenix_live_view/0.18.1/Phoenix.LiveView.html#allow_upload/3)。这会使 LiveView 自动将 `:picture` 上传信息存储在 socket assigns 的 `@uploads` 字段中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Form_component.ex
+@impl true
+def update(%{message: message} = assigns, socket) do
+  changeset = Chat.change_message(message)
+
+  {:ok,
+    socket
+    |> assign(assigns)
+    |> assign_form(changeset)
+    |> allow_upload(:picture, accept: ~w(.jpg .jpeg .png), max_entries: 1)
+  }
+end
+```
+
+## 实时文件输入
+
+在消息表单中创建一个 [live_file_input/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_file_input/1)。
+
+我们添加了可选属性 `phx-drop-target`，支持图片上传的拖放，并使用 [live_img_preview/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_img_preview/1) 显示上传图片的预览。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Form.html.heex
+<.simple_form
+  for={@form}
+  id="message-form"
+  phx-target={@myself}
+  phx-change="validate"
+  phx-submit="save"
+  phx-drop-target={@uploads.picture.ref}
+>
+  <.input field={@form[:content]} type="text" label="内容" />
+  <.live_file_input upload={@uploads.picture} />
+  <%= for entry <- @uploads.picture.entries do %>
+    <.live_img_preview entry={entry} width="75" />
+  <% end %>
+  <.input field={@form[:user_id]} type="hidden" value={@current_user.id} />
+  <:actions>
+    <.button phx-disable-with="保存中...">保存消息</.button>
+  </:actions>
+</.simple_form>
+```
+
+## 处理上传条目
+
+在我们保存消息时处理上传的条目，并将它们复制到文件系统以实现长期持久性。请注意，这并不是理想的解决方案。理想情况下，我们会将这些文件上传到存储系统，例如 [Amazon S3](https://aws.amazon.com/s3/)，但这超出了本课的范围。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Form_component.ex
+@impl true
+def handle_event("save", %{"message" => message_params}, socket) do
+  file_uploads =
+    consume_uploaded_entries(socket, :picture, fn %{path: path}, entry ->
+      ext = "." <> get_entry_extension(entry)
+      # `static/uploads` 目录必须存在以供 `File.cp!/2` 使用
+      # 并且 PicChat.static_paths/0 应该包含 uploads 才能正常工作。
+      dest = Path.join("priv/static/uploads", Path.basename(path <> ext))
+      File.cp!(path, dest)
+      {:ok, ~p"/uploads/#{Path.basename(dest)}"}
+    end)
+
+  message_params = Map.put(message_params, "picture", List.first(file_uploads))
+  save_message(socket, socket.assigns.action, message_params)
+end
+
+defp get_entry_extension(entry) do
+  [ext | _] = MIME.extensions(entry.client_type)
+  ext
+end
+```
+
+确保创建一个 `priv/static/uploads` 文件夹，并在 `pic_chat_web.ex` 中将 `uploads` 添加到 `PicChat.static_paths/0`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Pic_chat_web.ex
+def static_paths, do: ~w(assets uploads fonts images favicon.ico robots.txt)
+```
+
+## 显示图片
+
+通过向表格组件添加一列，在消息索引页面上显示图片。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<:col :let={{_id, message}} label="图片"><img src={message.picture}/></:col>
+```
+
+通过将其添加到列表项，在显示页面上显示图片。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<:item title="图片"><img src={@message.picture} /></:item>
+```
+
+## 实时图片预览
+
+我们可以使用 [live_image_preview] 添加图片预览。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 添加到 Form_component.ex
+<.live_file_input upload={@uploads.picture} />
+<%= for entry <- @uploads.picture.entries do %>
+  <.live_img_preview entry={entry} width="75" />
+<% end %>
+```
+
+## 测试
+
+为了确保我们的迁移和模式正常工作，编写测试是明智的。
+
+修改您现有的 `create_message/1 with valid data creates a message` 测试，在 `chat_test.exs` 中确保我们可以创建带有图片的消息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "create_message/1 with valid data creates a message" do
+  user = user_fixture()
+  valid_attrs = %{content: "一些内容", user_id: user.id, picture: "images/picture.png"}
+
+  assert {:ok, %Message{} = message} = Chat.create_message(valid_attrs)
+  assert message.content == "一些内容"
+  assert message.user_id == user.id
+  assert message.picture == "images/picture.png"
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Sophie DeBenedetto: 如何在 Phoenix LiveView 中进行实时上传](https://blog.appsignal.com/2021/10/12/how-to-do-live-uploads-in-phoenix-liveview.html)
+* [HexDocs: Phoenix LiveView 上传](https://hexdocs.pm/phoenix_live_view/uploads.html)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 PicChat: 图片上传 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Image Upload">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_authentication.livemd">PicChat: 认证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/pic_chat_pub_sub.livemd">PicChat: PubSub</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

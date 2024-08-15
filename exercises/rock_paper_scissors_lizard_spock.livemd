@@ -1,0 +1,182 @@
+# 石头剪刀蜥蜴斯波克
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rock Paper Scissors Lizard Spock">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/structs.livemd">结构体</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/rpg_dialogue.livemd">RPG 对话</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 石头剪刀蜥蜴斯波克
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=_PUEoDYpUyQ\")","title":"Rock Paper Scissors Lizard Spock. A Brief Introduction."},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=_PUEoDYpUyQ")
+```
+
+你将创建一个石头剪刀蜥蜴斯波克游戏。石头剪刀蜥蜴斯波克是石头剪刀的一个更复杂的变体。
+
+规则与普通的石头剪刀相同。
+
+* 石头打剪刀。
+* 报纸打石头。
+* 剪刀打报纸。
+
+然后我们添加以下额外规则
+
+* 石头打蜥蜴。
+* 蜥蜴打斯波克。
+* 斯波克打剪刀。
+* 剪刀打蜥蜴。
+* 蜥蜴打报纸。
+* 报纸打斯波克。
+* 斯波克打石头。
+
+我们将这些选择表示为原子 `:rock, :paper, :scissors, :lizard, :spock`。
+
+* 创建一个 `beats?/2` 函数，用于确定一个选择是否打败另一个选择。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+RockPaperScissorsLizardSpock.beats?(:rock, :lizard) # true
+```
+
+* 创建一个 `play/2` 函数，用于确定玩家 1 或玩家 2 是否赢得了游戏。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+RockPaperScissorsLizardSpock.play(:rock, :lizard) # "玩家 1 胜利！"
+RockPaperScissorsLizardSpock.play(:lizard, :rock) # "玩家 1 胜利！"
+RockPaperScissorsLizardSpock.play(:lizard, :lizard) # "平局！"
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+  def beats?(guess1, guess2) do
+    case {guess1, guess2} do
+      {:rock, :scissors} -> true
+      {:rock, :lizard} -> true
+      {:paper, :rock} -> true
+      {:paper, :spock} -> true
+      {:scissors, :paper} -> true
+      {:scissors, :lizard} -> true
+      {:lizard, :spock} -> true
+      {:lizard, :paper} -> true
+      {:spock, :scissors} -> true
+      {:spock, :rock} -> true
+      _answer -> false
+    end
+  end
+
+  def play(player1, player2) do
+    cond do
+      beats?(player1, player2) -> "玩家 1 胜利！"
+      beats?(player2, player1) -> "玩家 2 胜利！"
+      true -> "平局"
+    end
+  end
+```
+
+</details>
+
+在下面实现 `RockPaperScissorsLizardSpock` 模块。
+
+> `@doc` 语法会对你的代码进行测试以提供反馈。然而，请注意，为了简洁起见，我们并不总是编写全面的测试。你的解决方案可能通过测试，但不完整。你可以按下拉按钮隐藏 `@doc` 文档/测试。
+
+```elixir
+defmodule RockPaperScissorsLizardSpock do
+  @doc """
+  ## 示例
+
+      iex> RockPaperScissorsLizardSpock.beats?(:lizard, :spock)
+      true
+      iex> RockPaperScissorsLizardSpock.beats?(:lizard, :paper)
+      true
+      iex> RockPaperScissorsLizardSpock.beats?(:spock, :scissors)
+      true
+      iex> RockPaperScissorsLizardSpock.beats?(:spock, :rock)
+      true
+      iex> RockPaperScissorsLizardSpock.beats?(:spock, :paper)
+      false
+  """
+  def beats?(guess1, guess2) do
+  end
+
+  @doc """
+  ## 示例
+      
+      iex> "玩家 1 胜利！" = RockPaperScissorsLizardSpock.play(:rock, :lizard)
+      iex> "玩家 2 胜利！" = RockPaperScissorsLizardSpock.play(:lizard, :rock)
+      iex> "平局！" = RockPaperScissorsLizardSpock.play(:lizard, :lizard)
+  """
+  def play(player1, player2) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成石头剪刀蜥蜴斯波克练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rock Paper Scissors Lizard Spock">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/structs.livemd">结构体</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/rpg_dialogue.livemd">RPG 对话</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

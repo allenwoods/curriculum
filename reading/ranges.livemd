@@ -1,0 +1,214 @@
+# 范围
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Ranges">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pokemon_battle.livemd">宝可梦战斗</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/enum.livemd">枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何在 Elixir 中表示一个数字范围？
+* 范围的步长是什么，我们如何更改它？
+* 我们如何对范围进行模式匹配？
+
+## 范围
+
+**范围** 对于表示一个递增或递减的数字序列非常有用，而无需手动在列表中输入每个数字。
+
+例如，你可以有一个从 1 到 10 的范围。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+1..10
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+
+flowchart LR
+  1 --> 2 --> 3 --> 4 --> 5 --> 6 --> 7 --> 8 --> 9 --> 10
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+或者从 5 到 -5。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+5..-5
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+  5 --> 4 --> 3 --> 2 --> 1 --> 0 --> -1 --> -2 --> -3 --> -4 --> -5
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+你可以将范围可视化为表示一个递增或递减的整数列表。
+
+单独来看，它可能看起来不算什么。但范围在与 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块结合使用时将非常有用。
+你将在未来的课程中了解更多关于 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块的内容。现在，了解范围与列表之间的关系就足够了。
+
+例如，范围 `1..5` 等同于列表 `[1, 2, 3, 4, 5]`。
+
+为了建立这种关系，你可以使用 [Enum.to_list/1](https://hexdocs.pm/elixir/Enum.html#to_list/1) 将范围转换为列表。
+
+```elixir
+Enum.to_list(1..5)
+```
+
+范围可以有一个步长。默认情况下，范围的步长为 `1`。这意味着默认情况下它们包含范围内的每个整数。
+
+你可以使用 `//` 来覆盖范围的默认步长：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+0..10//2
+```
+
+这会创建一个从 `0` 到 `10` 的范围，步长为 `2`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+0 --> 2 --> 4 --> 6 --> 8 --> 10
+```
+
+这意味着范围 `0..10//2` 对应于列表 `[0, 2, 4, 6, 8, 10]`
+
+这是将相同范围转换为列表的示例，以帮助你可视化它。再次强调，你将在未来的课程中了解更多关于 `Enum.to_list` 的内容。
+
+```elixir
+Enum.to_list(0..10//2)
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 [Enum.to_list/1](https://hexdocs.pm/elixir/Enum.html#to_list/1) 将范围从 `3` 到 `9`，步长为 `3` 转换为列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  ```elixir
+  Enum.to_list(3..9//3)
+  ```
+</details>
+
+```elixir
+
+```
+
+### 使用范围进行模式匹配
+
+我们可以像对待任何其他数据类型一样对范围进行模式匹配。
+
+对于最严格的匹配，左右两侧必须完全相等。
+
+```elixir
+1..10 = 1..10
+```
+
+我们还可以将范围的起始和结束绑定到模式匹配中的变量。
+
+```elixir
+start..finish = 1..10
+```
+
+```elixir
+start
+```
+
+```elixir
+finish
+```
+
+我们还可以绑定步长。
+
+```elixir
+start..finish//step = 0..9//3
+```
+
+```elixir
+start
+```
+
+```elixir
+finish
+```
+
+```elixir
+step
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成范围阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Ranges">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pokemon_battle.livemd">宝可梦战斗</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/enum.livemd">枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,256 @@
+# ETS 库存管理
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=ETS Inventory Management">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/agent_journal.livemd">代理日志</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/advanced_score_tracker.livemd">高级分数跟踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## ETS 库存
+
+你将构建一个基于内存的库存管理应用程序，使用 [:ets](https://elixir-lang.org/getting-started/mix-otp/ets.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Inventory do
+  def new(opts \\ []) do
+    :ets.new(:inventory, opts)
+  end
+
+  def get_quantity(ref, item) do
+    case :ets.lookup(ref, item) do
+      [{_item, quantity}] -> quantity
+      _ -> 0
+    end
+  end
+
+  def store(ref, item, quantity) do
+    existing_quantity = get_quantity(ref, item)
+    :ets.insert(ref, {item, quantity + existing_quantity})
+  end
+end
+```
+
+</details>
+
+实现 `Inventory` 模块，如文档所述。
+
+```elixir
+defmodule Inventory do
+  @moduledoc """
+  Documentation for `Inventory`
+
+  ## Examples
+
+      单一数量。
+
+      iex> ref = Inventory.new()
+      iex> Inventory.store(ref, :apples, 5)
+      iex> Inventory.get_quantity(ref, :apples)
+      5
+
+      多个存储。
+
+      iex> ref = Inventory.new()
+      iex> Inventory.store(ref, :apples, 5)
+      iex> Inventory.store(ref, :apples, 2)
+      iex> Inventory.get_quantity(ref, :apples)
+      7
+  """
+  @doc """
+  创建一个新的库存 :ets 表。
+
+  ## Examples
+
+      iex> ref = Inventory.new()
+      iex> is_reference(ref)
+      true
+  """
+  def new() do
+  end
+
+  @doc """
+  检索库存中某个项目的当前数量。
+
+  ## Examples
+        
+      iex> ref = Inventory.new()
+      iex> Inventory.get_quantity(ref, :apples)
+      0
+  """
+  def get_quantity(ref, item) do
+  end
+
+  @doc """
+  在库存中存储一个项目。
+  如果项目存在，则将数量添加到现有总数中。
+
+  ## Examples
+
+      iex> ref = Inventory.new()
+      iex> Inventory.store(ref, :apples, 5)
+      true
+  """
+  def store(ref, item, quantity) do
+  end
+end
+```
+
+## 奖励：仓库
+
+你将构建一个使用 `:ets` 的仓库管理应用程序。现在，每个项目可以存储在多个箱子中，每个箱子都有其自己的数量。
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+考虑使用 `:duplicate_bag` [表类型](https://elixirschool.com/en/lessons/storage/ets#table-types-2)。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Warehouse do
+  def new() do
+    :ets.new(:warehouse, [:duplicate_bag])
+  end
+
+  def get_quantity(ref, item) do
+    :ets.lookup(ref, item)
+  end
+
+  def store(ref, item, quantity) do
+    :ets.insert(ref, {item, quantity})
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule Warehouse do
+  @moduledoc """
+  Documentation for `Warehouse`
+
+  ## Examples
+
+      现有数量。
+
+      iex> ref = Warehouse.new()
+      iex> Warehouse.store(ref, :apples, 5)
+      iex> Warehouse.get_boxes(ref, :apples)
+      [apples: 5]
+
+      多个箱子。
+
+      iex> ref = Warehouse.new()
+      iex> Warehouse.store(ref, :apples, 1)
+      iex> Warehouse.store(ref, :apples, 3)
+      iex> Warehouse.get_boxes(ref, :apples)
+      [apples: 1, apples: 3]
+  """
+
+  @doc """
+  创建一个新的仓库 :ets 表。
+
+  ## Examples
+
+      iex> ref = Warehouse.new()
+      iex> is_reference(ref)
+      true
+  """
+  def new(opts \\ []) do
+  end
+
+  @doc """
+  检索某个项目的所有箱子及每个箱子的相关数量。
+
+  ## Examples
+
+      iex> ref = Warehouse.new()
+      iex> Warehouse.get_boxes(ref, :apples)
+      []
+  """
+  def get_boxes(ref, item) do
+  end
+
+  @doc """
+  在仓库中存储一个项目。
+  如果项目存在，则将数量添加到现有总数中。
+
+    ## Examples
+
+      iex> ref = Warehouse.new()
+      iex> Warehouse.store(ref, :apples, 5)
+      true
+  """
+  def store(ref, item, quantity) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 ETS 库存管理练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=ETS Inventory Management">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/agent_journal.livemd">代理日志</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/advanced_score_tracker.livemd">高级分数跟踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

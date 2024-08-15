@@ -1,0 +1,215 @@
+# 家谱
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Family Tree">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/shopping_list.livemd">购物清单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mazes.livemd">迷宫</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 家谱
+
+映射允许你使用键和值创建树状结构。因此，可以制作家谱。
+在下面的Elixir单元中，创建一个家谱，它是一个`map`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart BT
+p1g1[祖父母]
+p1g2[祖父母]
+p2g1[祖父母]
+p2g2[祖父母]
+p1[父母]
+p2[父母]
+c1[孩子]
+
+c1 --> p1
+c1 --> p2
+p1 --> p1g1
+p1 --> p1g2
+p2 --> p2g1
+p2 --> p2g2
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+这个映射将以一个人开始，具有
+`:name`、`:age`、`:status`和`:parents`键。
+
+* `name` 是字符串。
+* `age` 是整数。
+* `status` 将是一个原子，值为 `:child`、`:parent` 或 `:grandparent`。
+* `parents` 应该是一个包含其自身 `:name`、`:age`、`:status` 和 `:parents` 键的映射列表。
+
+在下面的Elixir单元中，创建一个表示以下家谱图的映射。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+classDiagram
+    direction BT
+    class Arthur {
+        name: "Arthur"
+        status: :child
+        age: 22
+    }
+    class Uther {
+        name: "Uther"
+        status: :parent
+        age: 56
+    }
+    class Ygraine {
+        name: "Ygraine"
+        status: :parent
+        age: 45
+    }
+    class Han {
+        name: "Han"
+        status: :grand_parent
+        age: 81
+    }
+    class Leia {
+        name: "Leia"
+        status: :grand_parent
+        age: 82
+    }
+    class Bob {
+        name: "Bob"
+        status: :grand_parent
+        age: 68
+    }
+    class Bridget {
+        name: "Bridget"
+        status: :grand_parent
+        age: 70
+    }
+
+    Arthur --> Uther
+    Arthur --> Ygraine
+    Ygraine --> Bob
+    Ygraine --> Bridget
+    Uther --> Han
+    Uther --> Leia
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+这是一个 **嵌套数据** 的示例。
+
+```elixir
+%{
+  name: "Arthur",
+  status: :child,
+  age: 22,
+  parents: [
+    %{
+      name: "Uther",
+      status: :parent,
+      age: 56,
+      parents: [
+        %{name: "Han", status: :grand_parent, age: 81},
+        %{name: "Leia", status: :grand_parent, age: 82}
+      ]
+    },
+    %{
+      name: "Ygraine",
+      status: :parent,
+      age: 68,
+      parents: [
+        %{name: "Bob", status: :grand_parent, age: 68},
+        %{name: "Bridget", status: :grand_parent, age: 70}
+      ]
+    }
+  ]
+}
+```
+
+你也可以考虑将每个家庭成员提取为自己的变量。
+
+```elixir
+han = %{name: "Han", status: :grand_parent, age: 81}
+leia = %{name: "Leia", status: :grand_parent, age: 82}
+bob = %{name: "Bob", status: :grand_parent, age: 68}
+bridget = %{name: "Bridget", status: :grand_parent, age: 70}
+
+uther = %{name: "Uther", status: :parent, age: 56, parents: [han, leia]}
+ygraine = %{name: "Ygraine", status: :parent, age: 68, parents: [bob, bridget]}
+
+arthur = %{name: "Arthur", status: :child, age: 22, parents: [uther, ygraine]}
+
+family_tree = arthur
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成家谱练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Family Tree">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/shopping_list.livemd">购物清单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mazes.livemd">迷宫</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

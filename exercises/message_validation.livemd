@@ -1,0 +1,139 @@
+# 消息验证
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Message Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/with.livemd">与</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/user_validation.livemd">用户验证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 消息验证
+
+你将使用守卫创建一个 `Message` 模块，该模块只允许以字符串或具有 `:body` 字段的 `Message` 结构体的形式发送消息。发送消息将简单地返回一个以 `"Sent: "` 为前缀的消息字符串。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Message.send("hello!")
+"Sent: hello!"
+
+Message.send(%Message{body: "hi!"})
+"Sent: hi!"
+```
+
+无效消息应引发 [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Message.send(123)
+** (FunctionClauseError) no function clause matching in Message.send/1    
+    
+    The following arguments were given to Message.send/1:
+    
+        # 1
+        123
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Message do
+  defstruct [:body]
+  def send(message) when is_binary(message) do
+    "Sent: " <> message
+  end
+
+  def send(message) when is_binary(message.body) do
+    "Sent: " <> message.body
+  end
+end
+```
+
+</details>
+
+按照下面的文档实现 `Message` 模块。
+
+```elixir
+defmodule Message do
+  @moduledoc """
+  在用户之间发送消息。
+  如果提供有效输入，则返回消息的字符串。
+
+  ## 示例
+
+    iex> Message.send("hello!")
+    "Sent: hello!"
+
+    iex> Message.send(%Message{body: "hi!"})
+    "Sent: hi!"
+
+    iex> Message.send(123)
+    ** (FunctionClauseError) no function clause matching in Message.send/1
+  """
+  defstruct [:body]
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成消息验证练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Message Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/with.livemd">与</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/user_validation.livemd">用户验证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

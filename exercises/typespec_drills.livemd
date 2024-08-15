@@ -1,0 +1,310 @@
+# 类型规范练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Typespec Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/documentation_and_static_analysis.livemd">文档与静态分析</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_documentation_and_static_analysis.livemd">游戏：文档与静态分析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 类型规范练习
+
+练习帮助你通过重复练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是关于类型规范的。按照每个练习的说明尽快完成它们。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 回顾
+
+你可以使用 `@spec` 模块属性定义一个函数规范。每个 `@spec` 包括函数参数类型和返回值类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@spec add(integer(), integer()) :: integer()
+def add(int1, int2) do
+  int1 + int2
+end
+```
+
+你可以使用 `@type` 模块属性定义自定义类型。这些自定义类型可以在当前模块内外使用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@type user :: %{
+  name: string(),
+  age: integer()
+}
+```
+
+你可以使用 `|` 操作符包含多个类型。这适用于使用 `@spec` 的函数和自定义类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@spec double(integer() | nil)
+```
+
+## 函数规范
+
+根据函数参数名称和返回值添加函数 `@spec`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule FunctionSpecs do
+  @spec do_nothing :: nil
+  def do_nothing do
+    nil
+  end
+
+  @spec accept_and_return_anything(any()) :: any()
+  def accept_and_return_anything(anything) do
+    anything
+  end
+
+  @spec double(float()) :: float()
+  def double(float) when is_float(float) do
+    float * 2.0
+  end
+
+  @spec double(integer()) :: integer()
+  def double(integer) when is_integer(integer) do
+    integer * 2
+  end
+
+  @spec double(number()) :: number()
+  def double(number) do
+    number * 2
+  end
+
+  @spec add(integer(), integer()) :: integer()
+  def add(integer1, integer2) do
+    integer1 + integer2
+  end
+
+  @spec multiply(integer(), integer()) :: integer()
+  def multiply(integer1, integer2) do
+    integer1 * integer2
+  end
+
+  @spec divide(integer(), integer()) :: float()
+  def divide(integer1, integer2) do
+    integer1 / integer2
+  end
+
+  @spec rounded_divide(integer(), integer()) :: integer()
+  def rounded_divide(integer1, integer2) do
+    div(integer1, integer2)
+  end
+
+  @spec concat(String.t(), String.t()) :: String.t()
+  def concat(string1, string2) do
+    string1 <> string2
+  end
+
+  @spec to_string(integer()) :: String.t()
+  def to_string(integer) do
+    Integer.to_string(integer)
+  end
+
+  @spec merge(map(), map()) :: map()
+  def merge(map1, map2) do
+    Map.merge(map1, map2)
+  end
+
+  @spec split_and_lowercase(String.t()) :: [String.t()]
+  def split_and_lowercase(string) do
+    string
+    |> String.downcase()
+    |> String.split("", trim: true)
+  end
+
+  @spec string_to_int(String.t()) :: integer()
+  def string_to_int(string) do
+    String.to_integer(string)
+  end
+
+  @spec integers_to_strings([integer()]) :: [String.t()]
+  def integers_to_strings(integers) do
+    Enum.map(integers, fn int -> Integer.to_string(int) end)
+  end
+  
+  @spec one_to_two(1) :: 2
+  def one_to_two(1) do
+    2
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule FunctionSpecs do
+  def do_nothing do
+    nil
+  end
+
+  def accept_and_return_anything(anything) do
+    anything
+  end
+
+  def double(float) when is_float(float) do
+    float * 2.0
+  end
+
+  def double(integer) when is_integer(integer) do
+    integer * 2
+  end
+
+  def double(number) do
+    number * 2
+  end
+
+  def add(integer1, integer2) do
+    integer1 + integer2
+  end
+
+  def multiply(integer1, integer2) do
+    integer1 * integer2
+  end
+
+  def divide(integer1, integer2) do
+    integer1 / integer2
+  end
+
+  def rounded_divide(integer1, integer2) do
+    div(integer1, integer2)
+  end
+
+  def concat(string1, string2) do
+    string1 <> string2
+  end
+
+  def to_string(integer) do
+    Integer.to_string(integer)
+  end
+
+  def merge(map1, map2) do
+    Map.merge(map1, map2)
+  end
+
+  def split_and_lowercase(string) do
+    string
+    |> String.downcase()
+    |> String.split("", trim: true)
+  end
+
+  def string_to_int(string) do
+    String.to_integer(string)
+  end
+
+  def integers_to_strings(integers) do
+    Enum.map(integers, fn int -> Integer.to_string(int) end)
+  end
+
+  def one_to_two(1) do
+    2
+  end
+end
+```
+
+## 自定义类型
+
+根据下面注释描述的内容，在模块中实现以下自定义 `@type`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule CustomTypes do
+  # 一个字符串或数字
+  @type unparsed_number :: String.t() | number()
+  # 一个字符串列表
+  @type strings :: [String.t()]
+  # 一个包含 :title (字符串) 和 :content (字符串) 键的映射。
+  @type book :: %{title: String.t(), content: String.t()}
+  # 一个包含 :name (字符串) 和 `:books` (一本书的列表) 键的映射。
+  @type author :: %{name: String.t(), books: [book()]}
+end
+```
+
+</details>
+
+```elixir
+defmodule CustomTypes do
+  # 一个字符串或数字
+  @type unparsed_number
+  # 一个字符串列表
+  @type strings
+  # 一个包含 :title (字符串) 和 :content (字符串) 键的映射。
+  @type book
+  # 一个包含 :name (字符串) 和 `:books` (一本书的列表) 键的映射。
+  @type author
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成类型规范练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Typespec Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/documentation_and_static_analysis.livemd">文档与静态分析</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_documentation_and_static_analysis.livemd">游戏：文档与静态分析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

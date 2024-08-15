@@ -1,0 +1,323 @@
+# 文档与静态分析
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Documentation And Static Analysis">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_wordle.livemd">游戏：Wordle</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/typespec_drills.livemd">类型规范练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* 我们如何编写文档和文档测试？
+* dialyzer 和 typespecs 的目的是什么？
+* Credo 的目的是什么？
+* 我们如何使用 dialyzer 和 typespecs 来检查类型规范问题？
+
+## 文档与静态分析
+
+在本课中，我们将介绍以下文档和静态分析工具：
+
+* **文档和文档测试**：Elixir 提供内置支持，用于记录代码和在文档中编写测试。
+* **ExDoc**：为 Elixir 项目生成文档，使代码更易于理解和使用。
+* **Credo**：检查 Elixir 代码中的问题，促进编码标准，并捕捉常见错误。
+* **Dialyzer**：对 Elixir 代码进行静态分析，识别潜在错误，提高代码可靠性。
+* **Typespecs**：在 Elixir 代码中指定类型的注释，增强可读性，并通过像 Dialyzer 这样的工具进行更好的错误检查。
+
+通过利用这些工具和实践，我们可以提高 Elixir 代码库的质量、可靠性和可维护性，同时促进协作并帮助我们和其他开发人员理解代码。
+
+这些静态分析工具通常由 [Elixir Language Server](https://github.com/elixir-lsp/elixir-ls) 提供支持。
+
+## 文档
+
+Elixir 提供特殊的模块属性用于记录模块和函数。
+
+* `@moduledoc` 记录整个模块。
+* `@doc` 记录下一个函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Hello do
+  @moduledoc """
+  Documentation for `Hello`
+  """
+
+  @doc """
+  An example function for demonstrating documentation.
+
+  prints "Hello, world!"
+
+  ## Examples
+
+      Hello.world()
+      "Hello, world!"
+  """
+  def world do
+    "Hello, world!"
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 文档测试
+
+以 `iex>` 开头的行将被解释为文档测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@doc """
+    iex> 1 + 1
+    2
+"""
+```
+
+[doctest/2](https://hexdocs.pm/ex_unit/ExUnit.DocTest.html#doctest/2) 宏用于运行模块的文档测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+doctest Example.Module
+```
+
+文档测试会在 Livebook 中自动运行。以下是通过和失败测试的示例。
+
+```elixir
+defmodule DocTestExample do
+  @doc """
+  adds two numbers together
+
+  ## Examples
+
+      iex> DocTestExample.add(1, 1)
+      2
+
+      iex> DocTestExample.add(1, 2)
+      3
+  """
+  def add(int, int) do
+    2
+  end
+end
+```
+
+## ExDoc
+
+[ExDoc](https://github.com/elixir-lang/ex_doc) 生成项目文档。
+
+我们可以在 mix 项目中添加以下依赖以包含 `ExDoc`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  defp deps do
+    [
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false}
+    ]
+  end
+```
+
+安装依赖。
+
+```
+$ mix deps.get
+```
+
+然后为项目生成文档。
+
+```
+$ mix docs
+```
+
+这会创建一个 `docs/` 文件夹。在 docs 文件夹中有一个 `index.html` 文件。
+`HTML` 代表超文本标记语言。它是用于构建网页及其内容的代码。
+
+您可以在浏览器中打开 `docs/index.html` 文件以查看项目文档。
+
+## 类型规范
+
+### `@spec`
+
+我们可以使用 `@spec` 指定函数的输入和输出类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@spec add(integer, integer) :: integer()
+def add(int, int) do
+  int + int
+end
+```
+
+`integer` 是内置类型。以下是您应该了解的几种常见内置类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+any()
+atom()
+map()
+tuple()
+list()
+list(type) or [type] # a list where the elements are particular type
+float()
+integer()
+number() # both integers and floats
+String.t() # the string type
+```
+
+请参阅 [基本类型](https://hexdocs.pm/elixir/typespecs.html#basic-types) 以获取完整的内置类型列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### `@type`
+
+我们可以使用 `@type` 定义自定义类型。例如，我们可以使用 `|` 结合其他类型来组合类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@type color :: :red | :orange | :yellow | :green | :blue | :purple 
+```
+
+## Dialyzer
+
+Dialyzer 是一个静态分析工具，用于提供关于代码的警告，例如类型不匹配、不可达代码和其他常见问题。
+
+要使用 Dialyzer，我们安装 [Dialyxir](https://github.com/jeremyjh/dialyxir)，它为在 Elixir 项目中使用 Dialyzer 提供便利。
+
+我们可以在任何 mix 项目的 `mix.exs` 文件中将 `:dialyxir` 添加为依赖。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+ defp deps do
+    [
+      {:dialyxir, "~> 1.3", only: :dev, runtime: false}
+    ]
+  end
+```
+
+确保安装依赖。
+
+```
+$ mix deps.get
+```
+
+然后我们可以通过在命令行中运行以下命令来运行 Dialyzer。
+
+```
+$ mix dialyzer
+...
+Total errors: 0, Skipped: 0, Unnecessary Skips: 0
+done in 0m0.82s
+```
+
+如果使用 Visual Studio Code，Dialyzer 还会在存在类型问题时提供内联警告。
+
+## Credo
+
+Credo 是另一个静态分析工具，专注于教学和代码一致性。
+它扫描项目的代码以查找反模式，并提供改进代码质量和可读性的建议。
+
+我们可以通过在 `mix.exs` 中将其添加到依赖项中来安装 Credo，使用 [最新的 Credo 版本](https://hex.pm/packages/credo)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defp deps do
+  [
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+  ]
+end
+```
+
+确保安装新依赖。
+
+```
+$ mix deps.get
+```
+
+然后运行以下命令以查看 Credo 警告。
+
+```
+$ mix credo
+...
+Analysis took 0.01 seconds (0.01s to load, 0.00s running 52 checks on 3 files)
+3 mods/funs, found no issues.
+```
+
+Credo 提供的代码建议可以帮助您编写符合习惯的 Elixir 代码。例如，如果您在项目中留下 [IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2)，Credo 会警告您。
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [ElixirSchools: 文档](https://elixirschool.com/en/lessons/basics/documentation)
+* [elixir-lang: 文档测试](https://elixir-lang.org/getting-started/mix-otp/docs-tests-and-with.html#doctests)
+* [HexDocs: Credo](https://hexdocs.pm/credo/overview.html)
+* [elixir-lang: 类型规范](https://elixir-lang.org/getting-started/typespecs-and-behaviours.html)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成文档与静态分析阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Documentation And Static Analysis">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_wordle.livemd">游戏：Wordle</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/typespec_drills.livemd">类型规范练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

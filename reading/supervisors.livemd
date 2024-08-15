@@ -1,0 +1,555 @@
+# 监督者
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervisors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/traffic_light_server.livemd">交通灯服务器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/supervisor_drills.livemd">监督者练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* 监督者解决了什么样的问题？
+* 我们如何使用监督者使我们的应用程序具有容错能力？
+* 我们为什么可能会使用每种监督者重启策略（`:one_for_one`，`:one_for_all`，`:rest_for_one`）？
+
+## 容错
+
+Elixir 和 [开放电信平台 (OTP)](https://en.wikipedia.org/wiki/Open_Telecom_Platform) 非常适合构建高度并发和容错的系统，这些系统可以处理运行时错误。
+
+错误是不可避免的。我们通常会为我们预期的错误实现特定的错误处理。然而，无法预见每一个可能的错误。对于意外错误，Elixir 遵循 **让它崩溃** 的理念。
+
+为了在 Elixir 中实现容错系统，我们利用并发性并将系统隔离为不同的进程。这些进程不共享内存，一个进程的崩溃不会导致另一个进程崩溃。
+
+因此，我们可以让一个进程崩溃，它不会影响我们系统的其他部分。
+
+> 令人惊讶的是，错误处理的核心工具是并发性。
+> 在 BEAM 世界中，两个并发进程是
+> 完全分开的；它们不共享内存，一个进程的崩溃默认情况下不会影响另一个进程的执行流。
+> 进程隔离使您能够将错误的负面影响限制在单个进程或一小组相关进程中，
+> 这使得大部分系统正常运行。
+> 
+> * Sasa Juric, [Elixir in Action](https://www.manning.com/books/elixir-in-action-second-edition).
+
+例如，我们可以生成一个进程并引发一个错误。除非我们明确使用 `spawn_link/1` 将进程链接，否则该进程将会死亡，并且不会影响父进程。
+
+```elixir
+pid =
+  spawn(fn ->
+    raise "error"
+  end)
+
+# 允许进程崩溃的时间
+Process.sleep(100)
+
+"I still run."
+```
+
+当一个链接的进程崩溃时，它也会崩溃生成它的进程。取消注释下面的代码，您将看到它崩溃当前的 Livebook 进程。完成后请重新注释代码。
+
+```elixir
+# spawn_link(fn -> Raise "error" End)
+```
+
+这意味着如果我们启动一个 [GenServer](https://hexdocs.pm/elixir/GenServer.html)（或其他进程） **未受监督**，如果它崩溃，它将引发一个错误。
+
+```elixir
+defmodule UnsupervisedWorker do
+  use GenServer
+
+  def init(state) do
+    {:ok, state}
+  end
+
+  def handle_info(:crash, _state) do
+    raise "crash!"
+  end
+end
+```
+
+取消注释并运行以下代码以查看它崩溃当前的 Livebook 进程，然后重新注释代码。
+
+```elixir
+# {:ok, pid} = GenServer.start_link(UnsupervisedWorker, [])
+# Process.send(pid, :crash, [])
+```
+
+如果我们使用 [Process.exit/2](https://hexdocs.pm/elixir/Process.html#exit/2) 以 `:exit` 原因手动退出进程，情况也是如此。取消注释并运行以下代码以查看它崩溃当前的 Livebook 进程，然后重新注释代码。
+
+```elixir
+# {:ok, pid} = GenServer.start_link(UnsupervisedWorker, [])
+# Process.exit(pid, :exit)
+```
+
+如果您想了解更多关于容错和错误处理的信息，Joe Armstrong 创建了一个关于该主题的精彩视频。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=ZOsvgwOR6G0&ab_channel=KentComputing\")","title":"Erlang Master Class 2: Video 3 - Handling errors"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=ZOsvgwOR6G0&ab_channel=KentComputing")
+```
+
+## 监督者
+
+我们可以使用 `监督者` 来监控进程并在它们崩溃时重新启动它们，而不是崩溃父进程。
+
+重启这个术语有点误导。明确地说，我们不能重启一个进程。在这种情况下，重启意味着我们杀死该进程并在其位置启动一个新进程。然而，从概念上讲，将其视为重启更容易。
+
+我们为什么要重启进程？好吧，大多数技术问题都是状态的结果。我们的系统进入了一个不良状态，无法恢复。重新启动系统可以清除状态，并且通常可以解决问题。使用 [监督者](https://hexdocs.pm/elixir/Supervisor.html) 就像为您的应用程序添加一个自动开关。
+
+一个 [监督者](https://hexdocs.pm/elixir/Supervisor.html) 监控一个或多个子进程。我们通常将这些进程称为 **工作者**。
+[监督者](https://hexdocs.pm/elixir/Supervisor.html) 可以使用不同的策略来重启其子工作者。`:one_for_one` 策略单独重启任何崩溃的工作者。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+S[Supervisor]
+W1[Worker]
+W2[Worker]
+W3[Worker]
+
+S --> W1
+S --> W2
+S --> W3
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+在这里，我们定义了一个简单的 `Worker` 进程，我们将在监督者下启动它。
+
+```elixir
+defmodule Worker do
+  use GenServer
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [], [])
+  end
+
+  def init(state) do
+    {:ok, state}
+  end
+end
+```
+
+每个监督者也是一个进程。 [Supervisor.start_link/2](https://hexdocs.pm/elixir/Supervisor.html#start_link/2) 函数接受一个子进程列表并启动监督者进程。我们将每个子进程作为一个包含 `:id` 和 `:start` 签名的映射提供。
+
+```elixir
+children = [
+  %{
+    id: :worker1,
+    start: {Worker, :start_link, [1]}
+  },
+  %{
+    id: :worker2,
+    start: {Worker, :start_link, [2]}
+  },
+  %{
+    id: :worker3,
+    start: {Worker, :start_link, [3]}
+  }
+]
+
+{:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+### 轮到你了
+
+<!-- livebook:{"break_markdown":true} -->
+
+在这里，我们使用 Livebook 独有的 [Kino.Process.sup_tree/2](https://hexdocs.pm/kino/Kino.Process.html#sup_tree/2) 函数创建上述监督树的可视化。
+
+```elixir
+Kino.Process.sup_tree(supervisor_pid)
+```
+
+当我们杀死监督树下的一个进程时，它将被重新启动。仅供演示，您可以使用 [：c.pid/3](https://www.erlang.org/doc/man/c.html#pid-3) 函数手动创建上图中的 `pid`，其中 `727` 应该是上图中的一个 pid。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+pid = :c.pid(0, 727, 0)
+```
+
+然后，使用 [Process.exit/2](https://hexdocs.pm/elixir/Process.html#exit/2) 杀死该进程。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Process.exit(pid, :exit)
+```
+
+重新评估上面的图表，您应该看到一个新的 `Worker` 进程以不同的 pid 启动。重复此过程以杀死监督者下的每个进程并查看它们被重新启动。
+
+```elixir
+
+```
+
+## 重启策略
+
+监督者可以有不同的重启策略，这些策略改变了我们在一个子进程崩溃时如何处理重启子进程的行为。
+
+我们已经看到了上述的 `:one_for_one` 策略。这是最常见的策略，在这种策略下，我们重启在监督者下崩溃的子进程。
+
+然而，有时我们希望使用不同的重启策略，例如 `:one_for_all` 和 `:rest_for_one`。
+
+### 一对一
+
+仅重启崩溃的工作者。
+
+```mermaid
+flowchart TD
+    Supervisor
+    Supervisor --> P1
+    Supervisor --> P2
+    Supervisor --> P3
+    Supervisor --> ..
+    Supervisor --> Pn
+
+    classDef crashed fill:#fe8888;
+    classDef restarted stroke:#0cac08,stroke-width:4px
+
+    class P2 crashed
+    class P2 restarted
+
+```
+
+在上面的图中，只有 P2 崩溃，因此只有 P2 将被监督者重启。
+
+### 一对全
+
+重启所有子工作者。
+
+```mermaid
+flowchart TD
+    Supervisor
+    Supervisor --> P1
+    Supervisor --> P2
+    Supervisor --> P3
+    Supervisor --> ..
+    Supervisor --> Pn
+
+    classDef crashed fill:#fe8888;
+    classDef terminated fill:#fbab04;
+    classDef restarted stroke:#0cac08,stroke-width:4px
+
+    class P2 crashed
+    class P1,P3,..,Pn terminated
+    class P1,P2,P3,..,Pn restarted
+```
+
+P2 崩溃，导致所有其他子进程被终止，然后所有子进程被重启。
+
+### 一对一
+
+在崩溃进程之后按顺序重启子工作者。
+
+```mermaid
+flowchart TD
+    Supervisor
+    Supervisor --> P1
+    Supervisor --> P2
+    Supervisor --> P3
+    Supervisor --> ..
+    Supervisor --> Pn
+
+    classDef crashed fill:#fe8888;
+    classDef terminated fill:#fbab04;
+    classDef restarted stroke:#0cac08,stroke-width:4px
+
+    class P2 crashed
+    class P3,..,Pn terminated
+    class P2,P3,..,Pn restarted
+```
+
+P2 崩溃，启动顺序之后的子进程被终止，然后 P2 和其他被终止的子进程被重启。
+
+## 重启策略示例
+
+为了更好地理解我们如何使用监督者与不同的重启策略，我们将监督多个 `Bomb` 进程，这些进程将在指定的时间后崩溃。
+
+在这里，我们创建了一个 `Bomb` 进程，它将在指定的 `:bomb_time` 后向自己发送消息以导致其崩溃。
+
+```elixir
+defmodule Bomb do
+  use GenServer
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts)
+  end
+
+  @impl true
+  def init(opts) do
+    bomb_time = Keyword.get(opts, :bomb_time, 2000)
+    name = Keyword.get(opts, :name, 2000)
+
+    Process.send_after(self(), :explode, bomb_time)
+    {:ok, name}
+  end
+
+  @impl true
+  def handle_info(:explode, name) do
+    raise "#{name} Exploded!"
+  end
+end
+```
+
+每个 `Bomb` 将存在指定的时间，然后崩溃（爆炸）。
+
+* `Bomb 1` 将在 2 秒后爆炸。
+* `Bomb 2` 将在 3 秒后爆炸。
+* `Bomb 3` 将在 5 秒后爆炸。
+
+我们将在所有示例中重用这些相同的子进程。
+
+```elixir
+children = [
+  %{
+    id: :bomb1,
+    start: {Bomb, :start_link, [[name: "Bomb 1", bomb_time: 2000]]}
+  },
+  %{
+    id: :bomb2,
+    start: {Bomb, :start_link, [[name: "Bomb 2", bomb_time: 3000]]}
+  },
+  %{
+    id: :bomb3,
+    start: {Bomb, :start_link, [[name: "Bomb 3", bomb_time: 5000]]}
+  }
+]
+```
+
+### 一对一
+
+我们将使用 `:one_for_one` 策略启动三个炸弹。
+
+为了示例，我们将 `:max_restarts` 增加到每五秒最多允许五次崩溃。
+
+您可以访问 [Supervisor Options](https://hexdocs.pm/elixir/Supervisor.html#init/2-options) 在 HexDocs 上查看完整的配置选项列表。
+
+每个炸弹单独重启而不影响其他炸弹，
+因此崩溃的时间线应为：
+
+* 2 秒：`Bomb 1` 崩溃。
+* 3 秒：`Bomb 2` 崩溃。
+* 4 秒：`Bomb 1` 崩溃。
+* 5 秒：`Bomb 3` 崩溃。
+
+取消注释并运行下面的单元格以查看崩溃的时间线，然后重新注释它。
+
+```elixir
+# {:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one, max_restarts: 5)
+```
+
+### 一对全
+
+如果我们将重启策略更改为 `:one_for_all`，那么当一个进程崩溃时，所有进程将被终止并重新启动。
+
+因此，崩溃的时间线将是：
+
+* 2 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 4 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 6 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 8 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 10 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+
+请注意，`Bomb2` 和 `Bomb3` 将永远不会爆炸，因为它们的计时器会重启。
+
+取消注释下面的行以观察崩溃的时间线，然后重新注释它。
+
+```elixir
+# {:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_all, max_restarts: 5)
+```
+
+### 一对一
+
+一对一的工作方式就像一排多米诺骨牌，只有在崩溃进程之后定义的子进程会被重启。
+
+如果我们将重启策略更改为 `:rest_for_one`，进程将重启在监督者中启动顺序之后的任何进程。
+
+起初，我们不会注意到与 `:one_for_all` 策略的任何变化。时间线仍然是：
+
+* 2 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 4 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 6 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 8 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+* 10 秒：`Bomb 1` 崩溃（`Bomb 2` 和 `Bomb 3` 被重启）
+
+取消注释下面的行以观察崩溃的时间线，然后重新注释它。
+
+```elixir
+# {:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :rest_for_one, max_restarts: 5)
+```
+
+但是，如果我们更改监督者中子进程的顺序，只有在崩溃进程之后的子进程会重启。
+
+```elixir
+children = [
+  %{
+    id: :bomb3,
+    start: {Bomb, :start_link, [[name: "Bomb 3", bomb_time: 5000]]}
+  },
+  %{
+    id: :bomb1,
+    start: {Bomb, :start_link, [[name: "Bomb 1", bomb_time: 2000]]}
+  },
+  %{
+    id: :bomb2,
+    start: {Bomb, :start_link, [[name: "Bomb 2", bomb_time: 3000]]}
+  }
+]
+```
+
+因此，崩溃的时间线将是：
+
+* 2 秒：`Bomb1` 崩溃（`Bomb2` 被重启）
+* 4 秒：`Bomb1` 崩溃（`Bomb2` 被重启）
+* 5 秒：`Bomb3` 崩溃（`Bomb1` 和 `Bomb2` 被重启）
+* 7 秒：`Bomb1` 崩溃（`Bomb2` 被重启）
+* 9 秒：`Bomb1` 崩溃（`Bomb2` 被重启）
+
+```elixir
+# {:ok, Supervisor_pid} = Supervisor.start_link(children, Strategy: :rest_for_one, Max_restarts: 5)
+```
+
+### 轮到你了
+
+在监督者下启动 **四个** `Bomb` 进程，设置不同的炸弹时间。尝试每种重启策略 `:one_for_one`，`one_for_all` 和 `:rest_for_one`。预测崩溃时间线，然后评估您的代码。结果是否与您的预测相符？
+
+```elixir
+
+```
+
+## 语法糖
+
+我们可以用一个元组代替提供一个包含 `:id` 和 `:start` 键的映射。模块的名称也将是 `:id`，第二个值将是传递给 `start_link/1` 的参数。
+
+```elixir
+children = [
+  {Bomb, [name: "Syntax Sugar Bomb", bomb_time: 1000]}
+]
+```
+
+取消注释以下代码以查看崩溃时间线，然后重新注释它。
+
+```elixir
+# Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+## 进一步阅读
+
+* [HexDocs: Supervisor](https://hexdocs.pm/elixir/Supervisor.html#init/2-options)
+* [Elixir Schools: Supervisor Strategies](https://elixirschool.com/blog/supervisor-strategies)
+* [Elixir Schools: OTP Supervisors](https://elixirschool.com/en/lessons/advanced/otp_supervisors)
+
+## 受监督的 Mix 项目
+
+受监督的 mix 项目使用一个 [Application](https://hexdocs.pm/elixir/Application.html) 模块，该模块定义应用程序回调。
+
+应用程序模块在 `mix.exs` 的 `application/0` 函数中配置。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def application do
+  [
+    extra_applications: [:logger],
+    mod: {MyApp.Application, []}
+  ]
+end
+```
+
+应用程序模块通常位于项目文件夹中的 `my_app/application.ex` 文件中，并包含启动应用程序的逻辑。在受监督的应用程序中，该模块启动一个监督树。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyApp.Application do
+  # 请参阅 https://hexdocs.pm/elixir/Application.html
+  # 以获取有关 OTP 应用程序的更多信息
+  @moduledoc false
+
+  use Application
+
+  @impl true
+  def start(_type, _args) do
+    children = [
+      # 通过调用：RockPaperScissors.Worker.start_link(arg) 启动工作者
+      # {RockPaperScissors.Worker, arg}
+    ]
+
+    # 请参阅 https://hexdocs.pm/elixir/Supervisor.html
+    # 以获取其他策略和支持的选项
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+end
+```
+
+我们可以使用 `--sup` 标志生成一个包含所有上述脚手架的 mix 项目，或将其手动添加到现有项目中。
+
+```
+mix new my_app --sup
+```
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "finish Supervisors reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervisors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/traffic_light_server.livemd">交通灯服务器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/supervisor_drills.livemd">监督者练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

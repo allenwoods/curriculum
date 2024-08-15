@@ -1,0 +1,120 @@
+# MetaMath
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=MetaMath">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/metaprogramming.livemd">元编程</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/custom_assertions.livemd">自定义断言</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## MetaMath
+
+你正在创建一个数学游戏。玩家将会得到格式为 `"2 + 2"` 的数学问题。
+
+该字符串可以包含多个操作，顺序可以是任意的，例如 `"2 + 10 * 23 - 10"`。
+
+你需要确定正确的结果以便与玩家的答案进行核对。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Math.correct?("2 + 2", 4) # true 
+Math.correct?("2 + 2", 5) # false
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Math do
+  def correct?(equation, player_answer) do
+    {result, _bindings} = Code.eval_string(equation)
+    result == player_answer
+  end
+end
+```
+
+</details>
+
+实现文档中描述的 `Math` 模块。
+
+```elixir
+defmodule Math do
+  @doc """
+  确定玩家的答案是否与字符串中的数学表达式的结果匹配。
+
+  iex> Math.correct?("1 + 1", 2)
+  true
+  iex> Math.correct?("1 + 1", 4)
+  false
+  iex> Math.correct?("1 - 1", 0)
+  true
+  iex> Math.correct?("10 + 14 * 4 - 2", 64)
+  true
+  """
+  def correct?(equation, player_answer) do
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成 MetaMath 练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=MetaMath">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/metaprogramming.livemd">元编程</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/custom_assertions.livemd">自定义断言</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

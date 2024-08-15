@@ -1,0 +1,357 @@
+<!-- livebook:{"file_entries":[{"name":"body-recursion-process-full.PNG","type":"attachment"},{"name":"livebook_runtime.PNG","type":"attachment"},{"name":"stack-overflow-without-tail-recursion.png","type":"attachment"},{"name":"tail-recursion-optimized-stack.png","type":"attachment"}]} -->
+
+# 递归
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Recursion">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/phone_number_parsing.livemd">电话号码解析</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fibonacci.livemd">斐波那契数列</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何使用递归函数来完成枚举或遍历某个数据结构直到它为空？
+* 尾递归与体递归的性能影响是什么？
+
+## 递归
+
+递归是一种编程技术，其中一个函数调用自身。这会创建一个循环效果，直到满足某个退出条件。
+
+以下是一个递归循环的示例，它从某个整数开始倒计时。
+
+```elixir
+defmodule Recursion do
+  def loop(count) do
+    if count <= 0 do
+      IO.puts(count)
+    else
+      IO.puts(count)
+      loop(count - 1)
+    end
+  end
+end
+
+Recursion.loop(5)
+```
+
+这会调用循环函数5次。在底层，这会在栈上放置5个帧。
+
+我们触发对 [IO.puts/2](https://hexdocs.pm/elixir/IO.html#puts/2) 的调用，以显示循环函数已被调用5次，且参数不同。
+
+```mermaid
+flowchart LR
+  a["loop(n)"]
+  b["loop(n - 1)"]
+  c["loop(n - 2)"]
+  d["loop(n - 3)"]
+  e["loop(n - 4)"]
+  f["loop(...)"]
+  5["loop(5)"]
+  4["loop(4)"]
+  3["loop(3)"]
+  2["loop(2)"]
+  1["loop(1)"]
+  5 --> 4 --> 3 --> 2 --> 1
+  a --> b --> c --> d --> e --> f
+```
+
+Computerphile 对递归进行了详细的解释。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Mv9NEXX1VHc\")","title":"Computerphile: Recursion"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=Mv9NEXX1VHc")
+```
+
+<!-- livebook:{"branch_parent_index":1} -->
+
+## 无尽递归
+
+我们应该有一些结束条件，否则，这将永远运行。你会注意到这个 Elixir 单元永远不会停止运行。在底层，它不断调用 `Forever.run/0`。
+
+```elixir
+defmodule Forever do
+  def run do
+    run()
+  end
+end
+
+Forever.run()
+```
+
+## 栈溢出
+
+来自其他语言的你可能会惊讶于无尽递归函数在 Elixir 中并不会崩溃。在大多数编程语言中，调用递归函数会在栈上放置太多栈帧，导致栈溢出。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/stack-overflow-without-tail-recursion.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这是因为栈内存存储每个递归调用的栈帧时变得过于满（溢出）。
+
+## 尾递归
+
+由于函数式编程语言非常依赖递归，Elixir（和 Erlang）实现了 **尾调用优化**。
+
+尾调用优化避免了添加新的栈帧，而是重用当前的栈帧并跳回栈帧的顶部。这避免了额外的内存消耗。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tail-recursion-optimized-stack.png)
+
+## 体递归
+
+请记住，Elixir 只能对你的递归函数进行尾调用优化，如果它所做的最后一件事是调用自身。这就是为什么它被称为 **尾** 递归。否则，如果函数在体内调用自身，则称为 **体递归**，并且不会被优化。
+
+### 你的回合
+
+让我们证明 **体递归** 没有被优化。首先，在这个 livebook 中打开运行时面板。按 `s` 然后 `r` 打开设置面板。在那里你可以看到当前的内存消耗。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/livebook_runtime.PNG)
+
+<!-- livebook:{"break_markdown":true} -->
+
+接下来，取消注释并执行以下使用体递归的 Elixir 单元。它是一个无意义的函数，不执行任何操作，但它将在函数体内无限调用自身。
+
+你会注意到 **进程** 的内存消耗会增加，最终单元会中止。你可能需要点击 **连接** 按钮以重新连接 Elixir 运行时。
+
+```elixir
+# defmodule Body do
+#   def recursion([head | tail]) do
+#     recursion(tail ++ tail) ++ [head]
+#   end
+# end
+
+# Body.recursion([1,2,3])
+```
+
+确保你注释掉上面的代码，否则 Livebook 会不断断开连接。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/body-recursion-process-full.PNG)
+
+## 使用递归
+
+那么，递归为什么有用呢？好吧，它是我们在 Elixir 中实现大量功能的方式。例如，许多 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块中的函数在底层使用递归。
+
+递归使我们能够通过遍历数据结构来完成 **枚举**。它还使得在函数调用之间保持 **状态** 成为可能。
+
+以下是一个递归函数 `sum/2` 的示例，它遍历一个列表并保持一个累加器。它查看列表中的每个元素并将其添加到当前累加器中，以计算列表中所有元素的总和。当列表为空时，它返回最终的累加器。
+
+```elixir
+defmodule RecursiveSum do
+  def sum(list, accumulator \\ 0) do
+    case list do
+      [] -> accumulator
+      [head | tail] -> sum(tail, accumulator + head)
+    end
+  end
+end
+
+RecursiveSum.sum([1, 2, 3], 0)
+```
+
+我们通过在列表的尾部递归调用 `sum/2` 来遍历列表并构建一个累加器。在这种情况下，初始累加器为 `0`。
+
+列表中的每个元素都加到累加器中。`1` + `2` + `3` = `6`，因此函数返回 `6`。
+
+```mermaid
+flowchart LR
+sum1["sum([1, 2, 3], 0)"]
+sum2["sum([2, 3], 1)"]
+sum3["sum([3], 3)"]
+sum4["sum([], 6)"]
+
+sum1 --> sum2 --> sum3 --> sum4 --> 6
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 基本情况
+
+递归函数通常有一个 **基本情况**（有时也称为 **退出条件**），在该情况下它们将停止运行并返回某个值。
+
+以下是 `sum/2` 函数的另一个示例，这次使用多个函数子句将基本情况分离到一个单独的函数调用中，该调用返回累加器。
+
+```elixir
+defmodule BaseCaseExample do
+  def sum([], accumulator), do: accumulator
+  def sum([head | tail], accumulator), do: sum(tail, accumulator + head)
+end
+
+BaseCaseExample.sum([1, 2, 3], 0)
+```
+
+### 你的回合
+
+创建一个 `CountDown` 模块，使用递归打印提供的整数和 `0` 之间的所有值。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+CountDown.count(5)
+```
+
+上述代码将打印：
+
+```
+5
+4
+3
+2
+1
+0
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule CountDown do
+  def count(0), do: IO.puts(0)
+  def count(n) do
+    IO.puts(n)
+    count(n - 1)
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule CountDown do
+end
+```
+
+### 你的回合
+
+创建一个 `CountBetween` 模块，该模块在起始整数和结束整数之间计数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+CountBetween.count(2, 5)
+```
+
+上述代码将打印：
+
+```
+2
+3
+4
+5
+```
+
+`CountBetween` 模块应处理起始值大于结束值的情况。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+CountBetween.count(10, 5)
+```
+
+上述代码将打印：
+
+```
+10
+9
+8
+7
+6
+5
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule CountBetween do
+  def count(finish, finish), do: IO.puts(finish)
+  def count(start, finish) when start < finish do
+    IO.puts(start)
+    count(start + 1, finish)
+  end
+
+    def count(start, finish) when start > finish do
+    IO.puts(start)
+    count(start - 1, finish)
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule CountBetween do
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成递归阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Recursion">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/phone_number_parsing.livemd">电话号码解析</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fibonacci.livemd">斐波那契数列</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

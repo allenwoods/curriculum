@@ -1,0 +1,229 @@
+# 宝可梦战斗
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Pokemon Battle">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/rpg_dialogue.livemd">RPG 对话</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/ranges.livemd">范围</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+你将创建一个宝可梦战斗游戏。如果你不熟悉宝可梦，它是一个元素生物进行战斗的游戏。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 定义宝可梦结构体
+
+你将使用 `Pokemon` 结构体来表示宝可梦，包含以下键。
+
+* `:name` 将是一个字符串。
+* `:type` 将是一个原子，值为 `:grass`、`:water` 或 `:fire`
+* `:health` 将是一个浮点数，默认值为 `20.0`
+* `:attack` 将是一个整数，默认值为 `5`
+* `:speed` 将是一个整数
+
+<div style="padding: 1rem; margin: 1rem 0; background-color: lightgreen; font-weight: bold;">
+你不需要验证上述键的数据类型。
+这些只是每个 `Pokemon` 结构体实例的预期数据类型。
+</div>
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%Pokemon{name: "Bulbasaur", type: :grass, health: 20, attack: 5, speed: 20}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Pokemon.attack/2
+
+创建一个 `Pokemon.attack/2` 函数，使一个宝可梦攻击另一个宝可梦。
+
+宝可梦将应用它们的 `:attack` 值乘以 **类型优势**，根据以下列表进行修改。**强**攻击乘以 `2`，**弱**攻击乘以 `0.5`。
+
+* `:fire` 对 `:grass` 是强的
+* `:grass` 对 `:water` 是强的
+* `:water` 对 `:fire` 是强的
+* `:fire` 对 `:water` 是弱的
+* `:grass` 对 `:fire` 是弱的
+* `:water` 对 `:grass` 是弱的
+* 相同类型应造成正常伤害。
+
+例如：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+attacker = %Pokemon{name: "Charmander", type: :fire, health: 20.0, attack: 5, speed: 20}
+defender = %Pokemon{name: "Bulbasaur", type: :grass, health: 20.0, attack: 5, speed: 20}
+
+# 造成 5 * 2 的伤害。原始生命值：20.0，新生命值：10.0。
+Pokemon.attack(attacker, defender)
+%Pokemon{name: "Bulbasaur", type: :grass, health: 10.0, attack: 5, speed: 20}
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Pokemon do
+  defstruct [:name, :type, :health, :attack, :speed]
+
+  def attack(attacker, defender) do
+    damage = attacker.attack * modifier(attacker.type, defender.type)
+    %__MODULE__{defender | health: defender.health - damage}
+  end
+
+  defp modifier(attacker_type, defender_type) do
+    cond do
+      super_effective?(attacker_type, defender_type) -> 2
+      super_effective?(defender_type, attacker_type) -> 0.5
+      true -> 1
+    end
+  end
+
+  defp super_effective?(attacker_type, defender_type) do
+    {attacker_type, defender_type} in [{:fire, :grass}, {:grass, :water}, {:water, :fire}]
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule Pokemon do
+  @moduledoc """
+  宝可梦
+
+  ## 示例
+      iex> attacker = %Pokemon{name: "Charmander", type: :fire, health: 20.0, attack: 5, speed: 20}
+      iex> defender = %Pokemon{name: "Bulbasaur", type: :grass, health: 20.0, attack: 5, speed: 20}
+      iex> Pokemon.attack(attacker, defender)
+      %Pokemon{name: "Bulbasaur", type: :grass, health: 10.0, attack: 5, speed: 20}
+  """
+  defstruct []
+
+  def attack(attacker, defender) do
+  end
+end
+```
+
+考虑使用以下 Elixir 单元来测试你的解决方案。
+
+```elixir
+
+```
+
+### 宝可梦实例
+
+将三个变量 `charmander`、`bulbasaur` 和 `squirtle` 绑定到具有以下信息的 `Pokemon` 结构体实例。
+
+```mermaid
+classDiagram
+  class charmander {
+    name: "Charmander"
+    type: :fire
+    health: 20.0
+    attack: 5
+    speed: 20
+  }
+  class bulbasaur {
+    name: "Bulbasaur"
+    type: :grass
+    health: 20.0
+    attack: 5
+    speed: 20
+  }
+  class squirtle {
+    name: "Squirtle"
+    type: :water
+    health: 20.0
+    attack: 5
+    speed: 20
+  }
+```
+
+你可以使用这三个结构体来测试你的 `Pokemon.attack/2` 函数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+charmander = %Pokemon{name: "Charmander", type: :fire, health: 20, attack: 5, speed: 20}
+bulbasaur = %Pokemon{name: "Bulbasaur", type: :grass, health: 20, attack: 5, speed: 20}
+squirtle = %Pokemon{name: "Squirtle", type: :water, health: 20, attack: 5, speed: 20}
+
+# 测试示例
+Pokemon.attack(charmander, bulbasaur)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成宝可梦战斗练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Pokemon Battle">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/rpg_dialogue.livemd">RPG 对话</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/ranges.livemd">范围</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

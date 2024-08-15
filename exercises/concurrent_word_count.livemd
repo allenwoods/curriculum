@@ -1,0 +1,139 @@
+# 并发单词计数
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Concurrent Word Count">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/task_drills.livemd">任务练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/html_css.livemd">HTML & CSS</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 并发单词计数
+
+给定一组文档，使用 [Task](https://hexdocs.pm/elixir/Task.html) 模块并发地计算所有文档的总字数。
+
+对于我们的目的，**单词**将是任何由空格分隔的字符序列。您不必处理无效单词、标点符号或其他特殊情况。
+
+```elixir
+document = """
+This is my document document
+"""
+
+String.split(document, " ", trim: true)
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule WordCount do
+  def individual_count(documents) do
+    tasks =
+      Enum.map(documents, fn document ->
+        Task.async(fn ->
+          document |> String.split(" ", trim: true) |> Enum.count()
+        end)
+      end)
+
+    Task.await_many(tasks)
+  end
+
+  def total_count(documents) do
+    documents |> individual_count() |> Enum.sum()
+  end
+end
+```
+
+</details>
+
+实现 `WordCount` 模块，如下所述。
+
+```elixir
+defmodule WordCount do
+  @moduledoc """
+  Documentation for `WordCount`.
+  """
+
+  @doc """
+  并发计算每个文档中的单词数量。
+
+  ## 示例
+
+      iex> WordCount.individual_count(["document one", "document two"])
+      [2, 2]
+  """
+  def individual_count(documents) do
+  end
+
+  @doc """
+  并发计算每个文档中的单词数量并返回
+  合并的计数。
+
+  iex> WordCount.total_count(["document one", "document two"])
+  4
+  """
+  def total_count(documents) do
+  end
+end
+```
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成并发单词计数练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Concurrent Word Count">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/task_drills.livemd">任务练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/html_css.livemd">HTML & CSS</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,637 @@
+<!-- livebook:{"file_entries":[{"name":"layered-rainbow.png","type":"attachment"},{"name":"rounded-rainbow.png","type":"attachment"},{"name":"tailwind_button_example.png","type":"attachment"},{"name":"tailwind_play_heading_3.png","type":"attachment"},{"name":"tailwind_quick_search.png","type":"attachment"}]} -->
+
+# Tailwind
+
+```elixir
+Mix.install(
+  [
+    {:jason, "~> 1.4"},
+    {:kino, "~> 0.9", override: true},
+    {:youtube, github: "brooklinjazz/youtube"},
+    {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+    {:kino_tailwind_playground, github: "BrooklinJazz/kino_tailwind_playground"}
+  ],
+  force: true
+)
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tailwind">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_cover_image.livemd">博客：封面图片</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_home_page.livemd">博客：主页</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应能够回答以下问题。
+
+* 为什么使用 Tailwind 而不是纯 CSS？
+* 如何找到 Tailwind 的工具类？
+
+## 概述
+
+[Tailwind CSS](https://tailwindcss.com/) 是一个 CSS 工具框架。它允许我们使用 Tailwind 定义的工具类方便地应用 CSS 样式。
+
+例如，我们可以使用 `underline` 类为 HTML 元素添加下划线。
+
+```html
+<h1 class="underline">
+  你好，世界！
+</h1>
+```
+
+这将为标题 3 元素应用以下 CSS。
+
+```CSS
+text-decoration-line: underline;
+```
+
+请记住，在 Tailwind 中我们能做的事情，纯 CSS 也能做到。
+Tailwind 纯粹是为了方便。一般来说，你会想先学习 CSS 样式，然后学习 Tailwind 上的相应 CSS 类。对纯 CSS 的了解总是比对 Tailwind 的了解更具普遍适用性。
+
+然而，Tailwind 是 Elixir 生态系统中一个非常流行和重要的 CSS 框架。许多项目使用 Tailwind，它已成为标准的 PETAL（Phoenix、Elixir、Tailwind、AlpineJS 和 LiveView）栈的一部分，这是用于创建 Elixir Web 应用程序的一组常用工具。
+
+## 玩转 CDN
+
+为了实验 Tailwind，我们可以在 HTML 文件中使用 Tailwind CDN（内容分发网络）。这个 CDN 提供了运行 Tailwind 所需的 JavaScript。
+
+```html
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <h1 class="text-3xl font-bold underline">
+    你好，世界！
+  </h1>
+</body>
+</html>
+```
+
+我们还创建了一个 [Livebook Tailwind Playground](https://github.com/BrooklinJazz/kino_tailwind_playground) 以供演示。所有 Tailwind 示例都是可编辑的，并实时渲染。
+
+<!-- livebook:{"attrs":{"html":"<div class=\"flex items-center justify-center h-screen w-full bg-green-200\">\n  <h1 class=\"text-3xl font-bold underline text-center\">\n    请随意更改此文本！\n  </h1>\n</div>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+### 你的回合
+
+Tailwind 提供了 [Tailwind Play](https://play.tailwindcss.com/) 游乐场来实验 Tailwind 类。
+
+访问 [Tailwind Play](https://play.tailwindcss.com/) 并输入以下 HTML，以创建一个带有粗体、下划线和三倍特大字体的 HTML 标题 3 元素。
+
+```html
+<h1 class="font-bold underline text-3xl">
+  你好，世界！
+</h1>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tailwind_play_heading_3.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这与应用以下 CSS 样式是相同的。
+
+```css
+h1 {
+  // underline
+  text-decoration-line: underline;
+
+  // font-bold
+  font-weight: 700;
+
+  // text-3xl
+  font-size: 1.875rem; /* 30px */
+  line-height: 2.25rem; /* 36px */
+}
+```
+
+## 文档
+
+我们可以从 [Tailwind 文档](https://tailwindcss.com/docs/installation) 找到所有可用的 Tailwind 工具类。他们有一个方便的快速搜索功能来查找 Tailwind 类。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tailwind_quick_search.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合（奖励）
+
+使用 [Tailwind 文档](https://tailwindcss.com/docs/installation) 创建以下按钮。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tailwind_button_example.png)
+
+<!-- livebook:{"attrs":{"html":"<button class=\"\">点击我！</button>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 颜色
+
+Tailwind 附带一个 [默认颜色调色板](https://tailwindcss.com/docs/customizing-colors#default-color-palette)。每种颜色都有一个基本名称，例如 `red`，然后是一个数字来表示颜色的色调。
+
+默认颜色有 `slate`、`gray`、`zinc`、`neutral`、`stone`、`red`、`orange`、`amber`、`yellow`、`lime`、`green`、`emerald`、`teal`、`cyan`、`sky`、`blue`、`indigo`、`violet`、`purple`、`fuchsia`、`pink` 和 `rose`。
+
+默认色调为 `50`、`100`、`200`、`300`、`400`、`500`、`600`、`700`、`800` 和 `900`。
+
+这个颜色调色板与多种工具类一起使用，例如 [text-color](https://tailwindcss.com/docs/text-color) 和 [background-color](https://tailwindcss.com/docs/background-color)。
+
+因此，我们可以像这样为 HTML 元素应用背景色和文本颜色。
+
+<!-- livebook:{"attrs":{"html":"<p class=\"text-red-600 bg-blue-200\">我有蓝色背景和红色文本！</p>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 文本
+
+### [字体大小](https://tailwindcss.com/docs/font-size)
+
+我们可以使用 `text-{size}` 工具类来更改字体大小。
+
+```html
+<p class="text-3xl">
+```
+
+我们可以使用以下大小：`xs`、`sm`、`base`、`lg`、`xl`、`2xl`、`3xl`、`4xl`、`5xl`、`6xl`、`7xl`、`8xl` 和 `9xl`。
+
+在 Tailwind 中，`<p>`、`h1`、`h2`、`h3`、`h4`、`h5` 和 `h6` 纯粹是语义性的，默认情况下不应用任何样式。
+
+<!-- livebook:{"attrs":{"html":"<p>段落</p>\n<h1>h1</h1>\n<h2>h2</h2>\n<h3>h3</h3>\n<h4>h4</h4>\n<h5>h5</h5>\n<h6>h6</h6>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+### [字体粗细](https://tailwindcss.com/docs/font-weight)
+
+`font-{weight}` 设置文本的字体粗细。`weight` 可以是 `thin`、`extralight`、`light`、`normal`、`medium`、`semibold`、`bold`、`extrabold` 和 `black`。
+
+<!-- livebook:{"attrs":{"html":"<section class=\"text-3xl\">\n  <p class=\"font-thin\">100</p>\n  <p class=\"font-extralight\">200</p>\n  <p class=\"font-light\">300</p>\n  <p class=\"font-normal\">400</p>\n  <p class=\"font-medium\">500</p>\n  <p class=\"font-semibold\">600</p>\n  <p class=\"font-bold\">700</p>\n  <p class=\"font-extrabold\">800</p>\n  <p class=\"font-black\">900</p>\n</section>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+### [文本对齐](https://tailwindcss.com/docs/text-align)
+
+我们可以使用 `text-left`、`text-center` 和 `text-right` 以及其他 [text-align](https://tailwindcss.com/docs/text-align) 类来对齐文本。
+
+<!-- livebook:{"attrs":{"html":"<p class=\"text-center\">居中文本</p>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 高度和宽度
+
+我们可以使用 `h-{size}` 和 `w-{size}` 类设置高度和宽度。有关更多信息，请参阅 [Height](https://tailwindcss.com/docs/height) 和 [Width](https://tailwindcss.com/docs/width) 文档。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 固定
+
+我们可以为高度和宽度提供固定大小 `0`、`0.5`、`1`、`1.5`、`2`、`2.5`、`3`、`3.5`、`4`、`5`、`6`、`7`、`8`、`9`、`10`、`11`、`12`、`14`、`16`、`20`、`24`、`28`、`32`、`36`、`40`、`44`、`48`、`52`、`56`、`60`、`64`、`72`、`80` 或 `96`。这些对应于某些 `rem`/`px` 值。
+
+```html
+<!-- 高度 -->
+<h1 class="h-64">该元素的高度为 16rem 或 256px</h1>
+
+<!-- 宽度 -->
+<h1 class="w-64">该元素的宽度为 16rem 或 256px</h1>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 分数
+
+`size` 也可以作为二分之一、三分之一、四分之一、五分之一、六分之一或十二分之一的分数提供。例如：`1/2`、`2/3`、`3/4`、`2/5`、`4/6` 和 `7/12`。这个大小将相对于父容器。
+
+```html
+<!-- 高度 -->
+<div class="h-64">
+  <h1 class="h-1/2">这个高度将是 8rem 或 128px，因为它是 `h-64` 高度的一半</h1>
+</div>
+
+<!-- 宽度 -->
+<div class="w-64">
+  <h1 class="w-1/2">这个宽度将是 8rem 或 128px，因为它是 `w-64` 宽度的一半</h1>
+</div>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 全屏/视口
+
+我们可以使用 `-screen` 来使用屏幕的全部高度或宽度。
+
+```html
+<h1 class="h-screen">这将是屏幕的全部高度，无论父容器如何</h1>
+<h1 class="w-screen">这将是屏幕的全部宽度，无论父容器如何</h1>
+```
+
+我们可以使用 `-full` 将高度或宽度设置为父容器的全部大小。如果父容器已经是屏幕的大小，这将与 `-screen` 具有相同的效果。
+
+```html
+<!-- 高度 -->
+<div class="h-64">
+  <h1 class="h-full">这个高度将是 16rem 或 256px，因为它是 `h-64` 的全部高度</h1>
+</div>
+
+<!-- 宽度 -->
+<div class="w-64">
+  <h1 class="w-full">这个宽度将是 16rem 或 256px，因为它是 `w-64` 的全部宽度</h1>
+</div>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 最大高度和宽度
+
+我们可以使用 `max-h-{size}`、`min-h-{size}`、`max-w-{size}` 设置最大/最小高度/宽度。每个的可接受 `size` 值是特定的。有关更多信息，请参阅 [Max-Height](https://tailwindcss.com/docs/max-height)、[Max-Width](https://tailwindcss.com/docs/max-width)、[Min-Height](https://tailwindcss.com/docs/min-height) 和 [Min-Width](https://tailwindcss.com/docs/min-width) 文档。
+
+```html
+<p class="max-h-12">该段落的最大高度将是 2rem 或 48px</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 居中适应内容
+
+结合 `w-fit`
+
+<!-- livebook:{"attrs":{"html":""},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+### 你的回合
+
+创建一个段落标签，当宽度超过 10rem 时会换行。
+
+<p style="width: 10rem; background-color: lightgrey">
+例如，当文本宽度超过 10rem 时，这个段落会换行。
+<p>
+</p>
+
+<!-- livebook:{"attrs":{},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 显示
+
+Tailwind 有 [display](https://tailwindcss.com/docs/display) 工具类来控制元素的显示类型。以下是一些示例：
+
+* `block`
+* `inline-block`
+* `inline`
+* `flex`
+
+请参阅 [basic-usage](https://tailwindcss.com/docs/display#basic-usage) 以了解这些属性的解释。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在所有这些 span 标签上应用 `inline-block`，以便它们可以应用高度，并在同一行上显示。
+
+然后将 `inline-block` 更改为 `block`，以查看每个 span 标签在各自的行上渲染。
+
+<!-- livebook:{"attrs":{"html":"<span class=\"h-6 w-6 bg-red-400\"></span>\n<span class=\"h-6 w-6 bg-orange-400\"></span>\n<span class=\"h-6 w-6 bg-yellow-400\"></span>\n<span class=\"h-6 w-6 bg-green-400\"></span>\n<span class=\"h-6 w-6 bg-blue-400\"></span>\n<span class=\"h-6 w-6 bg-purple-400\"></span>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 填充和边距
+
+我们可以使用 `p-{size}` 和 `m-{size}` 来设置填充和边距。
+
+可接受的大小值与高度和宽度相同：`0`、`0.5`、`1`、`1.5`、`2`、`2.5`、`3`、`3.5`、`4`、`5`、`6`、`7`、`8`、`9`、`10`、`11`、`12`、`14`、`16`、`20`、`24`、`28`、`32`、`36`、`40`、`44`、`48`、`52`、`56`、`60`、`64`、`72`、`80` 和 `96`。
+
+```html
+<p class="p-10">这个段落在每一侧有 2.5 rem 或 40px 的填充。</p>
+<p class="m-12">这个段落在每一侧有 3 rem 或 48px 的边距。</p>
+```
+
+我们还可以使用 `py`、`px`、`my` 和 `mx` 设置水平填充/边距。
+
+```html
+<p class="px-10">这个段落在左右两侧有 2.5 rem 或 40px 的填充。</p>
+<p class="my-12">这个段落在上下两侧有 3 rem 或 48px 的边距。</p>
+```
+
+我们可以使用 `pt`、`pr`、`pb`、`pl`、`mt`、`mr`、`mb` 或 `ml` 在特定侧面设置填充/边距。
+
+```html
+<p class="pl-10">这个段落在左侧有 2.5 rem 或 40px 的填充。</p>
+<p class="mt-12">这个段落在顶部有 3 rem 或 48px 的边距。</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 自动和居中内容
+
+我们还可以使用 `-auto` 设置边距和填充，以自动填充可用空间。例如，我们可以使用 `mx-auto` 来居中内容。请注意，内容必须有一定的宽度。我们可以使用 `w-fit` 将元素的宽度设置为其子内容的大小。
+
+```html
+<p class="mx-auto w-fit">居中的段落</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在页面中心创建一系列彩虹框。每个框应占页面宽度的 `3/4`。
+
+![](files/layered-rainbow.png)
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```html
+<div class="bg-red-400 p-6 w-3/4 mx-auto mt-10"></div>
+<div class="bg-orange-400 p-6 w-3/4 mx-auto mt-10"></div>
+<div class="bg-yellow-400 p-6 w-3/4 mx-auto mt-10"></div>
+<div class="bg-green-400 p-6 w-3/4 mx-auto mt-10"></div>
+<div class="bg-blue-400 p-6 w-3/4 mx-auto mt-10"></div>
+<div class="bg-purple-400 p-6 w-3/4 mx-auto mt-10"></div>
+```
+
+</details>
+
+<!-- livebook:{"attrs":{"html":""},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 边框
+
+我们有几个 Tailwind 类用于修改 HTML 元素的边框。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [边框宽度](https://tailwindcss.com/docs/border-width)
+
+我们可以使用 `border` 将边框宽度设置为 `1px`，或使用 `border-{size}` 提供一个大小，其中 `size` 是有效的整数 `0`、`2`、`4` 或 `8`。
+
+```html
+<!-- 1px -->
+<p class="border">有边框的段落</p>
+
+<!-- 2px -->
+<p class="border-2">有边框的段落</p>
+
+<!-- 4px -->
+<p class="border-4">有边框的段落</p>
+
+<!-- 8px -->
+<p class="border-8">有边框的段落</p>
+```
+
+我们还可以使用 `border-y` 设置垂直边框，或使用 `border-x` 设置水平边框。
+
+```html
+<p class="border-y-2">这个段落的上下边框为 2px</p>
+<p class="border-x-2">这个段落的左右边框为 2px</p>
+```
+
+最后，我们可以使用 `border-t`、`border-r`、`border-b` 和 `border-l` 在特定侧面设置边框宽度。
+
+```html
+<p class="border-t-2">这个段落的上边框为 2px</p>
+<p class="border-l-2">这个段落的左边框为 2px</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [边框颜色](https://tailwindcss.com/docs/border-color)
+
+我们可以使用 `border-{color}` 结合 `border-{size}` 来设置边框颜色，使用来自 [默认颜色调色板](https://tailwindcss.com/docs/customizing-colors#default-color-palette) 的任何颜色。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<p class="border-2 border-red-500">有边框的段落</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [边框半径](https://tailwindcss.com/docs/border-radius)
+
+我们可以使用 `rounded` 来圆化边框的角。
+
+```html
+<p class="rounded">这个段落的边框半径为 0.25rem 或 4px </p>
+```
+
+我们可以使用 `rounded-{size}` 设置边框半径大小。`size` 可以是 `none`、`sm`、`md`、`lg`、`xl`、`2xl`、`3xl` 或 `full`。
+
+```html
+<p class="rounded-lg">这个段落的边框半径为 0.5 rem 或 8px</p>
+```
+
+我们还可以使用 `t`、`r`、`b`、`l`、`tl`、`tr`、`br` 和 `bl` 设置特定边框角的半径。
+
+```html
+<p class="rounded-r-lg">这个段落的右上和右下边框半径为 0.5 rem 或 8px</p>
+
+<p class="rounded-br-lg">这个段落的右下边框半径为 0.5 rem 或 8px</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用 `border` 样式和 `padding` 创建一个圆形彩虹。
+
+![](files/rounded-rainbow.png)
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```html
+<div class="border-4 border-red-400 rounded-full p-2 mt-10 m-2">
+  <div class="p-2 border-4 border-orange-400 rounded-full">
+    <div class="p-2 border-4 border-yellow-400 rounded-full">
+      <div class="p-2 border-4 border-green-400 rounded-full">
+        <div class="p-2 border-4 border-blue-400 rounded-full">
+          <div class="p-2 border-4 border-purple-400 rounded-full">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+</details>
+
+<!-- livebook:{"attrs":{"html":""},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 位置
+
+我们可以使用 `static`（默认）、`fixed`、`absolute`、`relative` 和 `sticky` 设置 HTML 元素的定位值。我们通常将定位与 `top-{size}`、`right-{size}`、`left-{size}` 和 `bottom-{size}` 一起使用，以调整它们在网页上的位置。
+
+```html
+<!-- 将元素定位在屏幕底部，无论滚动位置 -->
+<p class="fixed bottom-0">
+
+<!-- 将元素定位在其父容器的顶部 -->
+<p class="absolute top-0">
+
+<!-- 元素将粘附在当前滚动位置的顶部 -->
+<p class="sticky top-0">
+
+<!-- 将元素向下移动 3rem 或 48px -->
+<p class="sticky bottom-12">
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用 `absolute` 定位将段落标签放置在显示的右下角。
+
+<!-- livebook:{"attrs":{"html":""},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 悬停、聚焦和其他状态
+
+我们可以根据元素的状态应用样式。
+
+例如，我们可以使用 `hover:` 与任何样式，仅在悬停时应用该样式。
+
+```html
+<button class="hover:bg-red-300 bg-red-500">悬停按钮</button>
+```
+
+我们还可以使用 `focus:` 与任何样式，在聚焦元素时应用该样式。（`outline-none` 移除文本输入的默认轮廓。）
+
+```html
+<input class="border-4 focus:border-blue-200 outline-none"></input>
+```
+
+有关更多信息，请参阅 [Hover, Focus, and Other States](https://tailwindcss.com/docs/hover-focus-and-other-states) 文档。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+制作一个在悬停时更改样式的按钮。
+
+<!-- livebook:{"attrs":{},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 响应式样式
+
+我们可以根据屏幕大小应用样式，使用 `sm:`、`md:`、`lg:`、`xl:` 和 `2xl:`。
+省略屏幕大小将使样式应用于所有屏幕（包括小于 `sm` 的屏幕）。
+
+```html
+<div class="bg-red-400 md:bg-orange-400">
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+根据屏幕大小更改段落标签的文本大小。使用游乐场中的 `xs`、`sm` 和 `md` 按钮查看应用的样式。
+
+<!-- livebook:{"attrs":{"html":"<p class=\"\">动态文本大小</p>"},"chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+
+```elixir
+Kino.nothing()
+```
+
+## 进一步阅读
+
+还有很多东西可以学习！以下是一些你可能会发现有趣和有用的可选阅读的精选列表。
+
+* [Utility-First Fundamentals](https://tailwindcss.com/docs/utility-first) Tailwind 写了一篇关于使用工具类而不是其他方法的好处的优秀概述。
+* [Tailwind Phoenix Guide](https://tailwindcss.com/docs/guides/phoenix)。Tailwind 包含了在 Phoenix 项目中使用 Tailwind 的安装指南。我们将在未来的课程中学习更多关于 Tailwind 和 Phoenix 的内容。
+* [Dark Mode](https://tailwindcss.com/docs/dark-mode) Tailwind 包含一个 `dark:` 类，你可以用来仅在暗模式下应用样式。
+* [Reusing Styles](https://tailwindcss.com/docs/reusing-styles) 一份关于如何避免在 Tailwind 中重复自己的指南。
+* [Adding Custom Styles](https://tailwindcss.com/docs/adding-custom-styles) 如何向 Tailwind 添加自定义样式。
+
+请参考 [Tailwind 文档](https://tailwindcss.com/docs/installation) 以获取更多信息！
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Tailwind 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tailwind">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_cover_image.livemd">博客：封面图片</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_home_page.livemd">博客：主页</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

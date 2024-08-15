@@ -1,0 +1,395 @@
+# 文件
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/streams.livemd">流</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/stream_drills.livemd">流练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* 如何使用文件系统进行长期持久化和检索 Elixir 术语？
+* 什么是绝对路径和相对路径？
+
+## 持久化
+
+到目前为止，我们只能在应用程序的**运行时**期间持久化值。这是一种**短期**持久化，结束于我们停止应用程序的那一刻。
+
+另外，我们可以拥有**长期**持久化机制，在我们停止应用程序后仍然持久化，并且在下次启动应用程序时不会改变。
+
+使用文件系统是一种长期持久化的形式。当我们保存一个文件时，我们将其保存到计算机上的存储设备，通常是 [固态硬盘](https://en.wikipedia.org/wiki/Solid-state_drive) 或 [硬盘驱动器](https://en.wikipedia.org/wiki/Hard_disk_drive)。
+
+短期持久化则存储在 [随机存取存储器 (RAM)](https://en.wikipedia.org//wiki/Random-access_memory) 中，通常简称为“内存”。有关硬件和软件之间关系的进一步细分，请参见 [计算机硬件](computer_hardware.livemd)。
+
+## 文件
+
+我们使用 [File](https://hexdocs.pm/elixir/File.html) 模块来处理文件系统，使用 [Path](https://hexdocs.pm/elixir/Path.html) 模块来处理文件路径。
+
+许多 [File](https://hexdocs.pm/elixir/File.html) 操作模仿终端功能，甚至在 Unix (MacOS 或 Linux) 环境中使用相同的名称。
+
+例如，我们有 [File.ls/1](https://hexdocs.pm/elixir/File.html#ls/1) 函数，它列出当前路径中的文件夹和文件。
+
+```elixir
+File.ls!()
+```
+
+这模仿了 `ls` 命令，该命令也列出 Linux 和 macOS 中当前目录中的文件。
+
+```
+$ ls
+CONTRIBUTING.md  README.md  data  exercises   flake.nix  reading                      scripts       utils
+LICENSE          _build     deps  flake.lock  images     removed_content_tracking.md  start.livemd  v_graph.livemd
+```
+
+```elixir
+Path.absname("exercises")
+```
+
+## 绝对路径与相对路径
+
+**绝对路径**是相对于计算机根目录的文件的绝对路径。例如，我们可以使用 [__DIR__](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#__DIR__/0) 查看当前文件的绝对路径。
+
+```elixir
+__DIR__
+```
+
+**相对路径**是相对于当前目录位置的文件的相对路径。例如，如果我们有以下文件夹结构：
+
+```
+main_directory/
+  sub_directory_1/
+  sub_directory_2/
+```
+
+如果我们在 `sub_directory_2` 中，相对路径到 `sub_directory_1` 将是 `"../sub_directory_1"`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 当前目录
+
+<!-- livebook:{"break_markdown":true} -->
+
+[File](https://hexdocs.pm/elixir/File.html) 模块使用基于当前目录的相对路径。当前目录将取决于您如何启动 livebook。我们可以使用 [Path](https://hexdocs.pm/elixir/Path.html) 模块查看当前路径的绝对名称。
+
+```elixir
+Path.absname("")
+```
+
+## 文件模块函数
+
+[File](https://hexdocs.pm/elixir/File.html) 模块有许多用于处理文件系统的有用函数。
+
+我们将在 [练习](../exercises/file_drills.livemd) 中有机会进一步了解 [File](https://hexdocs.pm/elixir/File.html) 模块及其各种函数。现在，这里有一些常用函数供您入门。
+
+* [File.cd/1](https://hexdocs.pm/elixir/File.html#cd/1) 更改当前目录。
+* [File.dir?/2](https://hexdocs.pm/elixir/File.html#dir?/2) 检查给定路径是否为目录。
+* [File.exists?/2](https://hexdocs.pm/elixir/File.html#exists?/2) 检查文件是否存在。
+* [File.ls/1](https://hexdocs.pm/elixir/File.html#ls/1) 列出当前目录中的所有文件和文件夹。
+* [File.read/1](https://hexdocs.pm/elixir/File.html#read/1) 从文件中读取内容。
+* [File.rm/1](https://hexdocs.pm/elixir/File.html#rm/1) 删除文件。
+* [File.rm_rf/1](https://hexdocs.pm/elixir/File.html#rm_rf/1) 删除给定路径中的文件和目录。
+* [File.mkdir/1](https://hexdocs.pm/elixir/File.html#mkdir/1) 根据路径创建目录。
+* [File.mkdir_p/1](https://hexdocs.pm/elixir/File.html#mkdir_p/1) 根据路径创建目录及任何缺失的父目录。
+* [File.write/3](https://hexdocs.pm/elixir/File.html#write/3) 将内容写入给定的文件路径。
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以使用 [File.write/3](https://hexdocs.pm/elixir/File.html#write/3) 创建一个文件。
+
+```elixir
+File.write("file.txt", "file content")
+```
+
+为了证明我们创建了文件，我们可以使用 [File.read/1](https://hexdocs.pm/elixir/File.html#read/1) 读取内容。
+
+```elixir
+File.read("file.txt")
+```
+
+文件现在在我们的文件列表中。
+
+```elixir
+File.ls()
+```
+
+要清理文件，请取消注释以下代码以删除它。
+
+```elixir
+# File.rm("file.txt")
+```
+
+现在文件应该不再存在。让我们使用 [File.exists?/2](https://hexdocs.pm/elixir/File.html#exists?/2) 检查。
+
+```elixir
+File.exists?("file.txt")
+```
+
+### 你的回合
+
+尝试上述函数。请参考文档以获取您可以尝试的示例。
+
+<div style="background-color: lightcoral; font-weight: bold; padding: 1rem; color: white; margin: 1rem 0;">
+使用文件模块时，请勿删除系统上的重要文件
+</div>
+
+```elixir
+
+```
+
+## 路径模块函数
+
+[Path](https://hexdocs.pm/elixir/Path.html) 模块包含许多用于处理文件路径的有用函数。
+
+我们将在 [练习](../exercises/file_drills.livemd) 中有机会进一步了解 [Path](https://hexdocs.pm/elixir/Path.html) 模块及其各种函数。现在，这里有一些常用函数供您入门。
+
+* [Path.absname/1](https://hexdocs.pm/elixir/Path.html#absname/1) 将给定路径转换为绝对路径。
+* [Path.dirname/1](https://hexdocs.pm/elixir/Path.html#dirname/1) 返回给定路径的目录部分。
+* [Path.join/2](https://hexdocs.pm/elixir/Path.html#join/2) 连接两个路径。这比字符串连接更可靠。
+* [Path.split/1](https://hexdocs.pm/elixir/Path.html#split/1) 将路径按每个目录分隔符 `/` 拆分为列表。
+* [Path.wildcard/2](https://hexdocs.pm/elixir/Path.html#wildcard/2) 返回与提供的表达式匹配的文件列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+[Path.join/2](https://hexdocs.pm/elixir/Path.html#join/2) 特别有用，因为使用字符串连接容易出错。请注意下面，我们不小心将 `folder` 和 `more` 连接在一起，形成了 `foldermore`。
+
+```elixir
+path1 = "path/to/folder"
+path2 = "more/path/to/file.txt"
+
+path1 <> path2
+```
+
+[Path.join/2](https://hexdocs.pm/elixir/Path.html#join/2) 足够聪明，可以将这些视为单独的文件夹以形成路径。
+
+```elixir
+path1 = "path/to/folder"
+path2 = "more/path/to/file.txt"
+
+Path.join(path1, path2)
+```
+
+### 你的回合
+
+尝试上述函数。请参考文档以获取您可以尝试的示例。
+
+```elixir
+
+```
+
+## Bang 函数
+
+[File](https://hexdocs.pm/elixir/File.html) 模块中的许多函数都有一个以 `!` 结尾的 bang 版本。
+
+Bang 函数在失败时会引发错误。
+
+```elixir
+File.ls!("invalid")
+```
+
+常规函数通常返回 `{:ok, value}` 或 `{:error, reason}` 元组。
+
+```elixir
+File.ls("invalid")
+```
+
+如果您期望函数始终成功或希望引发错误，请使用 bang 函数。如果您希望特定的错误处理或不在乎函数是否失败，请使用常规函数。
+
+例如，如果我们在读取一个文件，但不确定它是否存在，我们可能会使用 [File.read/1](https://hexdocs.pm/elixir/File.html#read/1)。如果我们认为文件应该始终存在（并希望在不存在时崩溃程序），我们使用 [File.read!/1](https://hexdocs.pm/elixir/File.html#read!/1)。
+
+## 持久化 Erlang 术语
+
+[File.write/2](https://hexdocs.pm/elixir/File.html#write/2) 不适用于许多非字符串的 Elixir 术语。当我们尝试时，会得到 `:badarg`（错误参数）错误。
+
+```elixir
+File.write("data/erlang_term", %{1 => 2})
+```
+
+为了解决这些问题，我们可以使用 `:erlang.binary_to_term/1` 和 `:erlang.term_to_binary/1`，它们将 Elixir 术语转换为二进制格式。
+
+在创建文件时，我们需要使用 `:erlang.term_to_binary/1` 将 Elixir 术语转换为二进制格式。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph 写入
+  direction LR
+  1[术语] --> 2[二进制] --> 3[写入]
+end
+```
+
+```elixir
+:erlang.term_to_binary(%{key: "value"})
+```
+
+在读取保存的二进制时，我们需要使用 `:erlang.binary_to_term/1` 将其转换回 Elixir 术语。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph 读取
+  direction LR
+  A[读取] --> B[二进制] --> C[术语]
+end
+```
+
+```elixir
+binary =
+  <<131, 116, 0, 0, 0, 1, 100, 0, 3, 107, 101, 121, 109, 0, 0, 0, 5, 118, 97, 108, 117, 101>>
+
+:erlang.binary_to_term(binary)
+```
+
+现在我们可以以二进制格式写入 Elixir 术语，然后读取文件。
+
+```elixir
+:ok = File.write("binary.txt", :erlang.term_to_binary([1, 2]))
+
+{:ok, binary} = File.read("binary.txt")
+
+[1, 2] = :erlang.binary_to_term(binary)
+
+# 清理文件以避免在计算机上保存文件。
+File.rm("binary.txt")
+```
+
+## 处理大文件
+
+使用 [File.read/1](https://hexdocs.pm/elixir/File.html#read/1) 会将文件的所有内容加载到内存中。这在处理大文件或处理多个文件时会导致性能问题。
+
+为避免性能问题，我们有两个选择。我们可以使用 [File.stream!/3](https://hexdocs.pm/elixir/File.html#stream!/3) 将文件视为流。或者我们可以使用 [File.open/3](https://hexdocs.pm/elixir/File.html#open/3) 和 [File.close/1](https://hexdocs.pm/elixir/File.html#close/1) 结合 [IO](https://hexdocs.pm/elixir/IO.html) 模块打开文件，并更有选择性地读取/写入其内容。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 流
+
+要流式处理文件，请使用 [File.stream!/3](https://hexdocs.pm/elixir/File.html#stream!/3)。默认情况下，流中的每个元素将是文件的一行。如果您需要关于流的复习，请参见 [流](./streams.livemd)。
+
+```elixir
+content = """
+line 1
+line 2
+line 3
+"""
+
+File.write!("stream.txt", content)
+
+stream = File.stream!("stream.txt") |> IO.inspect(label: "流")
+
+Enum.to_list(stream) |> IO.inspect(label: "行")
+
+# 清理文件
+File.rm("stream.txt")
+```
+
+### IO 和文件系统
+
+我们使用 [File.open/2](https://hexdocs.pm/elixir/File.html#open/2) 和 [File.close/1](https://hexdocs.pm/elixir/File.html#close/1) 打开文件并执行一些操作，然后在完成后关闭它。
+
+在文件打开时，我们使用 [IO.read/2](https://hexdocs.pm/elixir/IO.html#read/2) 和 [IO.write/2](https://hexdocs.pm/elixir/IO.html#write/2) 读取和写入文件。每次调用 [IO.read/2](https://hexdocs.pm/elixir/IO.html#read/2) 函数时，可以读取一行。
+
+```elixir
+File.write!("open_close.txt", content)
+
+{:ok, file} = File.open("open_close.txt")
+
+IO.read(file, :line) |> IO.inspect()
+IO.read(file, :line) |> IO.inspect()
+IO.read(file, :line) |> IO.inspect()
+IO.read(file, :line) |> IO.inspect()
+
+File.close(file)
+
+# 清理文件。
+
+File.rm!("open_close.txt")
+```
+
+[IO.write/2](https://hexdocs.pm/elixir/IO.html#write/2) 会覆盖文件的全部内容。我们需要使用 `:write` 选项打开文件以启用写入权限。
+
+```elixir
+File.write!("open_close.txt", content)
+
+{:ok, file} = File.open("open_close.txt", [:write])
+
+IO.write(file, "写入的内容")
+
+File.close(file)
+
+File.read("open_close.txt") |> IO.inspect(label: "更新的文件")
+
+# 清理文件。
+File.rm!("open_close.txt")
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [HexDocs: File](https://hexdocs.pm/elixir/File.html)
+* [Elixir-lang: IO 和文件系统](https://elixir-lang.org/getting-started/io-and-the-file-system.html)
+* [Exercism: File](https://exercism.org/tracks/elixir/concepts/file)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成文件读取"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/streams.livemd">流</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/stream_drills.livemd">流练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

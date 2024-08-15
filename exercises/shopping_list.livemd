@@ -1,0 +1,132 @@
+# 购物清单
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Shopping List">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/maps.livemd">地图</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/family_tree.livemd">家谱</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 文本购物清单
+
+您正在创建一个购物清单应用。用户可以将项目添加到他们的 `shopping_cart` 中。
+每个项目用字符串表示。
+
+在下面的 Elixir 单元中，使用 `++` 和 `--` 来添加所示的项目。
+
+* 将 `"grapes"`、`"walnuts"` 和 `"apples"` 添加到 `shopping_cart`
+* 将 `"blueberries"`、`"chocolate"` 和 `"pizza"` 添加到 `shopping_cart`。
+* 从 `shopping_cart` 中移除 `"grapes"` 和 `"walnuts"`
+* 向 `shopping_cart` 添加三个 `"banana"`
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+shopping_cart = []
+
+shopping_cart = shopping_cart ++ ["grapes", "walnuts", "apples"]
+shopping_cart = shopping_cart ++ ["blueberries", "chocolate", "pizza"]
+shopping_cart = shopping_cart -- ["grapes", "walnuts"]
+shopping_cart = shopping_cart ++ ["banana", "banana", "banana"]
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 带数量的文本购物清单
+
+您的购物清单应用的用户要求能够包含每个项目的数量，以便更方便地添加多个项目。
+
+在下面的 Elixir 单元中，使用格式为 `[item: quantity]` 的关键字列表来添加或移除 `shopping_cart` 中的项目。
+
+* 添加 `1` `milk` 和 `12` `eggs`
+* 添加 `2` `bars_of_butter` 和 `10` `candies`
+* 移除 `2` `bars_of_butter`
+* 移除 `5` `candies`（注意是 `5` 而不是 `10`！）。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+shopping_cart = []
+
+shopping_cart = shopping_cart ++ [milk: 1, eggs: 12]
+shopping_cart = shopping_cart ++ [bars_of_butter: 2, candies: 10]
+shopping_cart = shopping_cart -- [bars_of_butter: 2]
+shopping_cart = shopping_cart -- [candies: 10]
+shopping_cart = shopping_cart ++ [candies: 5]
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成购物清单练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Shopping List">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/maps.livemd">地图</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/family_tree.livemd">家谱</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

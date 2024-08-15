@@ -1,0 +1,257 @@
+# 映射、映射集和关键字列表
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Maps, Mapsets, And Keyword Lists">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/lists_vs_tuples.livemd">列表与元组</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mapset_drills.livemd">MapSet 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 何时应使用 MapSet 而不是列表？
+* MapSets、Maps 和关键字列表的性能影响是什么？
+
+## 概述
+
+在本课中，我们将研究 Maps、MapSets 和关键字列表的内部细节，以确定何时使用每种数据类型。
+
+## 关键字列表
+
+关键字列表具有与 [列表](lists_vs_tuples.livemd) 相同的属性。
+
+| 操作      | 时间复杂度                           |
+| --------- | ----------------------------------- |
+| 访问      | $O(n)$                              |
+| 搜索      | $O(n)$                              |
+| 插入      | $O(1)$ 用于前置插入，其他情况 $O(n)$ |
+| 删除      | $O(1)$ 如果是第一个元素，其他情况 $O(n)$ |
+
+因为它们只是 `{:atom, value}` 元组的列表。
+
+```elixir
+[{:key1, "value"}, {:key2, "value"}] == [key1: "value", key2: "value"]
+```
+
+## 映射
+
+映射是一种键值数据类型，通常在访问键时具有 $O(log(n))$ 的时间复杂度。
+
+| 操作      | 时间复杂度                                  |
+| --------- | ------------------------------------------ |
+| 访问      | $O(log(n))$                                |
+| 搜索      | $O(log(n))$                                |
+| 插入      | $O(n)$ 用于 <= 32 个元素，其他情况 $O(log(n))$ |
+| 删除      | $O(n)$ 用于 <= 32 个元素，其他情况 $O(log(n))$ |
+
+<!-- livebook:{"break_markdown":true} -->
+
+具有 `32` 个或更少键的映射是排序列表。因此它们具有 $O(n)$ 的性能，但这种影响可以忽略不计。
+
+注意下面的映射保持其排序顺序。
+
+```elixir
+map = Map.new(1..32, fn x -> {x, "#{x}"} end)
+```
+
+在底层，具有 `32` 个或更少键的映射使用排序列表。
+
+通常，我们应该避免依赖此属性。当映射的键超过 `32` 个时，它会失去排序顺序。
+
+注意下面的映射在拥有 `33` 个键后不再有序。
+
+```elixir
+map = Map.new(1..33, fn x -> {x, "#{x}"} end)
+```
+
+Elixir 中的映射是 [哈希数组映射树 (HAMT)](https://en.wikipedia.org/wiki/Hash_array_mapped_trie) 结构。
+
+我们不会深入探讨这种数据结构的实现，因为这超出了本课程的范围。
+
+在实际应用中，请注意大多数映射操作的复杂度为 $O(log(n))$。
+
+与列表或关键字列表相比，映射在处理大值时具有更好的扩展性，后者是线性增长而不是对数增长。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+访问一个包含一百万个元素的映射中的任何键几乎是瞬时的，无论访问哪个键！
+
+首先，我们将创建一个大映射。这可能需要一些时间。
+
+```elixir
+large_map = Map.new(1..10_000_000, fn x -> {x, x} end)
+```
+
+虽然创建映射花费了一些时间，但读取一个值应该是极快的。
+
+评估下面的单元格，注意我们可以多快访问一个值。尝试将 `key` 更改为 `0` 到 `999_999` 之间的任何整数。注意访问值的速度没有显著影响。
+
+```elixir
+key = 500_000
+
+{micro_seconds, _result} = :timer.tc(fn -> Map.get(large_map, key) end)
+
+micro_seconds
+```
+
+另一方面，列表与映射相比较慢，因为它们需要枚举每个元素。
+
+```elixir
+large_list = Enum.to_list(1..1_000_000)
+```
+
+尝试将 `index` 更改为 `0` 到 `999_999` 之间的任何整数，并注意索引值越大，访问元素所需的时间越长。
+
+```elixir
+index = 500_000
+
+{micro_seconds, _result} = :timer.tc(fn -> Enum.at(large_list, index) end)
+
+micro_seconds
+```
+
+## MapSets
+
+[MapSets](https://hexdocs.pm/elixir/MapSet.html) 是一种集合数据结构。它们的功能类似于只允许非重复值的列表。
+
+```elixir
+MapSet.new([1, 2, 3])
+```
+
+MapSets 会忽略重复值。
+
+```elixir
+MapSet.new([1, 2, 3, 3])
+```
+
+MapSets 在底层是映射，因此它们继承了与映射相同的性能属性。
+
+| 操作      | 时间复杂度                                  |
+| --------- | ------------------------------------------ |
+| 访问      | $O(log(n))$                                |
+| 搜索      | $O(log(n))$                                |
+| 插入      | $O(n)$ 用于 <= 32 个元素，其他情况 $O(log(n))$ |
+| 删除      | $O(n)$ 用于 <= 32 个元素，其他情况 $O(log(n))$ |
+
+<!-- livebook:{"break_markdown":true} -->
+
+[MapSet](https://hexdocs.pm/elixir/MapSet.html) 模块包含用于处理 MapSets 的函数。
+
+以下是一些帮助你入门的函数：
+
+* `new/1` 创建一个新的 mapset。
+* `put/2` 将元素添加到 mapset 中。
+* `delete/2` 从 mapset 中删除元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+MapSet 可以包含任何值。请记住，顺序并不保证。
+
+```elixir
+MapSet.new(["1", 2, :three])
+```
+
+`put/2` 将任何非重复元素添加到 mapset 中。
+
+```elixir
+set = MapSet.new([1, 2, 3])
+MapSet.put(set, 4)
+```
+
+重复项将被忽略。
+
+```elixir
+set = MapSet.new([1, 2, 3])
+MapSet.put(set, 2)
+```
+
+`delete/2` 从 MapSet 中删除元素。
+
+```elixir
+set = MapSet.new([1, 2, 3])
+MapSet.delete(set, 2)
+```
+
+MapSet 是可枚举的。然而，任何与 [Enum](https://hexdocs.pm/elixir/Enum.html) 结合使用的 MapSet 函数都会返回一个列表。
+
+```elixir
+MapSet.new([1, 2, 3]) |> Enum.map(fn each -> each + 1 end)
+```
+
+通常，列表被过度使用，实际上可以使用 MapSet。如果你有一个列表，其中不应有重复元素且顺序不重要，通常使用 MapSet 更具性能优势。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+创建一个包含元素 `1, 2, 3` 的 MapSet。使用 [MapSet.member?/2](https://hexdocs.pm/elixir/MapSet.html#member?/2) 检查你的 MapSet 是否包含元素 `2`。你的答案应该返回 `true`。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成映射、映射集和关键字列表的阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Maps, Mapsets, And Keyword Lists">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/lists_vs_tuples.livemd">列表与元组</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/mapset_drills.livemd">MapSet 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

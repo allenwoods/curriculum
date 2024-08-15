@@ -1,0 +1,373 @@
+# 任务练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/task_supervisor.livemd">任务监督者</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/concurrent_word_count.livemd">并发单词计数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 任务练习
+
+练习帮助你通过重复练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是关于[任务](../reading/task.livemd)。请按照每个练习的说明尽快完成它们。
+
+## Task.await/2
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await/2](https://hexdocs.pm/elixir/Task.html#await/2) 来生成一个返回任何响应的任务进程。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> :ok end)
+
+Task.await(task)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await/2](https://hexdocs.pm/elixir/Task.html#await/2) 来生成一个睡眠六秒的任务进程。它应该导致超时错误。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.await(task)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await/2](https://hexdocs.pm/elixir/Task.html#await/2) 来生成一个睡眠六秒的任务进程。提供一个超时值给 [Task.await/2](https://hexdocs.pm/elixir/Task.html#await/2)，以便它正确等待响应。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.await(task, 7000)
+```
+
+</details>
+
+```elixir
+
+```
+
+## Task.yield/2
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2) 来生成一个返回任何响应的任务进程。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> :ok end)
+
+Task.yield(task)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2) 来生成一个睡眠六秒并返回任何响应的任务进程。注意，yield 的值为 `nil`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.yield(task)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2) 来生成一个睡眠六秒并返回任何响应的任务进程。提供一个超时值给 [Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2)，以便它正确返回响应。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.yield(task, 7000)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1)、[Task.yield/2](https://hexdocs.pm/elixir/Task.html#yield/2) 和 [Task.shutdown/2](https://hexdocs.pm/elixir/Task.html#shutdown/2) 来生成一个睡眠六秒的任务进程。如果它在五秒后没有返回任何值，则关闭该任务进程。
+
+使用 `IO.puts/2` 来证明任务已被关闭。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task =
+  Task.async(fn ->
+    Process.sleep(6000)
+    IO.puts("未运行")
+  end)
+
+if !Task.yield(task) do
+  Task.shutdown(task)
+end
+```
+
+</details>
+
+```elixir
+
+```
+
+## Task.await_many/2
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await_many/2](https://hexdocs.pm/elixir/Task.html#await_many/2) 来生成两个任务进程，它们都返回 `1..10` 之间的随机数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task1 = Task.async(fn -> Enum.random(1..10) end)
+task2 = Task.async(fn -> Enum.random(1..10) end)
+
+Task.await_many([task1, task2])
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)、[Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await_many/2](https://hexdocs.pm/elixir/Task.html#await_many/2) 来生成一百个任务进程，它们都返回 `1..100` 之间的随机整数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+tasks = Enum.map(1..100, fn _ -> Task.async(fn -> Enum.random(1..100) end) end)
+
+Task.await_many(tasks)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)、[Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1)、[String.upcase/2](https://hexdocs.pm/elixir/String.html#upcase/2) 和 [Task.await_many/2](https://hexdocs.pm/elixir/Task.html#await_many/2) 来并发地将列表 `["apple", "pear", "peaches"]` 中的每个字符串转换为大写。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+list = ["apple", "pear", "peaches"]
+
+tasks = Enum.map(list, fn word -> Task.async(fn -> String.upcase(word) end) end)
+
+Task.await_many(tasks)
+```
+
+</details>
+
+```elixir
+
+```
+
+## Task.Supervisor
+
+启动一个名为 `MyTaskSupervisor` 的 [Supervisor](https://hexdocs.pm/elixir/Supervisor.html) 及其子进程 `Task.Supervisor`。使用 `:one_for_one` 策略。你将在下面所有需要任务监督者的示例中使用 `MyTaskSupervisor`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  {Task.Supervisor, name: MyTaskSupervisor}
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 `Task.Supervisor.async/3` 和 [Task.await/2](https://hexdocs.pm/elixir/Task.html#await/2) 启动一个受监督的任务进程，该进程在睡眠两秒后返回一个随机数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task = Task.Supervisor.async(MyTaskSupervisor, fn ->
+  Process.sleep(2000)
+  Enum.random(1..10)
+end)
+
+Task.await(task)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)、`Task.Supervisor.async/3` 和 [Task.await_many/2](https://hexdocs.pm/elixir/Task.html#await_many/2) 启动一百个受监督的任务进程，它们返回一个随机数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+tasks = Enum.map(1..100, fn _ ->
+  Task.Supervisor.async(MyTaskSupervisor, fn -> Enum.random(1..10) end)
+end)
+
+Task.await_many(tasks)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 `Task.Supervisor.start_child/3` 启动一个在五秒后崩溃的 `:temporary` 任务。`:temporary` 已经是默认的 `:restart` 选项。
+
+在六秒后使用 [Supervisor.which_children/1](https://hexdocs.pm/elixir/Supervisor.html#which_children/1) 来证明 `:temporary` 进程不会被重启。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task =
+  Task.Supervisor.start_child(MyTaskSupervisor, fn ->
+    Process.sleep(5000)
+    raise "错误"
+  end)
+
+Process.sleep(6000)
+Supervisor.which_children(MyTaskSupervisor)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 `Task.Supervisor.start_child/3` 和 `restart: :transient` 选项启动一个在一秒后崩溃的 `:transient` 任务。
+
+使用 `IO.inspect/2` 和 `self/0` 来证明该进程被重启，并且 `pid` 已经改变。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+task =
+  Task.Supervisor.start_child(
+    MyTaskSupervisor,
+    fn ->
+      IO.inspect(self(), label: "进程重启")
+      Process.sleep(1000)
+      raise "错误"
+    end,
+    restart: :transient
+  )
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成任务练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/task_supervisor.livemd">任务监督者</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/concurrent_word_count.livemd">并发单词计数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

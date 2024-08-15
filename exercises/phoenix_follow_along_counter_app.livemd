@@ -1,0 +1,310 @@
+<!-- livebook:{"file_entries":[{"name":"counter_count_page.png","type":"attachment"}]} -->
+
+# 跟随教程：Phoenix 计数器应用
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Follow Along: Phoenix Counter App">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/web_servers.livemd">Web 服务器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phoenix_drills.livemd">Phoenix 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 跟随教程：构建一个计数器应用
+
+我们将构建一个 `Counter` 应用来学习 Phoenix 的基础知识。用户将点击一个按钮来增加页面上的计数。
+
+如果你还没有，请确保按照 [Phoenix 安装指南](https://hexdocs.pm/phoenix/installation.html) 在你的系统上安装 Phoenix 1.7。
+
+作为参考，请查看完成的 `curriculum/demos/counter` 应用。
+
+## 初始化 Phoenix 项目
+
+### 创建一个 Phoenix 项目
+
+在 `curriculum/projects/` 文件夹中运行以下命令以创建一个不使用 Ecto 的 mix 项目，使用 `--no-ecto` 标志。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ mix phx.new counter --no-ecto
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 启动服务器
+
+启动服务器，你可以在 http://localhost:4000 访问它。
+
+```
+$ mix phx.server
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 故障排除
+
+首次启动 Phoenix 时常常会遇到问题。例如，通常学生会遇到 [Postgres](https://www.postgresql.org/) 的问题。
+
+Linux 用户通常会遇到 `postgresql` 服务未运行的问题。你可以通过以下命令解决此问题。
+
+```
+$ sudo service postgresql start
+```
+
+另外，你可能会遇到权限问题，即 PostgreSQL 用户没有默认的用户名和密码。你可以通过确保存在一个 `postgres` 用户并且密码为 `postgres` 来解决此问题。
+
+虽然这不是魔法解决方案，但以下可能会解决你的问题。
+
+```
+$ sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+$ sudo server postgresql restart
+```
+
+这些是两个非常常见的问题，但你可能会遇到意外错误。如果你遇到任何问题，请与您的讲师联系以获得支持。
+
+## 返回响应
+
+当用户访问页面时，我们需要执行以下操作以返回响应。
+
+1. 创建路由。
+2. 创建控制器。
+3. 创建组件。
+4. 创建模板。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建路由
+
+在 `lib/counter_web/router.ex` 中修改现有的作用域如下。我们将替换 Phoenix 生成的 `PageController` 样板。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+scope "/", CounterWeb do
+  pipe_through :browser
+
+  get "/", CounterController, :count
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建控制器
+
+创建一个 `lib/counter_web/controllers/counter_controller.ex` 文件，内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule CounterWeb.CounterController do
+  use CounterWeb, :controller
+
+  def count(conn, _params) do
+    render(conn, :count, count: 0)
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建组件
+
+创建一个 `lib/counter_web/controllers/counter_html.ex` 文件，内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule CounterWeb.CounterHTML do
+  use CounterWeb, :html
+
+  embed_templates "counter_html/*"
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建模板
+
+创建一个 `lib/counter_web/controllers/counter_html/count.html.heex` 文件，内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<h1 class="text-4xl">当前计数为：<%= @count %></h1>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+访问 http://localhost:4000，你应该看到我们的计数器初始化为 `0`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/counter_count_page.png)
+
+## 连接计数器
+
+我们可以使用 [查询参数](https://en.wikipedia.org/wiki/Query_string) 来控制计数器的值。
+
+在 `counter_web/controllers/counter_controller.ex` 中修改控制器，使用 `params` 参数来设置计数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule CounterWeb.CounterController do
+  use CounterWeb, :controller
+
+  def count(conn, params) do
+    render(conn, :count, count: params["count"] || 0)
+  end
+end
+```
+
+访问 http://localhost:4000?count=1，计数应该由查询参数设置。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 增加计数
+
+现在要增加计数，我们必须发送一个 GET 请求，URL 中包含增加后的计数。
+
+要从浏览器发送 GET 请求，我们可以使用 [Phoenix.Component.link/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#link/1) 组件。
+
+将链接添加到 `counter_web/controllers/counter_html/count.html.heex` 的模板中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<h1 class="text-4xl">当前计数为：<%= @count %></h1>
+
+<.link
+  navigate={~p"/?count=#{@count + 1}"}
+  class="inline-block p-4 mt-4 text-2xl rounded-full bg-cyan-500 hover:bg-cyan-400"
+>
+  增加
+</.link>
+```
+
+## 计数表单
+
+让我们将计数器连接到一个表单。我们将输入一个数字值，并按该值增加计数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+### 创建表单
+
+在 `counter_web/controllers/counter_html/count.html.heex` 中创建表单。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.form :let={f} for={%{}} action={~p"/"}>
+  <.input type="number" field={f[:increment_by]} value={1} />
+  <.input type="hidden" field={f[:count]} value={@count} />
+  <.button class="mt-2">增加</.button>
+</.form>
+```
+
+此表单向 `"/"` 路由发送一个 POST 请求，包含计数和增加的值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建 `post` 路由
+
+在我们的 `router.ex` 文件中修改作用域，以处理表单发送的 POST 请求。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+scope "/", CounterWeb do
+  pipe_through :browser
+
+  get "/", CounterController, :count
+  post "/", CounterController, :increment
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建控制器 `increment/2` 动作
+
+在 `counter_web/controllers/counter_controller.ex` 控制器文件中添加 `increment/2` 动作。我们需要在参数中发送当前计数和增加的值。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def increment(conn, params) do
+  current_count = String.to_integer(params["count"])
+  increment_by = String.to_integer(params["increment_by"])
+  render(conn, :count, count: current_count + increment_by)
+end
+```
+
+## 进一步阅读
+
+有关 Phoenix 的更多信息，请考虑以下资源。
+
+- [Phoenix HexDocs](https://hexdocs.pm/phoenix/Phoenix.html)
+- [Plug HexDocs](https://hexdocs.pm/plug/readme.html)
+- [Phoenix：新网络的网络框架 • José Valim • GOTO 2016](https://www.youtube.com/watch?v=bk3icU8iIto&ab_channel=GOTOConferences)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成跟随教程：Phoenix 计数器应用练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Follow Along: Phoenix Counter App">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/web_servers.livemd">Web 服务器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phoenix_drills.livemd">Phoenix 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

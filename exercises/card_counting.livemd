@@ -1,0 +1,231 @@
+# 牌计数
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Card Counting">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/fun_formulas.livemd">有趣的公式</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/habit_tracker.livemd">习惯追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 牌计数
+
+我们将为一个牌计数应用构建一些逻辑。牌计数是一种在纸牌游戏中使用的策略，用于确定牌堆中高牌或低牌的数量。
+
+在一副普通的扑克牌中有 **13** 张数字牌。
+
+我们将使用整数 `1` 到 `13` 来表示扑克牌。牌分为 **低**、**普通** 或 **高**。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph low cards
+  direction LR
+  1 --- 2 --- 3 --- 4 --- 5 --- 6
+end
+
+subgraph Normal Cards
+  direction LR
+  7 --- 8 --- 9
+end
+
+subgraph High Cards
+  direction LR
+  10 --- 11 --- 12 --- 13
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+为了跟踪牌堆中高牌或低牌的数量，您将从 `0` 开始跟踪一个运行计数。
+
+* 当发到一张 **低** 牌时，将计数减少 `1`。
+* 当发到一张 **高** 牌时，将计数增加 `1`。
+* 当发到一张 **普通** 牌时，不做任何操作。
+
+## 绑定牌计数
+
+绑定整数 `low`、`normal` 和 `high` 来跟踪当前计数的增加或减少量。您将在后续练习中使用这些变量。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+low = -1
+normal = 0
+high = 1
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 高牌
+
+初始计数为 `0`。您发到了一张 **高** 牌。使用算术运算符和上面绑定的变量来确定新的计数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+initial_count = 0
+initial_count + high
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 低牌
+
+初始计数为 `0`。您发到了一张 **低** 牌。使用算术运算符和上面绑定的变量来确定新的计数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+initial_count = 0
+initial_count + low
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 多张牌
+
+初始计数为 `5`。您发到五张 **高** 牌、两张 **低** 牌和两张 **普通** 牌。使用算术运算符和上面绑定的变量来确定新的计数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+initial_count = 5
+initial_count + high * 5 + low * 2 + normal * 2
+```
+
+您可以省略 **普通** 牌，或者允许 **高** 牌和 **低** 牌相互抵消，但如果增量/减量值发生变化，则您的代码将会出错。
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 奖励：确定牌值
+
+您发到三张随机值在 `1` 到 `13` 之间的牌。您可以使用 [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 来生成随机数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+random_card = Enum.random(1..13)
+```
+
+生成三张随机牌，使用这三张随机生成的牌的值来确定当前计数，初始计数为 `0`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+random_card1 = Enum.random(1..13)
+random_card2 = Enum.random(1..13)
+random_card3 = Enum.random(1..13)
+
+cards =
+  Enum.map([random_card1, random_card2, random_card3], fn random_card ->
+    cond do
+      random_card <= 6 -> low
+      random_card >= 10 -> high
+      true -> normal
+    end
+  end)
+
+Enum.sum(cards)
+```
+
+您可以省略 **普通** 牌，或者允许 **高** 牌和 **低** 牌相互抵消，但如果增量/减量值发生变化，则您的代码将会出错。
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成牌计数练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Card Counting">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/fun_formulas.livemd">有趣的公式</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/habit_tracker.livemd">习惯追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,271 @@
+# Livebook
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:smart_animation, github: "brooklinjazz/smart_animation"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Livebook">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/git.livemd">Git</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/code_editors.livemd">代码编辑器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何评估 LiveBook Elixir 单元？
+* 如何格式化 LiveBook Elixir 单元？
+* 如何操作 LiveBook Markdown 单元？
+
+## 概述
+
+### LiveBook
+
+Livebook 是一个用于 Elixir 的互动和协作代码笔记本。
+它通常用作文档工具，而这是第一门如此广泛使用它来教授 Elixir 的课程。
+
+在这些互动笔记本中，我们可以编写格式化内容（就像你现在阅读的内容）并执行 Elixir 代码。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Markdown
+
+Markdown 是一种轻量级标记语言，允许你仅使用特殊符号编写格式化内容。它就像用纯文本编写格式化的 Google 文档。
+
+```markdown
+<!-- headings -->
+# 标题 1
+## 标题 2
+### 标题 3
+#### 标题 4
+
+<!-- font styles -->
+**粗体**
+*斜体*
+
+<!-- bullet points -->
+1. 第一个项目
+2. 第二个项目
+3. 第三个项目
+```
+
+你可以查看 [Markdown 速查表](https://www.markdownguide.org/cheat-sheet/) 以获取 markdown 语法的概述。
+
+Markdown 无处不在！它甚至是 Slack 和 Discord 等聊天应用的有效输入。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 单元
+
+Livebooks 被分为 **单元**。有 **markdown 单元** 用于格式化文本，还有 **elixir 单元** 用于 Elixir 代码。还有一些更高级的单元，超出了本课程的范围。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Markdown 单元
+
+当你将光标悬停并点击一个 markdown 单元时 <i class="ri-cursor-fill"></i>。你会注意到每个单元左侧都有一个 <span style="color: rgba(101,131,255,.5)">蓝色</span> 高亮和一些控制选项。
+
+你可以编辑 <i class="ri-pencil-line"></i>、向上移动 <i class="ri-arrow-up-s-line"></i>、向下移动 <i class="ri-arrow-down-s-line"></i>，并删除 <i class="ri-delete-bin-line"></i> 单元。你还可以上传图片 <i class="ri-image-add-line"></i>。
+
+在完成互动阅读材料和练习时，通常不需要使用这些控制选项。然而，如果你想在自己的时间使用 Livebook，或者在意外操作 Livebook 时解决问题，了解它们是有用的。
+
+双击任何 markdown 单元，你将看到该单元的 markdown 编辑器。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Elixir 单元
+
+Elixir 单元是运行 Elixir 代码的互动代码块。这些单元可用于测试和实验 Elixir 代码，代码执行的结果直接显示在笔记本中。我们通常使用这些单元来展示示例，并让你完成练习。
+
+在这里你可以看到一个 Elixir 单元，它将两个整数相加。
+
+```elixir
+2 + 2
+```
+
+如果你想在本课程中实验一些 Elixir 代码，可以在任何地方创建一个 Elixir 单元。只需小心不要破坏现有的代码示例或通过重新绑定已绑定的变量影响后续示例。
+
+要创建一个 Elixir 单元，将光标悬停在两个单元之间，然后按 `+Code` 按钮。
+
+Livebook 可能会更改此用户界面，因此如果此说明不再准确，请与您的讲师联系和/或 [报告问题](https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面创建一个 Elixir 代码单元。运行一些 Elixir 代码，例如 `1 + 2`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Livebook 快捷键
+
+点击侧边栏上的键盘快捷键 <i class="ri-keyboard-box-line"></i> 图标以查看
+根据当前模式可用的 Livebook 快捷键。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 导航模式与插入模式
+
+**导航模式** 是默认模式。如果你正在编辑一个 Markdown 单元或 Elixir 单元，那么你处于 **插入模式**。
+
+例如，在导航模式下，你可以通过按 <kbd>e</kbd> 然后 <kbd>a</kbd> 来评估 Livebook 笔记本中的每个 Elixir 单元。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### LiveMarkdown
+
+Livebook 允许我们创建 `.livemd` 文件，这些文件支持你到目前为止阅读的互动笔记本！`.livemd` 代表 **实时 markdown**。Livebook 将笔记本信息保存在 `.livemd` 文件中。
+
+你可以在 git 版本控制中查看对这些文件所做的更改。如果你意外删除了课程或练习的一部分并需要参考旧版本，这通常是有用的。
+
+## 编辑 Markdown 单元
+
+将光标悬停并点击此 markdown 单元以查看控制选项。点击 <i class="ri-pencil-line"></i> 编辑按钮
+以查看内部的 Markdown 内容。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<div style="padding: 1rem;background-color:lightgray; text-align: center;">
+
+### 点击我然后按编辑<i Class="ri-pencil-line"></i>
+
+</div>
+
+## 评估 Elixir 单元
+
+Elixir 单元包含 Elixir 代码。你可以评估该单元以显示代码的结果。
+
+点击一个 Elixir 单元并按 <i class="ri-play-circle-fill"></i> 评估按钮以查看该单元的输出。
+
+或者，你可以在聚焦于该单元时按 <kbd>CTRL</kbd>+<kbd>Enter</kbd>（Windows 和 Linux）或 <kbd>CMD</kbd>+<kbd>Enter</kbd>（MacOS）来重新评估它。
+
+评估下面的单元。你应该看到 `10`，因为 `5 + 5` 等于 `10`。
+
+```elixir
+5 + 5
+```
+
+在 Elixir 中，最后一个值将始终是返回值。
+
+例如，这个单元返回 `10`，而不是 `5`。
+
+```elixir
+5
+10
+```
+
+在你完成阅读材料时，预计你会评估单元以查看它们的输出。或者，你可以按 `ea` 来评估 Livebook 中的每个单元。
+
+## 评估顺序
+
+默认情况下，当你运行 `ea` 命令时，Elixir 单元按顺序评估。上面的单元在你评估下面的单元时会自动评估。
+
+这里有两个空的 Elixir 单元。默认情况下，空单元返回 `nil`。
+
+```elixir
+
+```
+
+```elixir
+
+```
+
+评估第一个单元，注意下面的单元变为 **过时**。
+
+这意味着如果第二个单元依赖于第一个单元中的任何值，它现在是过时的。
+
+如果你更改一个单元，**已评估** 将更改为 *已评估\**，以指示该单元自上次评估以来已更改。
+
+评估下面的 Elixir 单元，然后将 `5` 更改为 `4`，以查看 **已评估** 更改为 *已评估\**。
+重新评估该单元以查看 *已评估\** 更改为 **已评估**。
+
+```elixir
+5
+```
+
+有时评估顺序可能会导致练习中的问题，使用 Elixir 单元的过时版本。确保在进行更改时评估代码单元。
+
+## 格式化
+
+你可以使用 <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>I</kbd>（Windows 和 Linux）快捷键或 <kbd>SHIFT</kbd>+<kbd>OPTION</kbd>+<kbd>F</kbd>（MacOS）来格式化 Elixir 代码。
+
+尝试取消注释以下代码（移除 `#` 字符），然后按 <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>I</kbd>（Windows 和 Linux）或 <kbd>SHIFT</kbd>+<kbd>OPTION</kbd>+<kbd>F</kbd>（MacOS）来格式化代码。
+
+注意 `1 + 1` 代码向左移动。
+
+```elixir
+# 1 + 1
+```
+
+如果你没有评估任何 Elixir 代码单元，可能会看到警告。
+
+> 你需要启动运行时（或评估单元）以启用代码格式化。
+
+确保在尝试使用代码格式命令之前评估任何 Elixir 单元。
+
+如果你无法格式化 Elixir 单元，这可能是你代码中存在语法错误的线索。例如，以下代码是无效的。注意你无法使用 <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>I</kbd> 来格式化代码。
+
+```elixir
+          1 +
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Livebook 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一门付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Livebook">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/git.livemd">Git</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/code_editors.livemd">代码编辑器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

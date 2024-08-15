@@ -1,0 +1,645 @@
+# PicChat: 邮件
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Emails">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_infinite_scroll.livemd">PicChat: 分页</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/lists_vs_tuples.livemd">列表与元组</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何使用 Swoosh 和 SendGrid 发送电子邮件？
+* 我们如何配置环境变量？
+* 我们如何使用 Oban 来调度作业？
+
+## 概述
+
+### [SendGrid](https://sendgrid.com/)
+
+SendGrid 是一个电子邮件提供商，允许企业向客户和潜在客户发送电子邮件通信。它提供了一个电子邮件投递平台，包括一个基于网络的界面，用于管理联系人和创建及发送电子邮件活动，以及用于将电子邮件功能集成到应用程序中的 API。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Swoosh](https://hexdocs.pm/swoosh/Swoosh.html)
+
+Swoosh 是一个用于发送电子邮件的 Elixir 库。该库允许您使用各种电子邮件提供商发送电子邮件，例如 Sendgrid、SMTP、Mailgun 和 [更多](https://hexdocs.pm/swoosh/Swoosh.html#module-adapters)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Oban](https://hexdocs.pm/oban/Oban.html)
+
+Oban 是一个用于运行后台作业的 Elixir 库。它是一个强大且灵活的作业队列，建立在 OTP 之上。Oban 允许您将作业放入队列并在后台处理它们，这对于耗时的任务或需要独立于应用程序主进程运行的任务非常有用。作业可以并发执行，并可以安排在特定时间运行。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Mailer](https://hexdocs.pm/swoosh/Swoosh.Mailer.html)
+
+默认情况下，Phoenix 在 `app/mailer.ex` 中定义了一个 `App.Mailer`（其中 `App` 是应用程序名称）模块，该模块使用 `Swoosh.Mailer` 模块。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule App.Mailer do
+  use Swoosh.Mailer, otp_app: :app
+end
+```
+
+`Mailer` 模块配置了一些适配器，用于使用 Swoosh 和一些电子邮件提供商（如 SendGrid）发送电子邮件。
+
+## PicChat: 邮件
+
+这是我们将要添加到我们在过去几节课中构建的 `PicChat` 应用程序中的最后一个功能。本课将重点介绍如何使用 Oban 和 Swoosh 发送和调度电子邮件。
+
+## 示例电子邮件
+
+我们将演示如何在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中发送电子邮件。首先，启动服务器。
+
+```el
+iex -S mix phx.server
+```
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中运行以下命令以构建一个 [Swoosh.Email](https://hexdocs.pm/swoosh/Swoosh.Email.html) 结构，然后将该结构传递给 [Mailer.deliver/2](https://hexdocs.pm/swoosh/Swoosh.Mailer.html#deliver/2) 函数以发送电子邮件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+import Swoosh.Email
+
+new()
+|> to("test@test.com")
+|> from({"sender", "sender@sender_domain.com"})
+|> subject("测试电子邮件主题")
+|> html_body("<h1>测试电子邮件</h1>")
+|> text_body("测试电子邮件")
+|> PicChat.Mailer.deliver()
+```
+
+访问 http://localhost:4000/dev/mailbox 查看已发送的电子邮件。
+
+## 订阅用户
+
+用户应该始终能够选择接收或取消接收通知。我们将为每个用户添加一个 `subscribed` 字段，并仅向已订阅的用户发送电子邮件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建迁移
+
+运行以下命令以创建迁移。
+
+```
+$ mix ecto.gen.migration add_subscribed_to_users
+```
+
+在迁移中添加以下内容。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Repo.Migrations.AddSubscribedToUsers do
+  use Ecto.Migration
+
+  def change do
+    alter table(:users) do
+      add :subscribed, :boolean, default: false
+    end
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 修改模式
+
+在 `User` 模式中添加以下内容。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# User.ex 在 `schema` 宏内部。
+field :subscribed, :boolean, default: false
+```
+
+修改 `registration_changeset` 以添加 `:subscribed` 字段。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# User.ex
+def registration_changeset(user, attrs, opts \\ []) do
+  user
+  |> cast(attrs, [:email, :password, :username, :subscribed])
+  |> validate_email(opts)
+  |> validate_password(opts)
+  |> validate_username()
+end
+```
+
+<!-- livebook:{"force_markdown":true} -->
+
+### 添加订阅复选框
+
+在注册用户时添加一个复选框，以便他们可以选择接收电子邮件通知。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# User_registration_live 在现有表单内部。
+<.input field={@form[:subscribed]} type="checkbox" label="接收电子邮件更新" />
+```
+
+## 每日摘要电子邮件
+
+我们将向所有用户发送一封每日电子邮件，包含当天发送的消息摘要。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 查找今天的消息
+
+创建以下函数以查找今天创建的所有消息的列表。[fragment/1](https://hexdocs.pm/ecto/Ecto.Query.API.html#fragment/1) 允许我们将 SQL 直接注入查询。在这里，我们使用它将 `inserted_at` 值转换为日期，以便与今天的日期进行比较。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Chat.ex
+def todays_messages do
+  today = Date.utc_today()
+
+  from(m in Message,
+    where: fragment("date(inserted_at) = ?", ^today),
+    order_by: [desc: :inserted_at, desc: :id]
+  )
+  |> Repo.all()
+end
+```
+
+> 这种实现可能会导致在电子邮件中发送过多的消息，或者根据我们发送每日电子邮件的时间而错过消息。更复杂和可靠的实现可以是在每条消息上设置一个标志，以存储它们是否在之前的每日摘要电子邮件中发送过。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 查找所有订阅用户的电子邮件
+
+添加以下函数以从数据库中获取订阅用户的电子邮件列表。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Accounts.ex
+def subscriber_emails() do
+  from(u in User, where: u.subscribed == true, select: u.email)
+  |> Repo.all()
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 构建并发送摘要电子邮件
+
+创建一个 `lib/pic_chat/summary_emails.ex` 上下文，向每个订阅者发送一封包含今天所有消息摘要的电子邮件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.SummaryEmail do
+  import Swoosh.Email
+
+  @sender_name "PicChat"
+  @sender_email "info@picchat.com"
+
+  def send_to_subscribers do
+    messages = PicChat.Chat.todays_messages()
+    subscribers = PicChat.Accounts.subscriber_emails()
+
+    for subscriber <- subscribers do
+      PicChat.Mailer.deliver(build(subscriber, messages))
+    end
+  end
+
+  def build(receiver_email, messages) do
+    new()
+    |> to(receiver_email)
+    |> from({@sender_name, @sender_email})
+    |> subject("PicChat 摘要报告")
+    |> html_body("""
+    <h1>摘要报告</h1>
+    #{Enum.map(messages, &render_message/1)}
+    """)
+    |> text_body("""
+    摘要报告
+    #{messages |> Enum.map(&(&1.content)) |> Enum.join("\n")}
+    """)
+  end
+
+  defp render_message(message) do
+    """
+    <p>#{message.content}</p>
+    """
+  end
+end
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 配置 Oban
+
+按照 [Oban 安装说明](https://hexdocs.pm/oban/installation.html) 将 Oban 添加到您的项目中。
+
+我们将在这里概述步骤。
+
+首先，在 `mix.exs` 中将 oban 添加到您的依赖列表中。确保您的版本是最新的。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:oban, "~> 2.14"}
+```
+
+在 `config.exs` 中配置 Oban。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+config :pic_chat, Oban,
+  repo: Newsletter.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10]
+```
+
+在 `test.exs` 中添加 Oban 测试配置。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Oban
+config :pic_chat, Oban, testing: :inline
+```
+
+将 Oban 添加到您的应用程序的监督树中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def start(_type, _args) do
+  children = [
+    # 启动 Ecto 存储库
+    PicChat.Repo,
+    # 启动 Telemetry 监督者
+    PicChatWeb.Telemetry,
+    # 启动 PubSub 系统
+    {Phoenix.PubSub, name: PicChat.PubSub},
+    # 启动端点 (http/https)
+    PicChatWeb.Endpoint,
+    # 通过调用: Newsletter.Worker.start_link(arg) 启动一个工作者
+    # {Newsletter.Worker, arg},
+    {Oban, Application.fetch_env!(:pic_chat, Oban)} # 添加 Oban
+  ]
+
+  # 请参阅 https://hexdocs.pm/elixir/Supervisor.html
+  # 以获取其他策略和支持的选项
+  opts = [strategy: :one_for_one, name: PicChat.Supervisor]
+  Supervisor.start_link(children, opts)
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### DailySummaryEmail 工作者
+
+Oban 可以调度工作者在一定时间内或在特定时间执行作业。有关更多信息，请参见 [Oban: 调度作业](https://hexdocs.pm/oban/Oban.html#module-scheduling-jobs)。
+
+创建一个 `lib/pic_chat/workers/daily_summary_email.ex` 工作者，内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Workers.DailySummaryEmail do
+  # 我们将 max_attempts 设置为 1，以避免重新发送相同的电子邮件给用户。 
+  use Oban.Worker, queue: :default, max_attempts: 1
+
+  @impl true
+  def perform(_params) do
+    PicChat.SummaryEmail.send_to_subscribers()
+
+    :ok
+  end
+end
+```
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中运行以下命令以在五秒后调度作业。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> PicChat.Workers.DailySummaryEmail.new(%{}, schedule_in: 5) |> Oban.insert!()
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 每日 Cron 作业
+
+Oban 允许我们配置基于 [Cron](https://hexdocs.pm/oban/Oban.Plugins.Cron.html) 的调度。
+
+在 `config.exs` 中修改 oban 配置，以添加一个每天早上 8 点运行的每日 CRON 作业。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+config :pic_chat, Oban,
+  repo: PicChat.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 8 * * *", PicChat.Workers.DailySummaryEmail}
+     ]}
+  ],
+  queues: [default: 10]
+```
+
+## 测试
+
+### 今天的消息
+
+测试时间可能会很棘手。然而，可以覆盖记录中的 `inserted_at` 字段。以下测试演示了如何确保 `Chat.todays_messages/0` 函数仅查找今天创建的消息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Chat_test.exs
+test "todays_messages/0" do
+  user = user_fixture()
+  today_message = message_fixture(user_id: user.id)
+
+  yesterday =
+    NaiveDateTime.add(NaiveDateTime.utc_now(), -1, :day) |> NaiveDateTime.truncate(:second)
+
+  yesterday_message =
+    PicChat.Repo.insert!(%Message{
+      content: "some content",
+      user_id: user.id,
+      inserted_at: yesterday
+    })
+
+  assert Chat.todays_messages() == [today_message]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试 Oban
+
+如果需要，我们可以直接测试 `perform/1` 函数。
+
+例如，创建一个测试文件 `pic_chat/workers/daily_summary_email_test.exs`，内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Workers.DailySummaryEmailTest do
+  use PicChat.DataCase
+  use Oban.Testing, repo: PicChat.Repo
+
+  alias PicChat.Workers.DailySummaryEmail
+  alias PicChat.SummaryEmail
+
+  import Swoosh.TestAssertions
+  import PicChat.AccountsFixtures
+  import PicChat.ChatFixtures
+
+  test "perform/1 sends daily summary emails" do
+    user = user_fixture(email: "test@test.test", subscribed: true)
+    message1 = message_fixture(user_id: user.id)
+    message2 = message_fixture(user_id: user.id)
+
+    assert :ok = DailySummaryEmail.perform(%{})
+
+    assert_email_sent SummaryEmail.build(user.email, [message2, message1])
+  end
+end
+```
+
+Oban 还提供了 [Oban.Testing.assert_enqueued/2](https://hexdocs.pm/oban/Oban.Testing.html#assert_enqueued/2) 函数，用于测试作业是否已入队。
+
+如果您想了解更多关于测试 Oban 的信息，这里有一个很棒的视频供您观看。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=PZ48omi0NKU&ab_channel=ElixirConf\")","title":"ElixirConf 2021 - Parker Selbert - Testing Oban Jobs From the Inside Out"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=PZ48omi0NKU&ab_channel=ElixirConf")
+```
+
+## 生产电子邮件
+
+到目前为止，我们只向开发邮箱发送了电子邮件。我们实际上还没有配置我们的电子邮件系统以发送真实电子邮件。
+
+现在，我们将配置 `SendGrid` 以在生产环境中发送实际电子邮件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建 SendGrid 账户
+
+要使用 SendGrid 和 Swoosh，我们需要一个 SendGrid API 令牌。
+
+要获取 SendGrid API 令牌，请完成以下步骤。
+
+1. 注册一个 [免费 SendGrid 账户](https://signup.sendgrid.com/)。
+2. [创建一个单一发件人](https://app.sendgrid.com/settings/sender_auth/senders/new)。这将是用于发送电子邮件和接收回复的配置。
+3. 通过确认电子邮件验证您的发件人身份。
+4. [设置 MFA](https://app.sendgrid.com/settings/auth)（多因素身份验证）
+5. [创建 API 密钥](https://app.sendgrid.com/settings/api_keys)。如果您愿意，可以创建一个完全访问密钥，但创建一个具有“邮件发送”权限的受限访问密钥更安全。确保将您的 API 密钥保存在安全的地方，以免他人查看。
+
+完成上述步骤后，[查看您的发件人](https://app.sendgrid.com/settings/sender_auth) 以确保它们已成功设置。
+
+> 不幸的是，SendGrid 可能需要一些时间来验证账户，您可能无法立即发送电子邮件。如果是这种情况，您的老师可以为您提供一个临时密钥以供使用。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 在环境中设置 API 密钥
+
+创建一个 `.env` 文件，内容如下。将 KEY 替换为您的 API 密钥。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+export SENDGRID_API_KEY="KEY"
+```
+
+将 `.env` 文件添加到 `.gitignore` 中，以防止将 API 密钥放入 GitHub。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# .gitignore
+.env
+```
+
+确保将 `.env` 文件源到环境中。
+
+```
+$ source .env
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 修改 `@sender_name` 和 `@sender_email`
+
+使发件人名称和发件人电子邮件与您在 SendGrid 上创建的发件人匹配。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Summary_email.ex
+@sender_name "YOUR_SENDER_NAME"
+@sender_email "YOUR_SENDER_EMAIL"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### SendGrid 配置
+
+在 `config.exs` 中用以下内容替换现有的邮件配置，以设置 SendGrid。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Config :pic_chat, PicChat.Mailer, Adapter: Swoosh.Adapters.Local
+config :pic_chat, PicChat.Mailer,
+  adapter: Swoosh.Adapters.Sendgrid,
+  api_key: System.get_env("SENDGRID_API_KEY")
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 生产适配器配置
+
+默认情况下，`prod.exs` 应该已经配置为使用 [Finch](https://hexdocs.pm/finch/Finch.html) 发送 HTTP 请求。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 配置 Swoosh API 客户端
+config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: PicChat.Finch
+```
+
+这就是我们在生产环境中发送电子邮件所需的一切。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 在开发中发送电子邮件
+
+通常，在开发环境中发送真实电子邮件是不明智的，因为可能会意外向用户发送开发电子邮件。这就是为什么 `dev.exs` 配置 `:swoosh` 以便无法发送任何电子邮件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+config :swoosh, :api_client, false
+```
+
+然而，我们将简要配置应用程序以发送真实电子邮件以进行测试。用以下内容替换 `dev.exs` 配置，该配置覆盖 `:swoosh` 适配器。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Config :swoosh, :api_client, False
+config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: PicChat.Finch
+```
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中运行以下命令以发送真实电子邮件。将 `YOUR_EMAIL`、`SENDER_NAME` 和 `SENDER_EMAIL` 替换为您在 SendGrid 上的个人信息和您的电子邮件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+import Swoosh.Email
+
+new()
+|> to("YOUR_EMAIL")
+|> from({"SENDER_NAME", "SENDER_EMAIL"})
+|> subject("测试电子邮件主题")
+|> html_body("<h1>测试电子邮件</h1>")
+|> text_body("测试电子邮件")
+|> PicChat.Mailer.deliver()
+```
+
+检查您的电子邮件或 SendGrid 以验证电子邮件是否已发送。它可能在垃圾邮件文件夹中。您可以在 [SendGrid 活动记录](https://app.sendgrid.com/email_activity?filters=%5B%7B%22val%22%3A%5B%22%22%5D%2C%22selectedFieldName%22%3A%22to_email%22%2C%22comparisonType%22%3A%22Contains%22%7D%2C%7B%22val%22%3A%5B%222023%2F01%2F12%20-%202023%2F01%2F15%22%5D%2C%22selectedFieldName%22%3A%22last_event_time%22%2C%22comparisonType%22%3A%22Between%22%7D%5D&isAndOperator=true&page=1) 查看已发送的电子邮件。
+
+一旦验证，请确保将开发配置更改回去。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Dev.exs
+config :swoosh, :api_client, false
+# Config :swoosh, Api_client: Swoosh.ApiClient.Finch, Finch_name: PicChat.Finch
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [HexDocs: Oban](https://hexdocs.pm/oban/Oban.html)
+* [HexDocs: Swoosh](https://hexdocs.pm/swoosh/Swoosh.html)
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "完成 PicChat: 邮件 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一门付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Emails">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_infinite_scroll.livemd">PicChat: 分页</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/lists_vs_tuples.livemd">列表与元组</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,256 @@
+<!-- livebook:{"file_entries":[{"name":"archer_attack.png","type":"attachment"},{"name":"barbarian_attack.png","type":"attachment"},{"name":"battle_map.png","type":"attachment"},{"name":"wizard_attack.png","type":"attachment"}]} -->
+
+# 战斗地图
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Battle Map">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/math_with_protocols.livemd">使用协议的数学</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/streams.livemd">流</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+你正在开发一个2D战术战斗游戏。
+
+游戏中的角色在一个潜在无限大小的网格上战斗。
+![](files/battle_map.png)
+
+## 角色攻击
+
+你将使用**协议**创建一个 `Character.can_attack?/3` 函数，期望以下参数：
+
+1. 一个 `Barbarian` 或 `Wizard` 结构体。
+2. 玩家坐标 `{x, y}`
+3. 敌人坐标 `{x, y}`
+
+它应该返回一个布尔值。
+
+以下是你将要使用的 `Character` 协议以及 `Barbarian` 和 `Wizard` 结构体。
+
+**请勿修改此代码：**
+
+```elixir
+defprotocol Character do
+  def can_attack?(character, origin, target)
+end
+
+defmodule Wizard do
+  defstruct []
+end
+
+defmodule Barbarian do
+  defstruct []
+end
+```
+
+## 野蛮人
+
+一个 <b style="color: red;">野蛮人</b> 可以在2个方格半径内攻击。
+
+你应该能够检查一个角色是否可以在给定起始位置 `{x, y}` 的情况下攻击坐标 `{x, y}`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Character.can_attack?(%Barbarian{}, {4, 4}, {6, 6})
+true
+```
+
+![](files/barbarian_attack.png)
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defimpl Character, for: Barbarian do
+  def can_attack?(_character, {init_x, init_y}, {x, y}) do
+    x_diff = init_x - x
+    y_diff = init_y - y
+
+    abs(x_diff) <= 2 && abs(y_diff) <= 2
+  end
+end
+```
+
+</details>
+
+```elixir
+# 实现代码在这里：
+
+# 你可以使用以下测试套件来验证你的解决方案。
+ExUnit.start(auto_run: false)
+
+defmodule BarbarianTests do
+  use ExUnit.Case
+
+  describe "Barbarian" do
+    test "can attack within two squares of current position" do
+      for x <- 2..6, y <- 2..6 do
+        assert Character.can_attack?(%Barbarian{}, {4, 4}, {x, y})
+      end
+    end
+
+    test "cannot attack beyond two squares of current position" do
+      refute Character.can_attack?(%Barbarian{}, {4, 4}, {1, 1})
+      refute Character.can_attack?(%Barbarian{}, {4, 4}, {7, 7})
+      refute Character.can_attack?(%Barbarian{}, {4, 4}, {7, 1})
+      refute Character.can_attack?(%Barbarian{}, {4, 4}, {1, 7})
+    end
+
+    test "logic is not hardcoded to the {4, 4} position" do
+      refute Character.can_attack?(%Barbarian{}, {3, 3}, {6, 6})
+    end
+  end
+end
+
+ExUnit.run()
+```
+
+## 法师
+
+一个 <b style="color: purple;">法师</b> 可以在任何长度的直线或对角线上攻击。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Character.can_attack?(%Wizard{}, {4, 4}, {6, 6})
+true
+```
+
+![](files/wizard_attack.png)
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defimpl Character, for: Wizard do
+  def can_attack?(_character, {init_x, init_y}, {x, y}) do
+    x_diff = init_x - x
+    y_diff = init_y - y
+
+    init_x == x || init_y == y || abs(x_diff) == abs(y_diff)
+  end
+end
+```
+
+</details>
+
+为 `Character` 协议创建一个 `Wizard` 实现。
+
+```elixir
+# 实现代码在这里：
+
+# 你可以使用以下测试套件来验证你的解决方案。
+ExUnit.start(auto_run: false)
+
+defmodule WizardTests do
+  use ExUnit.Case
+
+  describe "Wizard" do
+    test "can attack in eight directions" do
+      # 上、上右、右、下右、下、下左、左、上左
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {4, 5})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {5, 5})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {5, 4})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {5, 3})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {4, 3})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {3, 3})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {3, 4})
+      assert Character.can_attack?(%Wizard{}, {4, 4}, {3, 5})
+    end
+
+    test "cannot attack invalid squares" do
+      refute Character.can_attack?(%Wizard{}, {4, 4}, {6, 5})
+      refute Character.can_attack?(%Wizard{}, {4, 4}, {2, 5})
+      refute Character.can_attack?(%Wizard{}, {4, 4}, {3, 2})
+      refute Character.can_attack?(%Wizard{}, {4, 4}, {6, 3})
+    end
+  end
+end
+
+ExUnit.run()
+```
+
+## 自定义角色（奖励）
+
+创建你自己的自定义角色，攻击模式由你决定。它不应与现有角色匹配。
+
+例如，你可以创建一个只能在3个半径方格内攻击的 `Archer`。
+
+![](files/archer_attack.png)
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Character.can_attack?(%Archer{}, {4, 4}, {7, 7})
+true
+```
+
+在下面实现你的自定义角色。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成战斗地图练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Battle Map">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/math_with_protocols.livemd">使用协议的数学</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/streams.livemd">流</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,336 @@
+# 关键字列表
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Keyword Lists">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/lists.livemd">列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/maps.livemd">映射</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是关键字列表，我们为什么要将数据存储在键值数据结构中？
+* 我们如何访问关键字列表中的值？
+* 我们如何使用列表运算符与关键字列表？
+* 关键字列表在Elixir中的内部表示是什么？
+
+## 关键字列表
+
+关键字列表是带有键的列表。每个键与一个值相关联。
+
+```mermaid
+flowchart
+  key1: --> Value1
+  key2: --> Value2
+  key3: --> Value3
+```
+
+关键字列表属于一种称为**关联数据结构**的数据类型家族。
+你也会经常听到它被称为**键值数据结构**。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 为什么使用关键字列表？
+
+关键字列表保证顺序，并且比映射更高效地创建。对于少量数据，它们的性能更好，但对于大量数据，它们的性能不如映射。
+
+因此，我们希望在少量数据或数据需要有序时使用关键字列表。
+
+例如，我们可能会有一个“前五首播放列表”，其中存储了我们最喜欢的歌曲，使用关键字列表。键可以表示歌曲名称，值可以表示艺术家的歌曲。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+[artist1: "song 1", artist2: "song 2", artist3: "song 3", artist4: "song 4", artist5: "song 5"]
+```
+
+然而，对于一个大型播放列表，我们可能选择使用[映射](./maps.livemd)，因为顺序并不重要，并且我们需要播放列表在大量数据时具有良好的性能。我们将在下一课中讨论映射。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 映射示例
+%{
+  artist1: "song 1"
+  artist2: "song 1"
+  artist3: "song 1"
+  artist4: "song 1"
+  artist5: "song 1"
+  artist6: "song 1"
+  ...
+}
+```
+
+最常见的是，关键字列表用于提供一组键值选项。
+
+例如，当我们想要标记一些数据时，`IO.inspect`接受一个关键字列表的选项。`:label`选项用于标记数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+IO.inspect("data", [label: "label for my data"])
+```
+
+当关键字列表在函数内部时，Elixir会去掉方括号，因此上面的内容在格式化时变为以下内容。
+
+```elixir
+IO.inspect("data", label: "label for my data")
+```
+
+有关`IO.inspect`的完整选项列表，请参见：[Inspect.Opts](https://hexdocs.pm/elixir/Inspect.Opts.html)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 关键字列表的分解
+
+在Elixir中，键是原子，值可以是任何数据结构，甚至是另一个关键字列表。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+[key: "value"]
+[atom: "anything!"]
+["You can use quotes for the atom key!": ""]
+[snake_case_is_convention: ""]
+[ButThatIsNotEnforced: ""]
+```
+
+关键字列表中的键不必是唯一的。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+[my_key: "value", my_key: "value"]
+```
+
+Elixir允许你使用这种优雅的`[key: "value"]`语法来处理关键字列表。然而，
+关键字列表实际上只是一个元组列表，其中第一个元素是原子。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+[{:key, "value"}]
+```
+
+在下面的Elixir单元中，你可以看到Elixir如何将匹配`{:atom, value}`语法的元组列表转换为关键字列表。
+
+```elixir
+[{:key, "value"}, {:key, "value"}]
+```
+
+如果你在关键字列表中打破约定，Elixir会恢复为显示
+元组列表。
+
+```elixir
+[{}, key: "value"]
+```
+
+关键字列表语法必须位于列表的末尾，否则会导致[语法错误](https://hexdocs.pm/elixir/SyntaxError.html)。
+
+```elixir
+[key: "value", ""]
+```
+
+列表顺序是有保证的，因此关键字列表也是如此。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的Elixir单元中，创建一个你最喜欢的超级英雄的关键字列表。包括他们的`:name`和`:secret_identity`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+[name: "Spiderman", secret_identity: "Peter Parker"]
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 访问键
+
+我们可以通过其关联的键使用方括号`[key]`语法访问关键字列表中的值，其中`key`是原子键。
+
+```elixir
+keyword_list = [key: "value"]
+
+keyword_list[:key]
+```
+
+### 你的回合
+
+访问以下关键字列表中的`:hello`键。
+
+```elixir
+keyword_list = [hello: "world"]
+```
+
+## 关键字列表运算符
+
+我们还可以使用`--`和`++`列表运算符与关键字列表。
+
+```elixir
+[one: 1, two: 2] -- [one: 1]
+```
+
+如果你将一个列表添加到关键字列表中，你会注意到关键字列表元素将
+再次评估为元组。请记住，关键字列表只是一个包含原子和一个值的元组列表。
+
+```elixir
+[one: 1] ++ [1]
+```
+
+### 你的回合
+
+在下面的Elixir单元中，使用`++`将`[one: 1]`添加到`[two: 2]`中，以生成`[one: 1, two: 2]`。
+
+```elixir
+
+```
+
+从`[one: 1, two: 2]`中移除`[two: 2]`以生成`[one: 1]`。
+
+```elixir
+
+```
+
+## 模式匹配
+
+与列表类似，我们可以使用模式匹配将关键字列表中的值绑定到变量。
+
+```elixir
+[hello: my_variable] = [hello: "world"]
+
+my_variable
+```
+
+与列表一样，我们必须匹配整个关键字列表，否则会导致[匹配错误](https://hexdocs.pm/elixir/MatchError.html)。
+
+```elixir
+[one: one] = [one: 1, two: 2]
+```
+
+只要我们对关键字列表中的每个元素都有匹配，我们就可以使用模式匹配。
+
+```elixir
+[one: one, two: two] = [one: 1, two: 2]
+```
+
+我们可以使用`[head | tail]`语法对关键字列表的尾部进行模式匹配，以避免此问题。
+
+```elixir
+[head | _tail] = [one: 1, two: 2]
+
+head
+```
+
+如果我们想对列表中的键进行模式匹配，我们需要在`=`匹配运算符的左侧使用元组语法。
+
+```elixir
+[{key, value}] = [key: "value"]
+```
+
+```elixir
+key
+```
+
+```elixir
+value
+```
+
+### 你的回合
+
+将以下关键字列表中的`1`绑定到变量`one`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+[{_, one} | _tail] = [one: 1, two: 2, three: 3, four: 4]
+```
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+[one: 1, two: 2, three: 3, four: 4]
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir Lang: 关键字列表](https://elixir-lang.org/getting-started/keywords-and-maps.html#keyword-lists)
+* [Elixir Schools: 关键字列表](https://elixirschool.com/en/lessons/basics/collections#keyword-lists-5)
+* [HexDocs: 关键字](https://hexdocs.pm/elixir/Keyword.html)
+
+## 提交你的进度
+
+DockYard Academy现在建议你使用最新的[发布版本](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成关键字列表阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Keyword Lists">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/lists.livemd">列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/maps.livemd">映射</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

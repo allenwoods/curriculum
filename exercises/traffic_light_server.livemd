@@ -1,0 +1,306 @@
+# 交通信号灯服务器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Traffic Light Server">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/stack.livemd">已测试的栈</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/supervisors.livemd">监督者</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 交通信号灯服务器
+
+你将创建一个 `TrafficLights` mix 项目来管理交通。
+
+```
+mix new traffic_lights
+```
+
+创建一个 `TrafficLights.Light` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，模拟交通信号灯从绿色到黄色再到红色的转换。
+
+```mermaid
+flowchart LR
+  G((1))
+  Y((2))
+  R((3))
+  G --> Y --> R --> G
+  style G fill: lightgreen
+  style Y fill: lightyellow
+  style R fill: coral
+```
+
+这也是使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 构建 [有限状态机](https://en.wikipedia.org/wiki/Finite-state_machine) 的一个简单示例。
+
+### 需求
+
+* 初始交通信号灯状态应为 `:green`。将灯的状态存储为原子 `:green`、`:yellow` 和 `:red`。
+* 处理异步的 `:transition` 消息以转换当前灯。
+* 处理同步的 `:current_light` 消息以检索当前灯。
+* 创建 `transition/1` 和 `current_light/1` 消息，如下文所述。
+* 为 `TrafficLights` 模块编写完整的测试套件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:ok, pid} = TrafficLights.Light.start_link([])
+
+:green = TrafficLights.Light.current_light(pid)
+:ok = TrafficLights.Light.transition(pid)
+
+:yellow = TrafficLights.Light.current_light(pid)
+:ok = TrafficLights.Light.transition(pid)
+
+:red = TrafficLights.Light.current_light(pid)
+:ok = TrafficLights.Light.transition(pid)
+
+:green = TrafficLights.Light.current_light(pid)
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TrafficLights.Light do
+  use GenServer
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def transition(pid) do
+    GenServer.call(pid, :transition)
+  end
+
+  def current_light(pid) do
+    GenServer.call(pid, :current_light)
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, :green}
+  end
+
+  @impl true
+  def handle_call(:transition, _from, state) do
+    next_state =
+      case state do
+        :green -> :yellow
+        :yellow -> :red
+        :red -> :green
+      end
+
+    {:reply, next_state, next_state}
+  end
+
+  @impl true
+  def handle_call(:current_light, _from, state) do
+    {:reply, state, state}
+  end
+end
+```
+
+</details>
+
+## 交通网格
+
+创建一个 `TrafficLights.Grid` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，管理五个 `TrafficLights.Light` 进程。
+
+```mermaid
+flowchart
+TG[TrafficLights.Grid]
+TLS1[TrafficLights.Light]
+TLS2[TrafficLights.Light]
+TLS3[TrafficLights.Light]
+TLS4[TrafficLights.Light]
+TLS5[TrafficLights.Light]
+G1[绿色]
+G2[绿色]
+G3[绿色]
+G4[绿色]
+G5[绿色]
+Y1[黄色]
+Y2[黄色]
+Y3[黄色]
+Y4[黄色]
+Y5[黄色]
+R1[红色]
+R2[红色]
+R3[红色]
+R4[红色]
+R5[红色]
+
+TG --> TLS1
+TG --> TLS2
+TG --> TLS3
+TG --> TLS4
+TG --> TLS5
+
+TLS1 --> G1 --> Y1 --> R1 --> G1
+TLS2 --> G2 --> Y2 --> R2 --> G2
+TLS3 --> G3 --> Y3 --> R3 --> G3
+TLS4 --> G4 --> Y4 --> R4 --> G4
+TLS5 --> G5 --> Y5 --> R5 --> G5
+
+style G1 fill:lightgreen
+style G2 fill:lightgreen
+style G3 fill:lightgreen
+style G4 fill:lightgreen
+style G5 fill:lightgreen
+style Y1 fill:lightyellow
+style Y2 fill:lightyellow
+style Y3 fill:lightyellow
+style Y4 fill:lightyellow
+style Y5 fill:lightyellow
+style R1 fill:lightcoral
+style R2 fill:lightcoral
+style R3 fill:lightcoral
+style R4 fill:lightcoral
+style R5 fill:lightcoral
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 需求
+
+* 网格的初始状态应包含一个包含五个 `TrafficLights.Light` pids 的列表，以及任何其他你想跟踪的状态
+* 创建 `current_lights/1` 和 `transition/1` 函数，如下文所述。
+* 编写完整的测试套件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:ok, pid} = TrafficLights.Grid.start_link([])
+
+:ok = TrafficLights.Grid.transition(pid)
+
+[:yellow, :green, :green, :green, :green] = TrafficLights.Grid.current_lights(pid)
+
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+
+[:red, :yellow, :yellow, :yellow, :yellow] = TrafficLights.Grid.current_lights(pid)
+
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+:ok = TrafficLights.Grid.transition(pid)
+
+[:green, :red, :red, :red, :red] = TrafficLights.Grid.current_lights(pid)
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TrafficLights.Grid do
+  use GenServer
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def transition(grid_pid) do
+    GenServer.call(grid_pid, :transition)
+  end
+
+  def current_lights(grid_pid) do
+    GenServer.call(grid_pid, :current_lights)
+  end
+
+  @impl true
+  def init(_opts) do
+    light_pids =
+      Enum.map(1..5, fn _ ->
+        {:ok, pid} = TrafficLights.Light.start_link([])
+        pid
+      end)
+
+    {:ok, %{light_pids: light_pids, transition_index: 0}}
+  end
+
+  @impl true
+  def handle_call(:transition, _from, state) do
+    light_pid = Enum.at(state.light_pids, state.transition_index)
+    TrafficLights.Light.transition(light_pid)
+
+    lights = Enum.map(state.light_pids, &TrafficLights.Light.current_light/1)
+    next_transition_index = rem(state.transition_index + 1, length(state.light_pids))
+
+    {:reply, lights, %{state | transition_index: next_transition_index}}
+  end
+
+  @impl true
+  def handle_call(:current_lights, _from, state) do
+    lights = Enum.map(state.light_pids, &TrafficLights.Light.current_light/1)
+
+    {:reply, lights, state}
+  end
+end
+```
+
+</details>
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成交通信号灯服务器练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Traffic Light Server">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/stack.livemd">已测试的栈</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/supervisors.livemd">监督者</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,176 @@
+# 进程练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Process Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/processes.livemd">进程</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/process_mailbox.livemd">进程邮箱</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 进程练习
+
+练习帮助你通过重复练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是针对 [Process](https://hexdocs.pm/elixir/Process.html) 模块的。按照每个练习的说明进行操作，并尽快完成它们。
+
+## Process.send/3
+
+使用 [Process.send/3](https://hexdocs.pm/elixir/Process.html#send/3) 和 `self()` 向下面的 Elixir 单元发送一个 `:message` 消息。使用 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 在同一单元中接收该消息。
+
+```elixir
+
+```
+
+使用 [Process.send/3](https://hexdocs.pm/elixir/Process.html#send/3) 和 `self()` 向下面的 Elixir 单元发送一个带有值的消息，即 `{:message, "value"}`。使用 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 在同一单元中接收该消息并返回该值。
+
+```elixir
+
+```
+
+## Process.spawn/2
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 来生成一个新进程，该进程将两个整数相加。
+
+```elixir
+
+```
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个进程，该进程睡眠五秒，然后打印 "Finished!"。
+
+```elixir
+
+```
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 来生成一个接收 `:message` 消息的进程。使用 [Process.send/3](https://hexdocs.pm/elixir/Process.html#send/3) 向生成的进程发送一个 `:message` 消息。生成的进程应打印 `"received a message!"`。
+
+```elixir
+
+```
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 来生成一个接收带有值的消息的进程，即 `{:message, "value"}`。使用 [Process.send/3](https://hexdocs.pm/elixir/Process.html#send/3) 向生成的进程发送一个带有值的消息。生成的进程应打印接收到的值。
+
+```elixir
+
+```
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 来生成一个引发错误的进程。注意它不会崩溃 Livebook，因为它是一个 **未链接** 的进程。
+
+```elixir
+
+```
+
+使用 [Process.spawn/3](https://hexdocs.pm/elixir/Process.html#spawn/3) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个在一秒后引发错误的进程。使用 [Process.link/1](https://hexdocs.pm/elixir/Process.html#link/1) 来链接该进程。
+
+Livebook 应该崩溃。注释掉你的解决方案，以便你可以继续。
+
+```elixir
+
+```
+
+## Process.alive?/1
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个睡眠五秒的进程。使用 [Process.alive?/1](https://hexdocs.pm/elixir/Process.html#alive?/1) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来检查该进程在两秒后是否仍然存活。[Process.alive?/1](https://hexdocs.pm/elixir/Process.html#alive?/1) 应返回 `true`。
+
+```elixir
+
+```
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个睡眠五秒的进程。使用 [Process.alive?/1](https://hexdocs.pm/elixir/Process.html#alive?/1) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来检查该进程在六秒后是否仍然存活。[Process.alive?/1](https://hexdocs.pm/elixir/Process.html#alive?/1) 应返回 `false`。
+
+```elixir
+
+```
+
+## Process.send_after/4
+
+使用 [Process.send_after/4](https://hexdocs.pm/elixir/Process.html#send_after/4) 和 `self()` 在两秒后向下面的 Elixir 单元发送一条消息。在同一单元中使用 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 接收该消息。
+
+```elixir
+
+```
+
+使用 [Process.spawn/3](https://hexdocs.pm/elixir/Process.html#spawn/3) 和 [receive](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#receive/1) 来生成一个等待接收消息的进程。使用 [Process.send_after/4](https://hexdocs.pm/elixir/Process.html#send_after/4) 在两秒后向生成的进程发送一条消息。
+
+```elixir
+
+```
+
+## Process.exit/2
+
+使用 [Process.spawn/2](https://hexdocs.pm/elixir/Process.html#spawn/2) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个睡眠五秒的进程。在睡眠前打印 `"I started"`，在睡眠后打印 `"I finished"` 以证明该进程是否完成睡眠。使用 [Process.exit/2](https://hexdocs.pm/elixir/Process.html#exit/2) 以 `:normal` 退出原因终止生成的进程。
+
+完成后，将退出原因切换为 `:kill` 以演示该进程是未链接的，因为它不会崩溃调用进程。
+
+```elixir
+
+```
+
+使用 [Kernel.spawn_link/1](https://hexdocs.pm/elixir/Kernel.html#spawn_link/1) 和 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来生成一个链接的进程，该进程睡眠五秒。使用 [Process.exit/2](https://hexdocs.pm/elixir/Process.html#exit/2) 以 `:normal` 退出原因终止生成的进程。
+
+注意 Livebook 不会崩溃。将退出原因切换为 `:kill`，并注意 Livebook 会崩溃。注释掉你的解决方案以避免崩溃 Livebook。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成进程练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Process Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/processes.livemd">进程</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/process_mailbox.livemd">进程邮箱</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

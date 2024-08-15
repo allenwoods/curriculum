@@ -1,0 +1,110 @@
+# 游戏：文档和静态分析
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Documentation And Static Analysis">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/typespec_drills.livemd">类型规范练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/executables.livemd">可执行文件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 游戏：文档与文档测试
+
+为您现有的 [Games](./games.livemd) 项目编写文档。在适当的地方添加文档测试和示例。
+
+确保所有测试通过。
+
+## 游戏：类型规范
+
+为您的 [Games.RockPaperScissors](games_rock_paper_scissors.livemd) 和 [Games.Wordle](games_wordle.livemd) 模块添加类型规范。每个公共函数应有一个相关的 `@spec`。
+
+## 游戏：Dialyzer
+
+将 [Dialyxir](https://github.com/jeremyjh/dialyxir) 添加到您现有的 [Games](./games.livemd) 项目中。您应该能够通过运行以下命令来验证应用程序中的类型规范。
+
+```
+mix dialyzer
+```
+
+确保所有检查通过，并修复任何 Dialyzer 错误。
+
+## 游戏：Credo
+
+将 [Credo](https://hexdocs.pm/credo/Credo.html) 添加到您现有的 [Games](./games.livemd) 项目中。
+
+您应该能够使用以下命令运行 Credo。确保所有检查通过，并修复任何错误或 Credo 建议。
+
+```
+mix credo
+```
+
+## 游戏：ExDocs
+
+将 `ExDocs` 添加到您现有的 [Games](./games.livemd) 项目中。
+
+运行以下命令以生成项目文档。重新运行该命令以更新项目文档。
+
+```
+mix docs
+```
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "完成游戏：文档和静态分析练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Documentation And Static Analysis">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/typespec_drills.livemd">类型规范练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/executables.livemd">可执行文件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

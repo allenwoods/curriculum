@@ -1,0 +1,612 @@
+# 控制流
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:smart_animation, github: "brooklinjazz/smart_animation"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Control Flow">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/functions.livemd">函数</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/naming_numbers.livemd">命名数字</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何根据某些条件在程序中执行代码？
+* 何时使用 `case`、`cond` 和 `if`？
+* 如何在 `case` 语句中使用模式匹配？
+
+## 概述
+
+控制流。这是什么意思？
+
+到目前为止，你主要学习了如何给计算机一组单一的指令。
+但有时，根据某些条件，你想提供一组不同的指令。
+
+```mermaid
+flowchart
+  Input --- Condition
+  Condition --- 1[Instruction]
+  Condition --- 2[Instruction]
+```
+
+我们程序通过这些分支的流动，以及我们如何控制它，称为 **控制流**。我们有多种工具来控制程序的流动，包括 `if`、`cond` 和 `case` 语句。
+
+## If 语句
+
+我们已经见过 `if` 语句，当我们在代码中有一到两个分支路径时，它们非常有用。
+
+例如，我们可能会构建一个天气应用程序，提供穿着建议。
+
+我们会有一些条件，比如 **如果天气寒冷**，那么建议 **穿外套**。如果不冷，那么我们会建议穿 T 恤。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+weather --> hot --> t-shirt 
+weather --> cold --> coat
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+以下是我们如何将其转换为程序。
+
+```elixir
+weather = :cold
+
+if weather == :cold do
+  "coat"
+else
+  "t-shirt"
+end
+```
+
+`if` 语句仅对最多两个路径有效。如果我们尝试将它们用于多个条件，我们可能不得不编写过于冗长的解决方案，涉及重新绑定变量。
+
+这并不推荐。例如，让我们扩展我们的天气应用程序，以处理多种条件，而不仅仅是热和冷。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+weather --> sunny --> r1[t-shirt]
+weather --> snowing --> r2[thick coat]
+weather --> rainy --> r3[rain coat]
+weather --> foggy --> r4[something bright]
+```
+
+```elixir
+# 将 :sunny 更改为 :snowing、:raining 和 :foggy 以查看不同的结果。
+weather = :sunny
+
+recommendation = "t-shirt"
+recommendation = if weather == :snowing, do: "thick coat", else: recommendation
+recommendation = if weather == :raining, do: "raincoat", else: recommendation
+recommendation = if weather == :foggy, do: "something bright", else: recommendation
+
+recommendation
+```
+
+### 你的回合
+
+创建一个温度计程序，确定温度是 `:hot` 还是 `:cold`。将变量 `temperature` 绑定到 `0` 和 `20` 之间的数字。如果温度高于 `10`，则返回 `:hot`，否则返回 `:cold`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+temperature = 10
+
+if temperature > 10 do
+  :hot
+else
+  :cold
+end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 清晰的控制流
+
+控制流影响程序的复杂性。我们程序中的分支路径越多，复杂性就越高。
+
+一些复杂性是必要的，但过于复杂的程序往往是由于不当使用控制流造成的。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  A[Input] --> B[Decision]
+  B --> B1[Decision]
+  B --> B2[Decision]
+  B --> B3[Decision]
+  B1 --> B11[Decision]
+  B1 --> B12[Decision]
+  B1 --> B13[Decision]
+  B2 --> B21[Decision]
+  B2 --> B22[Decision]
+  B2 --> B23[Decision]
+  B3 --> B31[Decision]
+  B3 --> B32[Decision]
+  B3 --> B33[Decision]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以通过减少分支决策的数量和利用不同的控制流结构来简化我们的程序。
+
+## Case
+
+`case` 是一种控制流结构，允许你定义一系列情况，并分别处理它们。
+
+当你有许多分支条件，并且这些条件都适合模式匹配时，`case` 是最好的选择。
+
+我们将使用它来改进我们的天气应用程序，以处理多种不同的条件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+weather --> sunny --> r1[t-shirt]
+weather --> snowing --> r2[thick coat]
+weather --> rainy --> r3[rain coat]
+weather --> foggy --> r4[something bright]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以将这个控制流分解为几个情况。
+
+* 情况 1：天气晴朗，所以穿 T 恤。
+* 情况 4：下雪，所以穿厚外套。
+* 情况 2：下雨，所以穿雨衣。
+* 情况 3：有雾，所以穿亮色衣服。
+
+以下是我们如何将其转换为代码。这比我们使用 `if` 的解决方案简单得多。
+
+```elixir
+# 将 :sunny 更改为 :snowing、:raining 和 :foggy 以查看不同的结果。
+weather = :sunny
+
+case weather do
+  :sunny -> "t-shirt"
+  :snowing -> "thick coat"
+  :raining -> "raincoat"
+  :foggy -> "something bright"
+end
+```
+
+### Case 分解
+
+让我们分解上面的 `case` 语句。要使用 `case` 语句，首先使用 `case` 关键字。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case
+```
+
+然后输入一个将与某个情况匹配的值。这可以是一个变量或任何 Elixir 术语。我们将使用上面的 "sunny"。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny
+```
+
+现在写 `do` 关键字以开始定义一系列潜在情况。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny do
+```
+
+定义 "sunny" 情况。我们将触发与 `case` 和 `do` 之间的值匹配的情况。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny do
+  :sunny
+```
+
+我们使用 `->` 将要匹配的模式与匹配时要运行的代码分开。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny do
+  :sunny ->
+```
+
+然后我们提供在情况匹配时要运行的代码。在这种情况下，`"t-shirt"`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny do
+  :sunny -> "t-shirt"
+```
+
+然后我们用 `end` 结束 `case` 语句。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+case :sunny do
+  :sunny -> "t-shirt"
+end
+```
+
+我们可以提供任意数量的情况。情况使用模式匹配来决定运行哪个结果。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+通过更改下面的 `condition` 变量返回 `1` 到 `5` 的每个值。
+
+```elixir
+condition = nil
+
+case condition do
+  :red -> 1
+  "blue" -> 2
+  %{key: "value"} -> 3
+  123 -> 4
+  [1, 2, 3] -> 5
+  _ -> "default"
+end
+```
+
+## 使用 Case 的模式匹配
+
+`case` 使用模式匹配来确定运行哪个情况。如果 `->` 操作符的左侧与提供的值匹配，则 `case` 语句返回 `->` 操作符的右侧。
+
+确切的值总是匹配。
+
+```elixir
+case {:exactly, :equal} do
+  {:exactly, :equal} -> "I hit this case"
+end
+```
+
+在底层，Elixir 检查条件和 `->` 符号的左侧是否匹配。
+
+```elixir
+{:exactly, :equal} = {:exactly, :equal}
+```
+
+如果这些值会在匹配操作符 `=` 下抛出 [MatchError](https://hexdocs.pm/elixir/MatchError.html)，那么它们就不匹配。
+
+```elixir
+{:not_exactly, :equal} = {:exactly, :equal}
+```
+
+这就是为什么以下 `case` 语句不会触发 `"non-matching case"`。
+
+```elixir
+case {:exactly, :equal} do
+  {:not_exactly, :equal} -> "non-matching case"
+  {:exactly, :equal} -> "matching case"
+end
+```
+
+我们可以像使用匹配操作符 `=` 一样使用模式匹配。
+
+```elixir
+{_mostly, :equal} = {:exactly, :equal}
+```
+
+所以现在，通过使用变量匹配 `:exactly`，我们可以触发下面的第一个情况。
+
+```elixir
+case {:exactly, :equal} do
+  {_mostly, :equal} -> "matching case"
+  {:exactly, :equal} -> "exactly equal case"
+end
+```
+
+如果提供的值不匹配任何情况，`case` 语句将引发 **CaseClauseError**。
+
+```elixir
+case "no match" do
+  :sunny -> "t-shirt"
+end
+```
+
+要为 `case` 语句提供默认情况，可以使用一个变量，该变量与任何 Elixir 值进行模式匹配。
+
+```elixir
+case "no match" do
+  "sunnny" -> "wear a t-shirt"
+  anything -> "wear clothing"
+end
+```
+
+我们没有使用这个变量，所以我们应该在前面加上 `_`。
+
+```elixir
+case "no match" do
+  "sunnny" -> "wear a t-shirt"
+  _anything -> "wear clothing"
+end
+```
+
+通常，简单地使用 `_` 而不是命名变量是很常见的。
+
+```elixir
+case "no match" do
+  "sunnny" -> "wear a t-shirt"
+  _ -> "wear clothing"
+end
+```
+
+### 你的回合
+
+通过更改下面的 `condition` 变量返回 `1` 到 `5` 的每个结果。
+
+```elixir
+condition = nil
+
+case condition do
+  [1, 2, 3] -> 1
+  [_head | _tail] -> 2
+  {_, _} -> 3
+  %{key1: _, key2: "value"} -> 4
+  {1, _, %{key: [1, _, _]}} -> 5
+  _ -> "default"
+end
+```
+
+## Cond
+
+`cond` 代表 **条件**。`cond` 最适合用于控制流中有许多分支路径，但不适合模式匹配的情况。
+
+例如，如果我们扩展我们的天气应用程序以处理依赖于温度范围的条件。
+
+* 如果温度低于 `5` 度：穿厚外套。
+* 如果温度在 `5-10` 度之间：穿外套。
+* 如果温度在 `11-15` 度之间：穿轻外套。
+* 如果温度在 `16-20` 度之间：穿重衬衫。
+* 如果温度在 `21+` 度：穿 T 恤。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+temperature --> t1[0<] --> r1[thick coat]
+temperature --> t2[5-10] --> r2[coat]
+temperature --> t3[11-15] --> r3[light coat]
+temperature --> t4[16-20] --> r4[heavy shirt]
+temperature --> t5[21+] --> r5[t-shirt]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+以下是我们如何使用 `cond` 将其转换为程序。
+
+```elixir
+# 更改温度以更改触发的条件。
+temperature = 6
+
+cond do
+  temperature >= 21 -> "t-shirt"
+  temperature >= 16 and temperature <= 20 -> "heavy shirt"
+  temperature >= 11 and temperature <= 15 -> "light coat"
+  temperature >= 6 and temperature <= 10 -> "coat"
+  temperature <= 5 -> "thick coat"
+end
+```
+
+`cond` 在箭头 `->` 的左侧接受一个真值，并返回箭头右侧的表达式，对于第一个返回 `true` 的条件。
+
+这意味着顺序很重要。在这里，即使整数高于 `5`，它也永远不会触发第二个条件，因为第一个条件总是为真。
+
+```elixir
+value = 10
+
+cond do
+  is_integer(value) -> "value is an integer"
+  value > 5 -> "value is above 5"
+end
+```
+
+通常，我们希望更具体的条件在优先级上高于不太具体的条件。
+
+```elixir
+value = 10
+
+cond do
+  value > 5 -> "value is above 5"
+  is_integer(value) -> "value is an integer"
+end
+```
+
+与 `case` 语句一样，如果我们没有触发任何条件，`cond` 将引发错误。
+
+```elixir
+cond do
+  false -> ""
+end
+```
+
+我们可以使用 `true` 提供一个默认条件。
+
+```elixir
+cond do
+  false -> ""
+  true -> "default condition"
+end
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中：
+
+* 创建一个名为 `grade` 的变量，该变量将是一个从 `1` 到 `100` 的数字等级。
+* 创建一个条件，根据 `grade` 的值返回 `"A"`、`"B"`、`"C"` 或 `"D"`。
+
+`grade` 的条件应为：
+
+* 85-100 是 A
+* 70-84 是 B
+* 55-69 是 C
+* 1-54 是 D
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+我们可以通过非常明确地列出每个条件来解决这个问题。
+
+```elixir
+grade = 0
+
+cond do
+  85 <= grade and grade <= 100 -> "A"
+  70 <= grade and grade <= 84 -> "B"
+  55 <= grade and grade <= 59 -> "C"
+  1 <= grade and grade <= 54 -> "D"
+end
+```
+
+或者我们可以利用顺序使代码更简洁。
+然而，这不会揭示如果 `grade` 是无效值
+例如 `-5`、`110` 或 `"hello"`。
+
+```elixir
+cond do
+  grade >= 85 -> "A"
+  grade >= 70 -> "B"
+  grade >= 55 -> "C"
+  true -> "D"
+end
+```
+
+</details>
+
+```elixir
+
+```
+
+## Unless
+
+`unless` 是 `if` 的反向。它在你想要始终执行某些操作，除非某个条件为真时很有用。
+
+例如：
+
+* 除非周日下雨，否则我们去公园。
+* 除非是周末，你就工作。
+* 除非是涨潮，否则我们去海滩。
+
+```elixir
+unless false do
+  "Hello!"
+end
+```
+
+```elixir
+unless true do
+  "Hello!"
+end
+```
+
+```elixir
+is_raining = false
+
+unless is_raining do
+  "Let's go to the beach!"
+end
+```
+
+你也可以在 `unless` 中使用 `else`，但这并不总是最清晰的阅读，可能应该使用 `if`。
+
+```elixir
+condition = true
+
+unless condition do
+else
+  "Will I print?"
+end
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中
+
+* 创建一个名为 `tired` 的变量，该变量为 `true` 或 `false`。
+* 创建一个 `unless` 语句。如果 `tired` 为假，则返回 `"awake"`。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成控制流阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏学习。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Control Flow">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/functions.livemd">函数</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/naming_numbers.livemd">命名数字</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

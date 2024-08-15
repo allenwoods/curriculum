@@ -1,0 +1,177 @@
+# 书籍更改集
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:ecto, "~> 3.9.5"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Book Changeset">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/sign_up_form.livemd">注册表单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/agents_and_ets.livemd">状态：代理和ETS</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 书籍更改集
+
+你将创建一个 `Book` 无模式更改集结构。一本书应该具有：
+
+* 一个必需的 `:title` 字段，字符数在 `3` 到 `100` 之间。
+* 一个必需的 `:content` 字符串字段。
+* 一个 `:published_on` 日期字段。
+* 一个 `:category` 字段，必须是 `"action"`、`"fiction"` 或 `"mystery"`（如果愿意，你可以选择添加更多类别）
+* 一个 `:books_sold` 整数字段，必须是 `0` 或以上。
+* 一个 `:publisher_email` 字段，必须符合格式 `name@domain.extension`
+* 一个 `:author` 字符串字段。
+* 一个 `:has_license` 字段，必须始终为真。
+* 一个 `:price` 整数字段，必须大于 `0`。
+
+例如，创建一本具有以下无效字段的书籍将返回一个类似于以下的 `{:error, changeset}` 元组。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Book.new(%{category: "invalid", email: "invalid", books_sold: -1, price: -1})
+{:error,
+ #Ecto.Changeset<
+   action: :update,
+   changes: %{books_sold: -1, category: "invalid", price: -1},
+   errors: [
+     price: {"must be greater than %{number}",
+      [validation: :number, kind: :greater_than, number: 0]},
+     has_license: {"must be accepted", [validation: :acceptance]},
+     books_sold: {"must be greater than or equal to %{number}",
+      [validation: :number, kind: :greater_than_or_equal_to, number: 0]},
+     category: {"is invalid", [validation: :inclusion, enum: ["action", "fiction", "mystery"]]},
+     title: {"can't be blank", [validation: :required]},
+     content: {"can't be blank", [validation: :required]}
+   ],
+   data: #Book<>,
+   valid?: false
+ >}
+
+```
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+阅读 [Ecto.Changeset](https://hexdocs.pm/ecto/Ecto.Changeset.html) 文档。
+在那里，你会找到每个字段所需的所有 `validate*` 函数。例如， [Ecto.Changeset.validate_change/3](https://hexdocs.pm/ecto/Ecto.Changeset.html#validate_change/3) 允许你创建自定义验证。
+
+你还可以参考 [原始类型](https://hexdocs.pm/ecto/Ecto.Schema.html#module-primitive-types) 文档以获取允许的字段类型列表。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Book do
+  @types %{
+    title: :string,
+    content: :string,
+    published_on: :date,
+    category: :string,
+    books_sold: :integer,
+    publisher_email: :string,
+    author: :string,
+    has_license: :boolean,
+    price: :integer
+  }
+
+  @keys Map.keys(@types)
+  
+  defstruct @keys
+
+  def changeset(%__MODULE__{} = user, params \\ %{}) do
+    {user, @types}
+    |> Ecto.Changeset.cast(params, @keys)
+    |> Ecto.Changeset.validate_required([:title, :content])
+    |> Ecto.Changeset.validate_length(:title, min: 3, max: 100)
+    |> Ecto.Changeset.validate_inclusion(:category, ["action", "fiction", "mystery"])
+    |> Ecto.Changeset.validate_number(:books_sold, greater_than_or_equal_to: 0)
+    |> Ecto.Changeset.validate_change(:publisher_email, fn :publisher_email, publisher_email ->
+      if Regex.match?(~r/\w+@\w+\.\w+/, publisher_email) do
+        []
+      else
+        [email: "invalid email"]
+      end
+    end)
+    |> Ecto.Changeset.validate_acceptance(:has_license)
+    |> Ecto.Changeset.validate_number(:price, greater_than: 0)
+  end
+
+  def new(params) do
+    %__MODULE__{}
+    |> changeset(params)
+    |> Ecto.Changeset.apply_action(:update)
+  end
+end
+```
+
+</details>
+
+你应该依赖 Ecto 更改集和你自己的自定义验证来验证书籍信息。在下面输入你的解决方案。
+
+```elixir
+defmodule Book do
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成书籍更改集练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Book Changeset">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/sign_up_form.livemd">注册表单</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/agents_and_ets.livemd">状态：代理和ETS</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

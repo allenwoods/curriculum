@@ -1,0 +1,215 @@
+# 原子
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Atoms">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/guessing_games.livemd">猜谜游戏</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/tuples.livemd">元组</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是原子，我们如何在程序中使用它们？
+* 为什么我们可能会使用原子来比较常量值而不是字符串？
+
+## 原子
+
+原子是命名常量。换句话说，它们的名称就是它们的值。
+
+原子通常用于表示程序中的常见常量。
+例如，它们通常表示程序的 :success 或 :error。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:success
+:error
+```
+
+它们也可以用于表示某个动作的状态。例如：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:completed
+:in_progress
+:starting
+```
+
+你可能会想，为什么我们有字符串和原子，因为它们似乎做的是同样的事情。
+一个主要原因是性能。原子存储在一个 **原子表** 中，可以通过键进行引用。这使得检查两个原子是否相等的速度更快。
+
+什么是 **原子表**？想象它像一个 Excel 电子表格。
+每个值都有一个键。对于计算机来说，比较表中的这些键的性能远高于检查字符串中每个字符是否相等。
+
+这有点像检查 `1 == 2` 而不是检查 `"HeLloWorld" == "HeLloWorLd"`。
+
+原子是使用冒号 `:` 和一系列字母、数字以及某些有效符号来定义的。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 命名原子的规则
+
+命名原子有特定的规则，但幸运的是你不需要
+记住它们！相反，请注意代码中的颜色。
+如果你错误地定义了一个原子，你会注意到它不再是蓝色的。
+
+以下是一些有效的原子：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:hello
+:my_atom1
+```
+
+以下是一些无效的原子，注意它们大多是白色的：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:$this_is_invalid
+:!this_is_invalid
+:2
+:@
+:$
+:?
+:invalid # 空格不是有效的
+```
+
+有时语言会建立约定。约定是社区达成一致的常见做法。
+例如，在 Elixir 中，原子通常使用小写字母命名，并用下划线分隔。
+
+虽然以下代码是有效的：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:MY_ATOM!
+```
+
+但通常不建议在特定情况下使用大写字母命名原子。
+
+你可以使用引号与原子结合，以避免命名规则。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+:"$现在我们不必遵循任何规则。这是一个有效的原子（尽管不常见）"
+```
+
+## 秘密原子
+
+`nil`、`false` 和 `true` 实际上都是原子。
+
+我们可以使用 `===` 来验证 `:nil` 和 `nil` 是等价的。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+nil === :nil
+```
+
+`true` 和 `false` 也是如此。它们都是
+原子，但省略了冒号 `:`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+true === :true
+false === :false
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 `===` 检查 `nil` 是否等于 `:nil`。
+
+```elixir
+
+```
+
+检查 `true` 是否等于 `:true`。
+
+```elixir
+
+```
+
+检查 `false` 是否等于 `:false`。
+
+```elixir
+
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+<!-- livebook:{"break_markdown":true} -->
+
+* [Elixir School: 原子](https://elixirschool.com/en/lessons/basics/basics/#atoms-7)
+* [HexDocs: 原子](https://hexdocs.pm/elixir/Atom.html#content)
+* [Exercism: 原子](https://exercism.org/tracks/elixir/concepts/atoms)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成原子阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Atoms">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/guessing_games.livemd">猜谜游戏</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/tuples.livemd">元组</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

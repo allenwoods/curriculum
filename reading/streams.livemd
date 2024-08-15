@@ -1,0 +1,519 @@
+# 流
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:benchee, "~> 1.1"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Streams">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/battle_map.livemd">战斗地图</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/file.livemd">文件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 学习成果
+
+完成本课后，学生应能够回答以下问题。
+
+* 如何使用流来避免内存影响或执行不必要的指令？
+* 何时使用 [Enum](https://hexdocs.pm/elixir/Enum.html) 与 [Stream](https://hexdocs.pm/elixir/Stream.html)？
+
+## Enum 与 Stream
+
+目前，我们通常使用 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块来处理集合。
+[Enum](https://hexdocs.pm/elixir/Enum.html) 模块使用 [**急切求值**](https://en.wikipedia.org/wiki/Eager_evaluation)。这意味着我们提供的任何指令都会立即执行。这要求在执行期间每个元素都必须存储在内存中。
+
+```elixir
+1..10
+|> Enum.map(fn each -> each * 2 end)
+|> Enum.filter(fn each -> each <= 10 end)
+|> Enum.take(4)
+```
+
+每个 [Enum](https://hexdocs.pm/elixir/Enum.html) 函数都会存储它创建的可枚举对象的副本，并按顺序执行，如下图所示。
+
+<!-- livebook:{"attrs":{"source":"box = fn value, color ->\n  \"<div style='height: 3rem; width: 3rem; background-color: #{color}; display: flex; color: white; justify-content: center; align-items: center;'>#{value}</div>\"\nend\n\nget_color = fn in_memory ->\n  if in_memory, do: \"green\", else: \"lightgray\"\nend\n\nKino.animate(1000, 1, fn _, row ->\n  md =\n    Kino.Markdown.new(\"\"\"\n    <div style=\"display: grid; grid-template-columns: max-content repeat(10, 3rem);gap: 1rem;\">\n      <p>1..10:</p>#{Enum.map(1..10, fn index -> box.(index, get_color.(row >= 0)) end)}\n      <p>Enum.map</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row >= 1)) end)}\n      <p>Enum.filter</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(index <= 5 and row >= 2)) end)}\n      <p>Enum.take</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(index <= 4 and row >= 3)) end)}\n    </div>\n\n    \"\"\")\n\n  {:cont, md, rem(row + 1, 4)}\nend)","title":"Enum 内存使用"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+box = fn value, color ->
+  "<div style='height: 3rem; width: 3rem; background-color: #{color}; display: flex; color: white; justify-content: center; align-items: center;'>#{value}</div>"
+end
+
+get_color = fn in_memory ->
+  if in_memory, do: "green", else: "lightgray"
+end
+
+Kino.animate(1000, 1, fn _, row ->
+  md =
+    Kino.Markdown.new("""
+    <div style="display: grid; grid-template-columns: max-content repeat(10, 3rem);gap: 1rem;">
+      <p>1..10:</p>#{Enum.map(1..10, fn index -> box.(index, get_color.(row >= 0)) end)}
+      <p>Enum.map</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row >= 1)) end)}
+      <p>Enum.filter</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(index <= 5 and row >= 2)) end)}
+      <p>Enum.take</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(index <= 4 and row >= 3)) end)}
+    </div>
+
+    """)
+
+  {:cont, md, rem(row + 1, 4)}
+end)
+```
+
+虽然上述操作为了简化示例而有些牵强，但你可能会注意到，在执行结束时，[Enum.take/2](https://hexdocs.pm/elixir/Enum.html#take/2) 函数只需要四个元素。
+
+在每个元素上执行每个操作是资源的浪费。如果我们可以构建一系列函数，并在需要时逐个运行它们，那将更高效。
+
+通过使用流和惰性求值，我们可以大幅改善内存使用，如下动画所示。
+
+<!-- livebook:{"attrs":{"source":"box = fn value, color ->\n  \"<div style='height: 3rem; width: 3rem; background-color: #{color}; display: flex; color: white; justify-content: center; align-items: center;'>#{value}</div>\"\nend\n\nget_color = fn in_memory ->\n  if in_memory, do: \"green\", else: \"lightgray\"\nend\n\nKino.animate(500, {1, 1}, fn _, {column, row} = position ->\n  md =\n    Kino.Markdown.new(\"\"\"\n    <div style=\"display: grid; grid-template-columns: max-content repeat(10, 3rem);gap: 1rem;\">\n      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index, get_color.(row == 1 and column == index)) end)}\n      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row == 2 and column == index)) end)}\n      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row == 3 and column == index)) end)}\n      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(column > index || (row == 4 and column == index))) end)}\n    </div>\n    \"\"\")\n\n  next_position =\n    case position do\n      {4, 4} -> {1, 1}\n      {column, 4} -> {column + 1, 1}\n      {column, row} -> {column, row + 1}\n    end\n\n  {:cont, md, next_position}\nend)","title":"Stream 内存使用"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+box = fn value, color ->
+  "<div style='height: 3rem; width: 3rem; background-color: #{color}; display: flex; color: white; justify-content: center; align-items: center;'>#{value}</div>"
+end
+
+get_color = fn in_memory ->
+  if in_memory, do: "green", else: "lightgray"
+end
+
+Kino.animate(500, {1, 1}, fn _, {column, row} = position ->
+  md =
+    Kino.Markdown.new("""
+    <div style="display: grid; grid-template-columns: max-content repeat(10, 3rem);gap: 1rem;">
+      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index, get_color.(row == 1 and column == index)) end)}
+      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row == 2 and column == index)) end)}
+      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(row == 3 and column == index)) end)}
+      <p>In Memory:</p>#{Enum.map(1..10, fn index -> box.(index * 2, get_color.(column > index || (row == 4 and column == index))) end)}
+    </div>
+    """)
+
+  next_position =
+    case position do
+      {4, 4} -> {1, 1}
+      {column, 4} -> {column + 1, 1}
+      {column, row} -> {column, row + 1}
+    end
+
+  {:cont, md, next_position}
+end)
+```
+
+我们无法通过 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块实现这一点，但可以通过 [Stream](https://hexdocs.pm/elixir/Stream.html) 实现。
+[Streams](https://hexdocs.pm/elixir/Stream.html) 是可组合的、惰性可枚举对象。
+**惰性** 意味着它们逐个执行流中的每个元素。**可组合** 意味着我们构建函数以在流中的每个元素上执行。
+
+请注意，以下内容不会执行，而是构建未来的工作并返回一个包含要应用的函数列表的 [Stream](https://hexdocs.pm/elixir/Stream.html) 数据结构。
+
+```elixir
+1..10
+|> Stream.map(fn each -> each * 2 end)
+|> Stream.filter(fn each -> each <= 10 end)
+|> Stream.take(4)
+```
+
+Stream 存储可枚举对象和要调用的函数列表。Stream 仅在使用 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块中的任何急切函数时才会进行评估。例如，
+
+```elixir
+1..10
+|> Stream.map(fn each -> each * 2 end)
+|> Stream.filter(fn each -> each <= 10 end)
+|> Stream.take(4)
+|> Enum.to_list()
+```
+
+如果我们使用 [IO.puts/1](https://hexdocs.pm/elixir/IO.html#puts/1) 来触发副作用，我们可以更清楚地看到这一点。请注意，我们没有打印任何内容。
+
+```elixir
+Stream.each(1..10, &IO.puts/1)
+```
+
+[IO.puts/1](https://hexdocs.pm/elixir/IO.html#puts/1) 仅在我们使用 [Stream.run/1](https://hexdocs.pm/elixir/Stream.html#run/1) 运行流时被调用，或者当我们使用 [Enum](https://hexdocs.pm/elixir/Enum.html) 函数时。
+
+```elixir
+1..10
+|> Stream.each(&IO.puts/1)
+|> Stream.run()
+```
+
+```elixir
+1..10
+|> Stream.each(&IO.puts/1)
+|> Enum.to_list()
+```
+
+随着集合的增长，性能优势变得更加明显。让我们比较 [Stream](https://hexdocs.pm/elixir/Stream.html) 模块和 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块的相同功能。
+
+<!-- livebook:{"branch_parent_index":1} -->
+
+## 性能比较
+
+```elixir
+Benchee.run(
+  %{
+    "enum" => fn ->
+      1..200
+      |> Enum.map(fn each -> each * 2 end)
+      |> Enum.filter(fn each -> each <= 10 end)
+      |> Enum.take(4)
+    end,
+    "stream" => fn ->
+      1..200
+      |> Stream.map(fn each -> each * 2 end)
+      |> Stream.filter(fn each -> each <= 10 end)
+      |> Stream.take(4)
+      |> Enum.to_list()
+    end
+  },
+  memory_time: 2
+)
+```
+
+虽然确切的结果可能会有所不同，但你应该注意到流运行得更快且消耗更少的内存。
+
+```
+Name             ips        average  deviation         median         99th %
+stream      172.86 K        5.79 μs   ±418.69%           4 μs       18.50 μs
+enum          9.64 K      103.76 μs    ±21.83%       98.70 μs      190.13 μs
+
+Comparison: 
+stream      172.86 K
+enum          9.64 K - 17.94x slower +97.97 μs
+
+Memory usage statistics:
+
+Name      Memory usage
+stream         8.54 KB
+enum         181.20 KB - 21.22x memory usage +172.66 KB
+
+**所有内存使用的测量结果都是相同的**
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的 Elixir 单元中，尝试使用 [Stream](https://hexdocs.pm/elixir/Stream.html) 模块重构此代码。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+1..100
+|> Enum.map(fn each -> div(each, 2) end)
+|> Enum.map(fn each -> each * 3 end)
+|> Enum.filter(fn each -> rem(each, 2) === 0 end)
+```
+
+```elixir
+
+```
+
+## Stream 注意事项
+
+虽然 Stream 模块可以提高性能，但值得一提的是，它并不是万灵药。
+例如，单个 `Stream.map` 并不比 `Enum.map` 更快。
+
+```elixir
+{stream_time, _result} = :timer.tc(fn -> Stream.map(1..1000, &(&1 * 2)) |> Enum.to_list() end)
+{enum_time, _result} = :timer.tc(fn -> Enum.map(1..1000, &(&1 * 2)) end)
+
+%{stream_time: stream_time, enum_time: enum_time}
+```
+
+这是因为只有在对集合中的每个元素进行顺序执行时，才能减少所需的计算和/或内存，从而获得性能优势。
+
+请注意，当我们将多个映射串联在一起时，[Enum](https://hexdocs.pm/elixir/Enum.html) 模块仍然与 [Stream](https://hexdocs.pm/elixir/Stream.html) 模块一样快，甚至更快。
+
+```elixir
+stream_fn = fn ->
+  1..1000
+  |> Stream.map(&(&1 * 2))
+  |> Stream.map(&(&1 * 2))
+  |> Stream.map(&(&1 * 2))
+  |> Enum.to_list()
+end
+
+enum_fn = fn -> 1..1000 |> Enum.map(&(&1 * 2)) |> Enum.map(&(&1 * 2)) |> Enum.map(&(&1 * 2)) end
+
+{stream_time, _result} = :timer.tc(stream_fn)
+{enum_time, _result} = :timer.tc(enum_fn)
+
+%{stream_time: stream_time, enum_time: enum_time}
+```
+
+在提高性能方面，当操作减少可枚举对象中的元素数量时，流通常会提供最大的好处。每当进行优化时，使用基准测试来验证你的假设，而不是依赖理论上的性能提升。
+
+## 流
+
+正如你所看到的，流逐个生成元素并可以提高性能。
+在处理大数据时，它们通常是有益的，因为它们仅消耗每个操作所需的数据量。另一方面，[Enum](https://hexdocs.pm/elixir/Enum.html) 将为每个中间步骤创建整个集合的副本。
+
+```mermaid
+flowchart
+  subgraph Enum
+    direction LR
+    E1[Enum] --> EO1[操作] --> L1[集合] --> EO2[操作] --> L2[集合]
+  end
+  subgraph Stream
+    S1[Stream] --> SE1[Enum] --> SO1[操作] --> SR[集合]
+  end
+```
+
+Stream 提供了许多与 Enum 模块相等效的函数。你已经见过 `map/2`、`filter/2` 和 `take/2`。
+
+我们还可以访问等效函数，如 `with_index/1`、`drop/2`、`chunk_every/2` 和 `each/2`。
+我们在这里使用模式匹配来演示每个函数具有类似的行为。
+
+```elixir
+[{"a", 0}, {"b", 1}, {"c", 2}] = Enum.with_index(["a", "b", "c"])
+[{"a", 0}, {"b", 1}, {"c", 2}] = Stream.with_index(["a", "b", "c"]) |> Enum.to_list()
+
+["b", "c"] = Enum.drop(["a", "b", "c"], 1)
+["b", "c"] = Stream.drop(["a", "b", "c"], 1) |> Enum.to_list()
+
+[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]] = Enum.chunk_every(1..10, 2)
+[[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]] = Stream.chunk_every(1..10, 2) |> Enum.to_list()
+```
+
+### 流作为生成器
+
+然而，流不仅仅是 Enum 的高效替代品。
+流还用于生成（可能是无限的）数据量。
+
+流仅执行必要的计算，因此我们可以有一个理论上无限的流，例如 `1,2,3,1,2,3,1,2,3....` 永远继续。然而，我们只会生成所需数量的元素。
+
+```mermaid
+flowchart LR
+1 --> 2 --> 3 --> 1
+```
+
+以下是使用 [Stream.cycle/2](https://hexdocs.pm/elixir/Stream.html#cycle/2) 的示例，它循环遍历一个可枚举对象。
+
+```elixir
+Stream.cycle([1, 2, 3])
+|> Enum.take(10)
+```
+
+### 惰性求值
+
+我们已经使用惰性求值一段时间了！范围仅在必要时创建列表中的每个元素，因此我们可以创建一个巨大的范围，而不会有任何明显的性能影响。
+
+当我们使用该巨大的范围与 [Enum](https://hexdocs.pm/elixir/Enum.html) 操作时，我们就要付出计算代价！
+
+```elixir
+{creation_time, _result} = :timer.tc(fn -> 1..10_000_000 end)
+{execution_time, _result} = :timer.tc(fn -> Enum.to_list(1..10_000_000) end)
+
+%{creation_time: creation_time, execution_time: execution_time}
+```
+
+### Stream.iterate/2
+
+我们可以使用 [Stream.iterate/2](https://hexdocs.pm/elixir/Stream.html#iterate/2) 来迭代累加器。
+例如，我们可以从 `0` 开始，然后在每次迭代中加 `1`。
+
+```mermaid
+flowchart LR
+  1 --> 2 --> 3 --> 4 --> 5
+  n1[n] --> n2[n + 1] --> n3[n + 2] --> n4[n + 3] --> n5[n + 4]
+```
+
+```elixir
+Stream.iterate(0, fn accumulator -> accumulator + 1 end) |> Enum.take(5)
+```
+
+累加器的初始值将是 `0`。累加器的下一个值将是 `accumulator + 1`，即 `0 + 1`。这个模式继续生成 `[1, 2, 3, 4, 5]`。
+
+```mermaid
+flowchart LR
+Accumulator --> Function --> A2[下一个累加器] --> Function
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+你也可以通过这种方式构建更复杂的序列。例如，有一个被称为 [Collatz 猜想](https://en.wikipedia.org/wiki/Collatz_conjecture) 的问题。
+也被称为没有人能解决的最简单数学问题。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=094y1Z2wpJg")
+```
+
+Collatz 猜想指出，如果你取任何数字并应用以下两个规则：
+
+1. 如果数字是奇数，将数字乘以三并加 1
+2. 如果数字是偶数，除以二。
+
+<!-- livebook:{"break_markdown":true} -->
+
+最终，无论起始数字是什么，序列应该无限重复 `4, 2, 1`。
+
+```mermaid
+flowchart LR
+integer --> even
+integer --> odd
+  even --> a[x / 2]
+  odd --> b[3x + 1]
+  a --> 4
+  b --> 4
+  4 --> 2 --> 1
+```
+
+例如，让我们取数字 `5` 来看看它如何快速重复 `4, 2, 1`
+
+```mermaid
+flowchart LR
+  5 -- 5 * 3 + 1 --> 16 --16 / 2--> 8 -- 8 / 2 --> 4 -- 4 / 2--> 2 -- 2 / 2 --> 1
+  -- 1 * 3 + 1--> a[4] --4 / 2--> b[2] --2 / 2--> c[1]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用 `Stream.iterate` 实现 Collatz 猜想，给定一个 `starting_integer`，例如 `20` 作为初始累加器。
+
+1. 如果数字是奇数，将数字乘以三并加 1
+2. 如果数字是偶数，除以二。
+
+使用 [Enum.take_while/2](https://hexdocs.pm/elixir/Enum.html#take_while/2) 从流中生成元素，直到返回 `4` 以证明它最终重复 `4`、`2`、`1`，永远。尝试更改你的 `starting_integer` 以提供更大的数字。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+starting_integer = 20
+
+Stream.iterate(starting_integer, fn int ->
+  if rem(int, 2) == 0 do
+    div(int, 2)
+  else
+    int * 3 + 1
+  end
+end)
+|> Enum.take_while(fn integer -> integer != 4 end)
+```
+
+</details>
+
+```elixir
+
+```
+
+### Stream.unfold/2
+
+虽然 [Stream.iterate/2](https://hexdocs.pm/elixir/Stream.html#iterate/2) 将累加器视为值，但 `unfold/2` 将累加器和返回值分开。因此，你可以累加，然后从累加器生成一个单独的值。
+
+```mermaid
+flowchart LR
+  Accumulator --> Function --> Value
+  Function --> Accumulator
+```
+
+```elixir
+Stream.unfold(5, fn accumulator ->
+  value = "value: #{accumulator}"
+  next_accumulator = accumulator + 1
+  {value, next_accumulator}
+end)
+|> Enum.take(5)
+```
+
+你可以使用 [Stream.unfold/2](https://hexdocs.pm/elixir/Stream.html#unfold/2) 与 [Enum.to_list/2](https://hexdocs.pm/elixir/Enum.html#to_list/2) 一起使用，只要你指定流何时结束。
+否则，流将是无限的并且永远运行。要指定流何时结束，你返回 `nil`。
+
+你可以通过单独的函数头或其他控制流来实现这一点。
+
+```elixir
+Stream.unfold(0, fn
+  10 ->
+    nil
+
+  accumulator ->
+    value = "value: #{accumulator}"
+    next_accumulator = accumulator + 1
+    {value, next_accumulator}
+end)
+|> Enum.to_list()
+```
+
+### 你的回合
+
+使用 [Stream.unfold/2](https://hexdocs.pm/elixir/Stream.html#unfold/2) 生成一个立方数列表。使用 [Enum.take/2](https://hexdocs.pm/elixir/Enum.html#take/2) 获取前 `20` 个立方数。
+
+即 $1^3, 2^3, 3^3, 4^3, ...$ 这将是 `[1, 8, 27 , 64]` 等等。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+1
+|> Stream.unfold(fn int ->
+  {int ** 3, int + 1}
+end)
+|> Enum.take(20)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成流的阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Streams">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/battle_map.livemd">战斗地图</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/file.livemd">文件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

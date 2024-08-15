@@ -1,0 +1,380 @@
+# 基准测试
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:benchee, "~> 1.1"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Benchmarking">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/big_o_notation.livemd">性能</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/custom_enum_with_recursion.livemd">自定义递归枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何使用 `:timer` 和 `benchee` 来基准测试我们的程序？
+* 为什么基准测试我们的软件很重要，而不是依赖于大 O 符号的理论性能？
+
+## :timer
+
+开箱即用，Erlang 提供了一个 `:timer` 库，其中包含一个 `tc/1` 函数来测量运行一个函数所需的时间。
+它返回一个 `{time, result}` 元组。
+
+```mermaid
+flowchart LR
+Function --> timer[:timer.tc/1] --> return["{timer, result}"]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们将使用 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来模拟一个慢函数。 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 暂停程序的执行
+一段毫秒数。
+
+```elixir
+:timer.tc(fn -> Process.sleep(1000) end)
+```
+
+返回的 `time` 以微秒为单位测量。
+
+`1000` 微秒等于 `1` 毫秒。
+`1000` 毫秒等于 `1` 秒。
+
+因此，我们可以将微秒数除以 `1000` 来得到毫秒数，
+将毫秒数除以 `1000` 来得到秒数。
+
+你会注意到 `:timer` 非常接近准确，但并不是完全准确。这是
+在非常小的时间增量下可以预期的。
+
+```elixir
+{microseconds, _result} = :timer.tc(fn -> Process.sleep(1000) end)
+
+milliseconds = microseconds / 1000
+seconds = milliseconds / 1000
+IO.inspect(microseconds, label: "微秒")
+IO.inspect(milliseconds, label: "毫秒")
+IO.inspect(seconds, label: "秒")
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 `:timer.tc/1` 来测量以下 `slow_function`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+使用匿名函数。
+
+```elixir
+:timer.tc(fn -> slow_function.() end)
+```
+
+直接传递函数。
+
+```elixir
+:timer.tc(slow_function)
+```
+
+</details>
+
+```elixir
+slow_function = fn -> Process.sleep(1000) end
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 `:timer.tc/1` 来测量以下命名函数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+使用匿名函数。
+
+```elixir
+:timer.tc(fn -> MyModule.slow_function() end)
+```
+
+使用捕获操作符。
+
+```elixir
+:timer.tc(&MyModule.slow_function/0)
+```
+
+</details>
+
+```elixir
+defmodule MyModule do
+  def slow_function do
+    Process.sleep(1000)
+  end
+end
+```
+
+## Benchee
+
+[Benchee](https://github.com/bencheeorg/benchee)
+是一个流行的库，用于测量性能和内存消耗。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 安装 Benchee
+
+外部库需要安装才能使用。
+
+我们使用 [Mix](https://hexdocs.pm/mix/Mix.html) 来安装 Benchee。
+
+Mix 是一个构建工具，提供创建、编译、测试和管理 Elixir 项目的依赖项的任务。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+Benchee
+D[Dependencies]
+I[install/2]
+Mix
+Mix --> I
+I --> D
+D --> Benchee
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们已经为本课安装了 Benchee，但请注意，如果你尝试在其他项目中使用 Benchee，它可能没有被安装。
+
+如果你想在任何 Livebook 中使用 [Benchee](https://hexdocs.pm/benchee/Benchee.html)，你必须将其添加到 Livebook 顶部的设置部分，如果它尚不可用。将 [Benchee](https://hexdocs.pm/benchee/Benchee.html) 包含在现有的 [Mix.install/2](https://hexdocs.pm/mix/Mix.html#install/2) 调用中或添加一个。应该只有一个 [Mix.install/2](https://hexdocs.pm/mix/Mix.html#install/2) 的调用。
+
+确保将 `1.1` 替换为最新版本。你可以在 [Hex](https://hex.pm/packages/benchee) 上找到 Benchee 的最新版本。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:benchee, "~> 1.1"},
+])
+```
+
+在 mix 项目中，你将在 `mix.exs` 中现有的 `deps/0` 函数中添加最新的 [Benchee](https://hexdocs.pm/benchee/Benchee.html)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defp deps do
+  [
+    {:benchee, "~> 1.1"}
+  ]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 用法
+
+我们可以使用 [Benchee.run/2](https://hexdocs.pm/benchee/Benchee.html#run/2) 函数来测量某个函数的性能和内存消耗。
+
+```elixir
+Benchee.run(%{
+  "example test" => fn -> 10000 ** 10000 end
+})
+```
+
+上面，输出中最重要的部分应该看起来像以下内容，但数字不同。
+
+```
+名称                   ips        平均值  偏差         中位数         99th %
+example test        154.65        6.47 ms    ±26.50%        6.13 ms       13.17 ms
+
+内存使用统计：
+
+名称            内存使用
+example test           600 B
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+Benchee 文档解释了如何读取输出：
+
+> * average - 平均执行时间/内存使用（越低越好）
+> * ips - 每秒迭代次数，即在一秒内可以执行给定函数的次数（越高越好 - 适合图形化），仅适用于运行时间
+> * deviation - 标准偏差（结果变化的程度），以平均值的百分比表示（也提供原始绝对值）
+> * median - 当所有测量值排序时，这是中间值。比平均值更稳定，更有可能是你看到的典型值，最典型的值见众数。（越低越好）
+> * 99th % - 第99百分位，99%的所有测量值小于此值 - 最坏情况性能
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 使用 Benchee 进行比较
+
+让我们使用 Benchee 来比较元组和列表。元组旨在用作固定大小的容器，快速访问。列表是用于动态大小容器的集合，可能会被修改。
+
+因此，列表的访问应该较慢，而元组的访问应该较快。这在理论上是正确的，让我们验证我们的假设并证明它是正确的。
+
+```elixir
+size = 10000
+large_list = Enum.to_list(0..size)
+large_tuple = List.to_tuple(large_list)
+
+Benchee.run(%{
+  "list" => fn -> Enum.at(large_list, size) end,
+  "tuple" => fn -> elem(large_tuple, size) end
+})
+```
+
+运行上述代码后，你应该看到类似以下的输出。你会注意到
+访问列表的速度要慢得多！
+
+```
+名称            ips        平均值  偏差         中位数         99th %
+tuple        1.09 M        0.92 μs  ±2806.65%        0.80 μs           2 μs
+list       0.0324 M       30.89 μs    ±93.31%       28.90 μs       67.80 μs
+
+比较：
+tuple        1.09 M
+list       0.0324 M - 33.58x 更慢 +29.97 μs
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用 Benchee 来比较访问 **第一个** 元素，而不是我们之前所做的最后一个元素。
+你应该会注意到这次列表的速度更快，或者至少接近相同的速度。你将在未来的课程中了解原因。
+
+```elixir
+Benchee.run(%{
+  "访问列表中的第一个元素" => fn -> nil end,
+  "访问元组中的第一个元素" => fn -> nil end
+})
+```
+
+### 多个输入
+
+我们可以在 [Benchee.run/2](https://hexdocs.pm/benchee/Benchee.html#run/2) 中使用 `:inputs` 选项来基准测试多个输入。
+
+```elixir
+Benchee.run(
+  %{
+    "Enum.count/1" => fn input -> Enum.count(input) end,
+    "Kernel.length/1" => fn input -> Kernel.length(input) end
+  },
+  inputs: [small: [1, 2, 3], medium: Enum.to_list(1..1000), large: Enum.to_list(1..100_000)]
+)
+```
+
+你应该会看到每个输入的基准测试。
+
+```
+##### 小输入 #####
+名称                      ips        平均值  偏差         中位数         99th %
+Kernel.length/1        1.34 M      745.94 ns  ±3912.97%         500 ns        1600 ns
+Enum.count/1           1.28 M      781.60 ns  ±3327.02%         500 ns        2000 ns
+
+比较： 
+Kernel.length/1        1.34 M
+Enum.count/1           1.28 M - 1.05x 更慢 +35.66 ns
+
+##### 中等输入 #####
+名称                      ips        平均值  偏差         中位数         99th %
+Kernel.length/1      274.56 K        3.64 μs   ±627.53%        3.40 μs        6.30 μs
+Enum.count/1         265.48 K        3.77 μs  ±1277.99%        3.50 μs        8.20 μs
+
+比较： 
+Kernel.length/1      274.56 K
+Enum.count/1         265.48 K - 1.03x 更慢 +0.124 μs
+
+##### 大输入 #####
+名称                      ips        平均值  偏差         中位数         99th %
+Kernel.length/1        5.30 K      188.70 μs    ±63.77%      157.70 μs      897.38 μs
+Enum.count/1           4.97 K      201.40 μs    ±75.41%      159.50 μs     1096.38 μs
+
+比较： 
+Kernel.length/1        5.30 K
+Enum.count/1           4.97 K - 1.07x 更慢 +12.70 μs
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+这对于基准测试较大数据如何影响我们的系统特别有用。它也有助于创建不同的情况（即最坏情况和最好情况），可能导致我们的系统表现得与预期不同。
+
+## 如何进行良好的基准测试
+
+基准测试很容易误导我们对系统实际性能的理解。
+
+为了使我们的基准测试更具代表性，请考虑以下指标：
+
+* **多样性：** 在基准测试中使用多种输入。
+* **大小：** 系统在小数据量下可能非常快，但在大数据量下可能非常慢。考虑使用不同大小的多种数据样本来测试系统的极限。
+* **一致性：** 考虑多次运行基准测试。它的性能是否因边缘情况而频繁变化？
+
+一般来说，你可以使用基准测试来优化你的系统，并查看它们在压力下的表现。考虑你希望如何施加压力，以获得最符合你情况的基准测试指标。
+
+我们还需要考虑我们正在测量的内容。例如，如果你读取 `average` 时间而不是 `median`，那么很容易受到异常值的影响。
+
+例如：
+
+> Ben Hill Griffin 体育场，佛罗里达大学的体育场，容纳 `88,548` 人。在佛罗里达州，最低工资为 `$11.00` 每小时。每周工作八小时，五天，一年五十二周，这样每年的收入为 `$22,880`。如果体育场的每个座位都由一个最低工资的员工填满，平均年收入将为 `$22,880`，总价值将超过二十亿 `$2,025,978,240`。在 2021 年，杰夫·贝索斯的收入约为 1970 亿美元 -- `$197,000,000,000`。如果杰夫·贝索斯进入体育场，总年收入将为 `$199,025,978,240`，而 **平均** 收入将约为 224 万美元 -- `$2,247,636`。一个大的异常值确实可以严重影响平均值。这通常是我们使用 **中位数** 或一组数据的中间值的原因。它不容易受到大异常值的影响。
+> 
+> 示例由 Stephen Fowler 提供
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成基准测试阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Benchmarking">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/big_o_notation.livemd">性能</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/custom_enum_with_recursion.livemd">自定义递归枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

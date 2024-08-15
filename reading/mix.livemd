@@ -1,0 +1,496 @@
+# Mix
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Mix">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pascals_triangle.livemd">帕斯卡三角形</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games.livemd">游戏项目</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* Mix 的目的是什么？
+* 我们的应用程序应该放在 mix 项目的哪个位置？
+* 我们如何编译 mix 项目并使用 IEx shell 进行探索？
+
+## Mix
+
+[Mix](https://hexdocs.pm/mix/Mix.html) 是一个与 Elixir 一起提供的构建工具，自动化创建、编译和测试应用程序的任务。
+
+我们通过在命令行中运行以下命令来启动一个新的 Mix 应用程序。
+
+```
+mix new app_name
+```
+
+其中 `app_name` 是项目的名称。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+创建一个 `hello_world` 应用程序。
+
+你应该注意到该命令生成了多个文件。
+
+```
+$ mix new hello_world
+* creating README.md
+* creating .formatter.exs
+* creating .gitignore
+* creating mix.exs
+* creating lib
+* creating lib/hello_world.ex
+* creating test
+* creating test/test_helper.exs
+* creating test/hello_world_test.exs
+
+Your Mix project was created successfully.
+You can use "mix" to compile it, test it, and more:
+
+    cd hello_world
+    mix test
+
+Run "mix help" for more commands.
+```
+
+你的项目应该具有以下文件和文件夹结构。
+
+```
+hello_world/
+  lib/
+    hello_world.ex
+  test/
+    hello_world_test.exs
+    test_helper.exs
+  .formatter.exs
+  .gitignore
+  mix.exs
+  README.md
+```
+
+我们将逐步了解 mix 项目结构以及如何构建 Elixir 应用程序。
+
+## `lib` 文件夹
+
+`lib/` 文件夹包含项目的文件。我们从一个名为项目的单个模块开始。你应该在 `lib/hello_world.ex` 文件中有一个 `HelloWorld` 模块。
+
+我们使用 `@moduledoc` 和 `@doc` 来记录我们的代码。
+
+```elixir
+defmodule HelloWorld do
+  @moduledoc """
+  Documentation for `HelloWorld`.
+  """
+
+  @doc """
+  Hello world.
+
+  ## Examples
+
+      iex> HelloWorld.hello()
+      :world
+
+  """
+  def hello do
+    :world
+  end
+end
+```
+
+## 运行 Mix 项目
+
+要执行我们 Mix 项目的 Elixir 代码，你可以通过在项目文件夹中运行以下命令将项目加载到 IEx Shell 中。
+
+```
+iex -S mix
+```
+
+现在，所有在 `lib/` 文件夹下的 `.ex` 文件和模块都可以在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 环境中使用。
+
+[Mix](https://hexdocs.pm/mix/Mix.html) 会忽略 `.exs` 文件，因此 `.exs` 文件中的任何模块在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中将不可用。
+
+### 你的回合
+
+将你的项目加载到 IEx Shell 中。
+
+```
+iex -S mix
+```
+
+调用 `hello/0` 函数。
+
+```
+iex> HelloWorld.hello()
+:world
+```
+
+注意 `iex -S mix` 命令将你的项目编译到 `_build` 文件夹中。该文件夹包含由 Erlang 编译器生成的可执行 `.beam` 文件。
+
+你也可以通过在命令行中运行 `mix compile` 来编译项目。
+
+## 测试
+
+[ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html) 是一个内置的测试框架。测试文件位于 `test/` 文件夹中的 `.exs` 文件中。
+
+在你的 `hello_world` 项目中，应该有一个示例测试文件 `test/hello_world_test.exs`，其内容如下。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule HelloWorldTest do
+  use ExUnit.Case
+  doctest HelloWorld
+
+  test "greets the world" do
+    assert HelloWorld.hello() == :world
+  end
+end
+```
+
+测试文件通常对应于 `lib/` 文件夹中的另一个文件。
+
+例如，`lib/greeting/hola.ex` 文件可能有一个对应的 `test/greeting/hola_test.exs` 文件。
+
+我们将深入了解如何在 [ExUnit](exunit.livemd) 部分测试 Elixir 项目。
+
+现在，知道你可以通过在命令行中运行以下命令来执行所有测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ mix test
+```
+
+### 你的回合
+
+在你的 `hello_world` 项目文件夹中从命令行运行 `mix test`，你应该看到类似以下的输出。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Compiling 1 file (.ex)
+Generated hello_world app
+..
+
+Finished in 0.02 seconds (0.00s async, 0.02s sync)
+1 doctest, 1 test, 0 failures
+
+Randomized with seed 768874
+```
+
+## 文件和模块名称
+
+Mix 编译 `lib/` 文件夹下的所有 `.ex` 文件，并将它们打包到一个项目中。
+
+通常，Elixir 项目在主项目命名空间下组织模块。
+
+因此，`HelloWorld` 应用程序中的所有模块将被分组在 `HelloWorld` 命名空间下。
+
+例如，一个新的 `Greeting` 模块将被定义在 `HelloWorld.Greeting` 下。
+
+```elixir
+defmodule HelloWorld.Greeting do
+  def salutations(name) do
+    "Salutations, #{name}!"
+  end
+end
+```
+
+嵌套模块通常彼此相关，通常子模块处理更高层模块的更具体应用。
+
+例如，一个 `Formal` 模块将位于 `Greeting` 模块下。
+
+```elixir
+defmodule HelloWorld.Greeting.Formal do
+  def charmed() do
+    "Charmed, I'm sure."
+  end
+end
+```
+
+虽然没有强制要求，但模块和文件结构通常遵循一种模式，其中模块名称与其文件夹和文件匹配。
+
+例如，`HelloWorld.Greeting.Formal` 模块将位于 `lib/greeting/formal.ex` 文件中，而 `HelloWorld.Greeting` 将位于 `lib/greeting.ex` 文件中。
+
+```
+lib/
+  greeting.ex
+  hello_world.ex
+  greeting/
+    formal.ex
+```
+
+### 你的回合
+
+模块可以调用 `lib/` 文件夹下任何其他模块中的函数，正如你在 livebook 单元中已经看到的那样。
+
+```elixir
+defmodule ModuleA do
+  def run do
+    "A"
+  end
+end
+
+defmodule ModuleB do
+  def run do
+    ModuleA.run() <> "B"
+  end
+end
+
+ModuleB.run()
+```
+
+在你的 `hello_world` 应用程序中，创建一个新的模块 `HelloWorld.Name` 在 `lib/name.ex` 文件中，该模块将返回一个随机名称。
+
+```elixir
+defmodule HelloWorld.Name do
+  def random do
+    Enum.random(["Peter", "Bruce", "Tony"])
+  end
+end
+```
+
+然后，从 `hello_world.ex` 中的 `HelloWorld` 模块调用 `HelloWorld.Name.random/0` 函数。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule HelloWorld do
+  def hello do
+    "Hello, #{HelloWorld.Name.random()}."
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中运行你的项目，并确保 `HelloWorld.hello/0` 函数按预期工作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ iex -S mix
+iex> HelloWorld.hello()
+"Hello, Peter."
+```
+
+## Mix.exs
+
+`mix.exs` 文件的主要职责是配置 mix 项目。
+
+它定义了两个公共函数，`project/0` 和 `application/0`。
+
+`project/0` 函数返回项目配置，例如项目名称、当前版本和已安装的依赖项。`project/0` 函数依赖于私有的 `deps/0` 函数来提供依赖项列表。
+
+`application/0` 函数返回用于生成 `_build` 文件夹中的应用程序清单文件的应用程序配置。该文件在后台用于运行项目。有关更多信息，请参见 [Application](https://hexdocs.pm/elixir/main/Application.html) 模块。 有时，删除 `_build` 文件夹并重新编译项目可以解决编译错误。
+
+## 依赖项
+
+其他开发者创建的开源 Elixir 项目托管在 GitHub 上，我们可以将其作为依赖项添加到我们的项目中。
+
+Elixir 项目有一个庞大的生态系统，这意味着你不必重新发明轮子来解决已经解决的问题。[Hex.pm](https://hex.pm/) 包含可用的 Elixir 项目列表，你可能会发现有用。有关策划列表，请查看 [awesome-elixir](https://github.com/h4cc/awesome-elixir) 项目。
+
+要安装依赖项，请在 `mix.exs` 中的 `deps/0` 函数内包含项目名称和所需版本的元组。请注意，`mix.exs` 中包含有关使用项目版本或 GitHub URL 安装依赖项的注释。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  defp deps do
+    [
+      # {:dep_from_hexpm, "~> 0.3.0"},
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+    ]
+  end
+```
+
+### 你的回合
+
+将 [Faker](https://hex.pm/packages/faker) 项目添加到你的 `hello_world` 应用程序中。[Faker](https://hexdocs.pm/faker/readme.html) 提供生成假数据的函数，通常对随机测试数据很有用。
+
+通常，检查项目的 [Hex 页面](https://hex.pm/packages/faker) 以获取最新版本是最可靠的。
+
+确保将 `:faker` 及其最新版本添加到 `mix.exs` 中的 `deps/0` 函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  defp deps do
+    [
+      {:faker, "~> 0.17.0"}
+    ]
+  end
+```
+
+然后运行 `mix deps.get` 来更新你的项目依赖项。
+
+安装后，你可以访问 [Faker](https://hexdocs.pm/faker/readme.html) 模块。
+
+在你的 `HelloWorld.hello/0` 函数中使用 `Faker.Person.first_name/0` 函数。
+
+有关如何使用 [Faker](https://hexdocs.pm/faker/readme.html) 的更多信息，你可以阅读 [Faker 文档](https://hexdocs.pm/faker/readme.html)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def hello do
+  "Hello, #{Faker.Person.first_name()}."
+end
+```
+
+确保你的 `hello/0` 函数在 IEx shell 中正常工作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex -S mix
+iex> HelloWorld.hello()
+"Hello, Salvador." # 名字每次都会随机变化。
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 版本
+
+项目 [Versions](https://hexdocs.pm/elixir/Version.html) 通常由 `Major.Minor.Patch` 数字表示。
+
+在安装依赖项时，我们指定一个 [版本要求](https://hexdocs.pm/elixir/Version.html#module-requirements)。我们甚至可以使用比较运算符在两个数字之间指定版本。例如 `>= 2.0.0 and < 2.1.0`。
+
+本地安装的依赖项可能不完全符合版本要求，但必须属于指定的范围。
+
+你在依赖项中看到的 `~>` 符号意味着它永远不会超过其上限。
+
+* `~> 2.1` 将允许任何低于 `3.0.0` 且大于或等于 `2.1.0` 的版本。
+* `~> 2.1.2` 将允许任何低于 `2.2.0` 且大于或等于 `2.1.2` 的版本。
+
+[Version 文档](https://hexdocs.pm/elixir/Version.html) 进一步深入探讨。
+
+你可以通过在命令行中运行以下命令自动更新项目版本。
+
+```
+mix deps.update example_dep
+```
+
+或者使用 `--all` 选项更新所有依赖项。
+
+```
+mix deps.update --all
+```
+
+## 格式化
+
+`.formatter.exs` 文件包含项目配置，用于如何自动格式化 Elixir 源代码文件。
+
+你可以在项目文件夹中从命令行运行 `mix format` 来格式化 Elixir 代码。
+
+### 你的回合
+
+缩进 `hello_world.ex` 中的代码。然后，运行 `mix format` 并注意代码会自动格式化。如果没有，请确保没有语法错误阻止代码格式化。
+
+## README.md
+
+大多数项目都包含一个 README.md 文件，其中包含用 markdown 编写的项目基本信息。
+
+没有通用的 README 结构，但通常包括：
+
+* 仓库名称。
+* 项目目的。
+* 设置说明。
+* 项目的合作者。
+
+GitHub 页面在项目的仓库页面前面显示 README。
+
+在构建自己的项目时，你会想确保更新默认 README，以包含相关信息。
+
+查看 [Markdown cheat-sheet](https://www.markdownguide.org/cheat-sheet/) 以获取 markdown 语法的快速指南。
+
+## Mix 环境
+
+Mix 项目可以在不同的环境中运行。默认环境是你的开发 `:dev` 环境。
+
+在 IEx shell 中运行你的 `hello_world` 项目并调用 `Mix.env()` 以查看 `:dev` 是当前环境。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ iex -S mix
+iex> Mix.env()
+:dev
+```
+
+在运行测试时，项目将使用 `:test` 环境，在部署到生产时将使用 `:prod`。
+
+我们可以根据当前环境更改项目的行为或配置。例如，如果你的项目中有 SMS（文本）通知，你可能希望在 `:dev` 和 `:test` 环境中禁用它们，以确保开发人员不会意外地向用户发送短信。
+
+## 进一步阅读
+
+有关 [Mix](https://hexdocs.pm/mix/Mix.html) 的更多信息，请考虑阅读以下内容。
+
+* [elixir-lang: Mix 入门](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html)
+* [HexDocs: Mix](https://hexdocs.pm/mix/Mix.html#content)
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "finish Mix reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Mix">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pascals_triangle.livemd">帕斯卡三角形</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games.livemd">游戏项目</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

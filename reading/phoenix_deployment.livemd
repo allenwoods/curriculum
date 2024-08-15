@@ -1,0 +1,439 @@
+<!-- livebook:{"file_entries":[{"name":"book_search_deployment_ci.png","type":"attachment"},{"name":"book_search_deployment_fly_api_token.png","type":"attachment"},{"name":"book_search_deployment_fly_dashboard_monitoring.png","type":"attachment"}]} -->
+
+# Phoenix 部署
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Deployment">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_home_page.livemd">博客：主页</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_deployment.livemd">博客：部署</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是 Fly，我们如何使用它来部署应用程序？
+* 什么是 CI/CD，我们如何设置它？
+
+## 概述
+
+这是 [博客：部署](../exercises/blog_deployment.livemd) 练习的配套阅读。本课概述了如何在 Phoenix 应用程序中进行部署。请查看 `example_projects/blog` 项目文件夹，以便为本课中的示例提供背景。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 软件部署
+
+软件部署是将新软件或更新软件提供给用户使用的过程。这涉及到准备软件发布，测试以确保其正常工作，并在目标系统上安装。部署可能是一个复杂的过程，尤其是对于大型和分布式系统，但自动化工具和实践可以帮助简化和简化这一过程。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### DevOps
+
+DevOps 是一种软件工程文化和实践，旨在将组织中的开发和运维团队结合在一起。它旨在增加这些团队之间的协作和沟通，并自动化构建、测试和部署软件的过程。
+
+DevOps 的目标是使组织能够快速可靠地交付软件更改，同时确保这些更改具有高质量，并且不会对用户造成干扰。通过采用 DevOps 实践，组织可以提高软件开发和交付过程的速度和效率，并增加系统的可靠性和稳定性。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### CI/CD
+
+持续集成和持续交付（CI/CD）是一种软件开发实践，旨在自动化构建、测试和部署软件的过程。它涉及频繁地将代码更改集成到共享代码库中，并使用自动化来自动构建、测试和部署软件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 托管平台
+
+托管平台是一种服务，帮助您托管和部署您的 Web 应用程序和网站。它提供必要的基础设施和资源，如服务器、存储和网络，以及用于构建、部署和管理应用程序的工具和功能。这些工具可能包括对各种编程语言、数据库管理以及监控和分析的支持。
+
+有几种不同的部署平台可供 Phoenix 应用程序使用，包括 [Gigalixir](https://hexdocs.pm/phoenix/gigalixir.html)、[Fly.io](https://hexdocs.pm/phoenix/fly.html) 和 [Heroku](https://hexdocs.pm/phoenix/heroku.html)。
+
+虽然这超出了本课程的范围，但也可以通过在生产机器上运行 Phoenix 应用程序来处理我们自己的部署。有关更多信息，请参见 [部署简介](https://hexdocs.pm/phoenix/deployment.html) 和 [使用发布进行部署](https://hexdocs.pm/phoenix/releases.html)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Docker
+
+Docker 是一种工具，旨在通过使用容器来简化创建、部署和运行应用程序的过程。容器允许开发人员将应用程序与其所需的所有部分（如库和其他依赖项）打包，并将其作为一个包一起发布。
+
+使用 Docker，开发人员可以在自己的隔离环境中构建和测试应用程序，然后轻松与他人共享。这使得协作变得更加容易，并确保应用程序在不同环境中以相同的方式运行。
+
+Docker 使用镜像来创建容器。镜像是一个文件，包含运行特定应用程序或服务所需的所有组件。当运行镜像时，Docker 从镜像创建一个新容器，并在容器内运行应用程序或服务。
+
+Docker 还提供了一个集中式注册表，称为 [Docker Hub](https://hub.docker.com/_/elixir)，用户可以在其中存储和共享自己的镜像。这使得共享和分发应用程序变得简单，因为所有必要的组件都打包在一个镜像中。
+
+Fly.io 使用 [Dockerfile](https://fly.io/docs/reference/builders/#dockerfile) 来部署您的 Phoenix 应用程序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### GitHub Actions
+
+GitHub Actions 是 GitHub 的一项功能，允许您自动化由您代码库中的某些事件触发的任务（称为“工作流”）。您可以使用 GitHub Actions 来构建、测试和部署代码，或自动化与代码库相关的其他任务。
+
+要使用 GitHub Actions，您需要在代码库中创建一个 workflows 文件夹。该文件夹中的文件定义了在触发工作流时应采取的步骤，并可以用 [YAML](https://en.wikipedia.org/wiki/YAML) 编写。您可以配置工作流，以便在代码库中发生某些事件时运行，例如当您将代码推送到代码库时、当您打开拉取请求时，或当您发布新版本的软件时。
+
+GitHub Actions 使得自动化许多不同类型的任务变得简单，包括测试和部署应用程序。
+
+## 在 Fly.io 上部署
+
+请遵循 Phoenix [在 Fly.io 上部署](https://hexdocs.pm/phoenix/fly.html) 指南来部署项目。
+
+在 [这里](https://fly.io/docs/hands-on/install-flyctl/) 安装 Fly.io 平台的命令行界面。
+
+注册一个 Fly 账户。
+
+```
+$ fly auth signup
+```
+
+然后运行以下命令来配置 Fly.io 和应用程序。
+
+```
+$ fly launch
+```
+
+您将被提示进行几个步骤。选择以下选项，或者如果步骤已更改，请根据您的最佳判断进行选择：
+
+```
+? 选择一个应用名称（留空以生成一个）：replace-this-with-your-app-name
+? 选择一个部署区域：选择默认或选择您的区域
+? 您想现在设置一个 Postgresql 数据库吗？是
+? 选择配置：开发 - 单节点，1x 共享 CPU，256MB RAM，1GB 磁盘
+? 在一小时后将单节点 pg 的规模缩减为零吗？是
+? 您想现在设置一个 Upstash Redis 数据库吗？否
+? 您想现在部署吗？是
+```
+
+如果您没有选择上面的“是”，请部署应用程序。
+
+```
+$ fly deploy
+```
+
+检查您的应用程序是否已部署。
+
+```
+$ fly status
+```
+
+`fly status` 的结果应该显示您的应用程序已部署。以下是示例输出：
+
+```
+App
+  Name     = cohort2-blog                                        
+  Owner    = personal                                            
+  Hostname = cohort2-blog.fly.dev                                
+  Image    = cohort2-blog:deployment-01H0MA281RDD100YXFR6G8111M  
+  Platform = machines                                            
+
+Machines
+PROCESS ID              VERSION REGION  STATE   CHECKS  LAST UPDATED         
+app     148e272fe71038  1       ord     started         2023-05-17T07:35:47Z
+app     918599ef745d98  1       ord     started         2023-05-17T07:36:00Z
+```
+
+如果您遇到任何问题，请尝试重新运行部署步骤，或与您的同学/老师交谈以获取帮助。您还可以在 [fly 社区论坛](https://community.fly.io/) 上获得支持。
+
+一旦您的部署正常工作，请在浏览器中打开应用程序。
+
+```
+$ fly open
+```
+
+您的应用程序应该会自动在浏览器中打开。如果没有，您可能需要单击 `fly open` 命令提供的链接。
+
+## 使用 IEx Shell 填充生产环境
+
+要填充数据库，我们可以使用以下命令访问生产应用程序的 [IEx](https://hexdocs.pm/iex/IEx.html) shell。将 `app_name` 替换为应用程序的名称。
+
+```
+$ fly ssh establish
+$ fly ssh issue --agent
+$ fly ssh console
+# App/bin/app_name Remote
+```
+
+如果您遇到任何问题，请参见以下指南：[IEX 进入您的运行应用程序](https://fly.io/docs/elixir/getting-started/iex-into-running-app/)。
+
+从这个 IEx shell 中，我们可以访问生产环境中的所有模块。
+
+例如，您可以这样创建一篇博客文章：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> Blog.Posts.create_post(%{title: "my first post", content: "some content", visible: true, published_at: DateTime.utc_now()}) 
+```
+
+使用 <kbd>CTRL</kbd>+<kbd>C</kbd> <kbd>CTRL</kbd>+<kbd>C</kbd> 退出 IEx shell。然后通过输入 `exit` 并按回车键退出控制台。
+
+```
+# 退出
+```
+
+## 使用 GitHub Actions 进行持续集成
+
+GitHub 允许我们在 `.github/workflows` 文件夹中定义 `.yml` 文件，这些文件将在 GitHub 管道的某些步骤上自动运行。
+
+在项目文件夹中创建一个 `.github/workflows/continuous-integration.yml` 文件，内容如下，以便在每次对项目进行拉取请求时运行测试。
+
+```yaml
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:11
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    name: run tests
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '25.2'
+          elixir-version: '1.14.2'
+      - run: mix deps.get
+      - run: mix test
+```
+
+此文件设置触发器，以便在每次拉取请求时运行测试。它还为我们的测试设置了一个 Postgres 数据库。如果您在具有这些持续集成测试的项目上进行 PR，您将看到以下 UI。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/book_search_deployment_ci.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这是任何项目的一个简单工作流。有关更高级的设置，请参见 [Fly: GitHub Actions for Elixir CI](https://fly.io/phoenix-files/github-actions-for-elixir-ci/)。
+
+## 使用 GitHub Actions 进行持续部署
+
+持续部署是指在您合并拉取请求时自动部署您的应用程序，通常是合并到项目的 `main` 分支。
+
+为了授权从 GitHub 操作进行部署，我们需要一个 Fly.io 令牌。您可以运行以下命令以获取 Fly.io 令牌。
+
+```
+fly auth token
+```
+
+您可以在 GitHub 仓库的 `Settings` 部分添加此令牌。将令牌命名为 `FLY_API_TOKEN`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/book_search_deployment_fly_api_token.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+然后，您可以创建一个 `.github/workflows/continuous-deployment.yml` 文件，内容如下。请注意，这使用了您刚刚配置的秘密令牌。
+
+```
+name: Fly Deploy
+on:
+  push:
+    branches:
+      - main
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+jobs:
+  deploy:
+      name: Deploy app
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: superfly/flyctl-actions/setup-flyctl@master
+        - run: flyctl deploy --remote-only
+```
+
+创建此文件并进行 PR 后，您应该注意到更改会自动部署到您的生产应用程序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 故障排除
+
+使用 HTTPS 而不是 SSH 进行 GitHub 请求的学生可能会遇到需要具有 `workflow` 范围的 HTTPS 令牌。如果您遇到此问题，可以在此处找到创建令牌的说明：https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token。
+
+## Fly 仪表板
+
+Fly 提供了一些工具，用于在 [Fly 仪表板](https://fly.io/dashboard) 上管理和监控您的应用程序。
+
+例如，您可以从仪表板中选择您的应用程序并转到 **监控** 以查看您的应用程序日志。这在遇到生产中的错误时非常有用。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/book_search_deployment_fly_dashboard_monitoring.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+您还可以使用 Fly 设置指标，使用 [Prometheus](https://fly.io/docs/reference/metrics/#prometheus-on-fly) 等工具，但这超出了本课的范围。
+
+## 错误报告
+
+错误报告工具，如 [Honeybadger](https://hexdocs.pm/honeybadger/0.6.2/readme.html) 和 [Sentry](https://docs.sentry.io/platforms/elixir/)，允许您监控应用程序并在用户遇到错误时接收通知。
+
+这超出了本课的范围，但您应该了解这些服务。
+
+## 使用 JS 库
+
+我们经常希望在项目中包含 JavaScript 库。以下是一些您可能有理由使用的流行库：
+
+* [mermaid.js](https://mermaid.js.org/): 各种图表，如实体关系图、时序图等。
+* [monaco-editor](https://github.com/microsoft/monaco-editor): 一个功能齐全的代码编辑器。
+* [tone.js](https://tonejs.github.io/): 一个用于在浏览器中创建交互式音乐的 Web Audio 框架。
+* [LaTeX.js](https://latex.js.org/) 数学符号。
+* [Alpine.js](https://alpinejs.dev/) 一个轻量级的 js 框架。
+
+有几种不同的方法可以在您的应用程序中包含 JavaScript 项目。
+
+* 使用 CDN 的脚本
+* 下载 assets 中的 vendor.js 并在 app.js 中导入它们
+* 使用 npm（节点包管理器）安装包
+
+Phoenix 包含有关管理资产的 [部分](https://hexdocs.pm/phoenix/asset_management.html#third-party-js-packages) 以获取更多信息。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### CDN
+
+以下是使用 CDN 安装 mermaid 的示例。这将包含在 `root.html.heex` 的 `head` 部分中。
+
+```html
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Vendor
+
+以下是通过下载 [js 文件](https://github.com/Tonejs/Tone.js/releases/tag/14.7.39) 安装 [tone.js] 的示例，该文件将放在 `assets/vendor/tone.js` 中，然后在 `app.js` 中导入该文件。
+
+```javascript
+import * as Tone from "../vendor/tone.js"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### NPM
+
+以下是如何通过在 `assets` 文件夹中运行 `npm` 命令来安装 `monaco-editor` 的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ npm install monaco-editor --save
+```
+
+然后在 `app.js` 中导入 monaco-editor。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+import * as monaco from 'monaco-editor';
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 带有 Fly 的 NPM
+
+默认情况下，Fly Dockerfile [不包括 npm](https://community.fly.io/t/elixir-alpinejs-on-fly-fail-to-install/5542)。
+
+您可以修改 Dockerfile 以包含以下内容，以便在 Fly 上部署时可以使用 npm 进行 JavaScript 库。确保不要在 Dockerfile 中重复任何指令。
+
+```
+# 初始设置
+$ mix deps.get --only prod
+$ MIX_ENV=prod mix compile
+
+# 安装 / 更新 JavaScript 依赖项
+$ npm install --prefix ./assets
+
+# 编译资产
+$ npm run deploy --prefix ./assets
+$ mix phx.digest
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [GitHub Actions](https://github.com/features/actions)
+* [HexDocs: 在 Fly.io 上部署](https://hexdocs.pm/phoenix/fly.html#content)
+* [Fly.io: IEx 进入您的运行应用程序](https://fly.io/docs/elixir/getting-started/iex-into-running-app/)
+* [Fly.io: 使用 GitHub Actions 进行持续部署](https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/)
+* [GitHub: erlef/setup-beam](https://github.com/erlef/setup-beam)
+* [Fly.io: 指标](https://fly.io/docs/reference/metrics/)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的代码库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Phoenix 部署阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行学习。
+
+我们还提供一门付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Deployment">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_home_page.livemd">博客：主页</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_deployment.livemd">博客：部署</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

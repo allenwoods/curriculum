@@ -1,0 +1,110 @@
+# 博客：标签
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Tags">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_many_to_many_relationships.livemd">多对多关系</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_one_to_one_relationships.livemd">一对一关系</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 博客标签
+
+你将为现有的 [博客](group_project_blog.livemd) 项目添加 `标签`。
+
+每个博客帖子与标签之间有多对多的关联。
+
+标签应具有 `:name` 字段，描述标签的类型，例如 `"tutorial"`、`"elixir"`、`"testing"` 等等。
+
+博客和标签应通过 **连接** 表进行关联，例如 `posts_tags`。
+
+```mermaid
+erDiagram
+
+Post {
+}
+
+Tag {
+    string name
+}
+
+Post }O--O{ Tag: "posts_tags"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 标签要求
+
+* 迁移和模式：
+  * 为标签和帖子创建一个连接表
+  * 通过多对多关联将 `Post` 和 `Tag` 模式关联起来
+* 功能
+  * 用户可以创建标签（或填充预先存在的标签集）。
+  * 创建、更新和删除带有标签的帖子。
+  * **（额外奖励）**：按标签搜索和/或显示帖子
+  * **（额外奖励）**：允许用户在创建帖子时创建标签
+* 测试
+  * 编写上下文和控制器测试，以确保用户可以创建、更新和删除带有标签的帖子
+  * 所有测试应通过。你可能需要修改旧测试和页面，以确保它们继续通过。
+  * **（额外奖励）** 编写测试以确保用户可以按标签搜索帖子。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [发布版本](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成博客：标签练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Tags">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_many_to_many_relationships.livemd">多对多关系</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_one_to_one_relationships.livemd">一对一关系</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

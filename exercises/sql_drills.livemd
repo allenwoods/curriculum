@@ -1,0 +1,252 @@
+# SQL 练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=SQL Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/rdbms.livemd">关系数据库管理系统</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_1.7.livemd">Phoenix 1.7</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## SQL 练习
+
+练习帮助你通过重复的练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是用于使用 SQL 和 PostgreSQL。按照每个练习的说明尽快完成它们。
+
+要完成此练习，你可能需要从命令行切换到 `postgres` 用户。
+
+```
+$ sudo -i -u postgres
+```
+
+## PostgreSQL
+
+从命令行创建一个 `drills` PostgreSQL 数据库。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+createdb drills
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从命令行打开 PostgreSQL 提示符。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+psql
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符查看你的数据库列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+\l
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符连接到你的 `drills` 数据库。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+\c drills
+```
+
+</details>
+
+## SQL
+
+从你的 PostgreSQL 提示符创建一个 `authors` 表。`authors` 应该有一个 `ID` 主键字段和一个 `NAME` `VARCHAR` 字段。
+每个字段都应该是 `NOT NULL`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+CREATE TABLE authors (
+   ID    INT              NOT NULL,
+   NAME  VARCHAR (255)    NOT NULL,
+   PRIMARY KEY (ID)
+);
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从你的 PostgreSQL 提示符创建一个 `books` 表。`books` 应该有一个最多 `30` 个字符的 `TITLE` 字段和一个无限长度的 `CONTENT` 字段。两个字段都应该是 `NOT NULL`。
+
+`books` 还应该存储一个可选的 `AUTHORID` `FOREIGN KEY` 字段，该字段通过 `ID` 引用 `authors` 表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+CREATE TABLE books (
+    ID INT NOT NULL,
+    TITLE VARCHAR(30) NOT NULL,
+    CONTENT TEXT NOT NULL,
+    AUTHORID INT,
+    PRIMARY KEY (ID),
+    FOREIGN KEY (AUTHORID) REFERENCES authors(ID)
+);
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符查看你的两个表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+\dt
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符在 `authors` 表中创建一个作者。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+INSERT INTO authors (ID,NAME) VALUES (1, 'Patrick Rothfuss');
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符在 `books` 表中创建一本属于你之前创建的作者的书。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+INSERT INTO books (ID,TITLE,CONTENT,AUTHORID) VALUES (1, 'Name of the Wind', 'My name is Kvothe, pronounced nearly the same as quothe', 1);
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符选择所有作者。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```sql
+SELECT * FROM authors;
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符选择所有书籍。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+SELECT * FROM books
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+从 PostgreSQL 提示符选择所有属于你之前创建的作者的书籍。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```
+SELECT * FROM books b WHERE b.authorid = 1
+```
+
+</details>
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 SQL 练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=SQL Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/rdbms.livemd">关系数据库管理系统</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_1.7.livemd">Phoenix 1.7</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

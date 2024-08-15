@@ -1,0 +1,135 @@
+# 注释
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Comments">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/github_collab.livemd">Github 协作</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/arithmetic.livemd">算术</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在 Elixir 中写注释？
+* 在 Livebook 和 Visual Studio Code 中，您可以使用什么键盘命令来注释一行或多行 Elixir 代码？
+
+## 注释
+
+您可以在 Elixir 代码中使用 `#` 创建行内注释。`#` 后面的任何内容都将成为注释的一部分。
+
+```elixir
+# 您可以使用注释在代码中留下消息。
+```
+
+这有时对于记录代码的功能很有用。然而，通常最好是节制使用注释。
+留下注释通常意味着您的代码中有某些内容没有自我解释。
+
+在这些时刻，您可能会发现考虑如何改进代码以使其自我文档化，而不是在不清晰的代码中留下注释是有用的。您将在未来的课程中学习到更好的文档形式。
+
+有时使用注释暂时移除代码片段并为以后保存是很方便的。
+然而，注释可能会被滥用。
+您也可能会遇到到处留下成千上万的 TODO 注释的代码库。TODO 注释可以是有用的，但当滥用时，它们可能比没有注释更糟糕！
+
+```elixir
+# 使用注释在代码上留下笔记。
+```
+
+根据您的代码编辑器，您可以一次注释多行代码。高亮您想要注释的代码，然后按下正确的快捷键。绑定会根据您的编辑器以及您使用的是 GNU/Linux、macOS 还是 Windows 而有所不同。
+在 Livebook 中，可能是 `CTRL-/` 或 `COMMAND-/`，但您可以在键盘快捷键选项卡中进行双重检查。
+
+点击此页面左侧边栏中的键盘图标 <i class="ri-keyboard-box-fill"></i> 查看所有键盘快捷键。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+在下面的 Elixir 单元中，创建一个注释 `# hello world`
+
+```elixir
+
+```
+
+在下面的 Elixir 单元中，使用 **切换行注释** 键盘快捷键注释掉所有代码。
+
+```elixir
+1 + 1
+2 + 3
+3 + 1 + 2
+123 + 12 + 256
+```
+
+## 进一步阅读
+
+在本课程中，我们将经常推荐值得信赖的资源以供进一步学习。
+
+我们推荐的一些最喜欢的平台包括：
+
+* [HexDocs](https://hexdocs.pm/) 一个文档托管平台
+* [Elixir School](https://elixirschool.com/en) 一个学习 Elixir 的教育平台。
+* [Exercism](https://exercism.org/) 一个拥有大量资源和练习的教育平台。如果您希望在本课程的练习之外进一步练习某个概念，可以注册一个账户。
+* [Elixir-lang](https://elixir-lang.org/) 官方 Elixir 网站，包含指南、文档和其他 Elixir 资源。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的代码库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成注释阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供一个付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Comments">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/github_collab.livemd">Github 协作</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/arithmetic.livemd">算术</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

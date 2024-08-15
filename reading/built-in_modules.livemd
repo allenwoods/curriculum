@@ -1,0 +1,1059 @@
+# 内置 Elixir 模块
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Built-In Elixir Modules">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/measurements.livemd">测量</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/filter_values_by_type.livemd">按类型过滤值</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 在处理特定数据类型（如整数或映射）时，您应该在 Elixir 文档中查找相关功能的哪个部分？
+* 如何安全地检查任何数据类型？
+* 开发人员最常使用的一些内置函数是什么，您如何使用它们？
+
+## 概述
+
+### 重新发明轮子
+
+与其重新发明轮子，我们可以依赖已经构建的工具来解决一系列常见问题。Elixir 提供了内置模块，我们可以利用它们来实现各种行为，而无需构建自己的自定义解决方案。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 信息过载
+
+标准 Elixir 库包含大量模块和函数。期望您记住所有这些函数是不合理的。
+
+相反，您应该努力学习日常使用的最常见模块和函数，并对标准库有足够的熟悉度，以便在需要时知道在哪里查找 [HexDocs](https://hexdocs.pm/elixir/api-reference.html) 以找到合适的工具。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Kernel](https://hexdocs.pm/elixir/Kernel.html)
+
+Elixir [Kernel](https://hexdocs.pm/elixir/Kernel.html) 模块是 Elixir 编程语言标准库的一部分。它提供了一些用于与底层操作系统交互的基本函数，以及一些核心 Elixir 函数。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 数据类型的模块
+
+大多数常见数据类型都有一个相关模块，其中包含与该数据类型相关的功能。
+
+例如：
+
+* [Integer](https://hexdocs.pm/elixir/Integer.html)
+* [String](https://hexdocs.pm/elixir/String.html)
+* [List](https://hexdocs.pm/elixir/List.html)
+* [Map](https://hexdocs.pm/elixir/Map.html)
+* [Keyword](https://hexdocs.pm/elixir/Keyword.html)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 行为的模块
+
+Elixir 将许多模块分组到相关的行为中。例如，我们已经看到用于数据无关枚举的 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块。
+
+## Kernel 模块
+
+[Kernel](https://hexdocs.pm/elixir/Kernel.html#functions) 是 Elixir 一切的核心。
+
+即使是您已经使用的运算符也只是使用 Kernel 中函数的替代语法。
+
+```elixir
+Kernel.+(3, 3)
+```
+
+## Kernel.elem/2
+
+[Kernel.elem/2](https://hexdocs.pm/elixir/Kernel.html#elem/2) 函数可以根据索引从元组中检索元素。
+
+```elixir
+Kernel.elem({3, 6, 9}, 0)
+```
+
+我们可以使用 [Kernel](https://hexdocs.pm/elixir/Kernel.html) 函数，无论是否使用 [Kernel](https://hexdocs.pm/elixir/Kernel.html) 命名空间。
+
+```elixir
+elem({3, 6, 9}, 0)
+```
+
+### 你的回合
+
+使用 [Kernel.elem/2](https://hexdocs.pm/elixir/Kernel.html#elem/2) 从以下元组中检索 `100`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  tuple = {0, 4, 1, 100, 5, 7}
+  elem(tuple, 3)
+  ```
+
+</details>
+
+```elixir
+tuple = {0, 4, 1, 100, 5, 7}
+```
+
+## 检查类型
+
+[Kernel](https://hexdocs.pm/elixir/Kernel.html) 包含许多用于确定值类型的函数，例如 `is_atom/1`、`is_binary/1`、`is_map/1` 和 `is_integer/1`。
+
+```elixir
+true = Kernel.is_map(%{})
+true = Kernel.is_atom(:an_atom)
+true = Kernel.is_binary("")
+true = Kernel.is_integer(1)
+```
+
+### 你的回合
+
+使用 [Kernel](https://hexdocs.pm/elixir/Kernel.html) 模块检查以下单元格中每个值的类型。您可能需要查阅 [Kernel 文档](https://hexdocs.pm/elixir/Kernel.html) 以找到适当的函数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  is_atom(:example)
+  is_map(%{})
+  is_binary("")
+  is_integer(1)
+  is_float(1.0)
+  is_boolean(true)
+  is_list([])
+  is_tuple({})
+  ```
+
+</details>
+
+第一个单元格已填写以作示例。每个单元格的结果应为 `true`。
+
+```elixir
+is_atom(:example)
+```
+
+```elixir
+%{}
+```
+
+```elixir
+{}
+```
+
+```elixir
+[]
+```
+
+```elixir
+true
+```
+
+```elixir
+1.0
+```
+
+```elixir
+1
+```
+
+```elixir
+""
+```
+
+[Kernel](https://hexdocs.pm/elixir/Kernel.html) 的内容相当庞大。请记住，我们的目标不是记住每个函数，而是通过反复练习来培养熟悉感。
+
+## 最大值和最小值
+
+我们可以使用 [max/2](https://hexdocs.pm/elixir/Kernel.html#max/2) 和 [min/2](https://hexdocs.pm/elixir/Kernel.html#min/2) 返回两个数字之间的最大（max）或最小（min）值。
+
+```elixir
+max(100, 110)
+```
+
+```elixir
+min(100, 110)
+```
+
+### 你的回合
+
+我们经常使用 [max/2](https://hexdocs.pm/elixir/Kernel.html#max/2) 和 [min/2](https://hexdocs.pm/elixir/Kernel.html#min/2) 来防止值超过或低于某个值。
+
+例如，假设我们有一个表示时钟上秒数的 `seconds` 变量。我们希望防止 `seconds` 小于 `0` 秒，或大于 `59` 秒。
+
+创建一个 `capped_seconds` 变量，该变量使用 `seconds` 的值，并且不能超过 `59` 秒或低于 `0` 秒。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  seconds = 61
+  capped_seconds = max(min(seconds, 59), 0)
+  ```
+
+</details>
+
+在下面输入您的解决方案。如果 `seconds` 小于 `0`，则 `capped_seconds` 应为 `0`。如果 `seconds` 大于 `59`，则 `capped_seconds` 应为 `59`。
+
+```elixir
+seconds = 60
+capped_seconds = nil
+```
+
+## 安全检查
+
+并非所有值都可以插入到字符串中。尝试这样做会导致 `protocol String.Chars not implemented` 错误。
+
+```elixir
+map = %{}
+"#{map}"
+```
+
+`String.Chars` 是将数据类型转换为字符串的协议。我们将在未来的课程中学习更多关于协议的内容。对我们来说，知道这意味着数据类型不知道如何安全地转换为字符串就足够了。
+
+我们可以使用 [Kernel.inspect/2](https://hexdocs.pm/elixir/Kernel.html#inspect/2) 安全地将任何 Elixir 术语转换为字符串。
+
+```elixir
+inspect(%{})
+```
+
+这使我们能够使用不实现 `String.Chars` 协议的值
+
+```elixir
+map = %{}
+"#{inspect(map)}"
+```
+
+### 你的回合
+
+使用 [Kernel.inspect/2](https://hexdocs.pm/elixir/Kernel.html#inspect/2) 安全地将以下变量插入到字符串中。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  map = %{}
+  list = [1, 2, 3]
+  tuple = {1, 2, 3}
+
+  "#{inspect(map)} #{inspect(list)} #{inspect(tuple)}"
+  ```
+
+</details>
+
+```elixir
+map = %{}
+list = [1, 2, 3]
+tuple = {1, 2, 3}
+
+""
+```
+
+## Integer 模块
+
+[Integer](https://hexdocs.pm/elixir/Integer.html#functions) 模块包含与整数相关的功能。
+
+我们已经在 [Non-Enumerables](./non_enumerables.livemd) 阅读材料中看到过 [Integer](https://hexdocs.pm/elixir/Integer.html#functions) 模块，使用 [Integer.digits/2](https://hexdocs.pm/elixir/Integer.html#digits/2)。
+
+```elixir
+Integer.digits(123_456_789)
+```
+
+以及 [Integer.undigits/2](https://hexdocs.pm/elixir/Integer.html#undigits/2)。
+
+```elixir
+Integer.undigits([1, 2, 3, 4, 5, 6, 7, 8, 9])
+```
+
+## 从字符串解析整数
+
+我们可以使用 [Integer.parse/2](https://hexdocs.pm/elixir/Integer.html#parse/2) 从字符串中解析整数。它返回一个 `{integer, rest_of_string}` 元组。
+
+```elixir
+Integer.parse("2")
+```
+
+这在我们有一个包含非整数输入的字符串（例如换行符 `\n`）时特别有用。
+
+```elixir
+user_input = "25\n"
+Integer.parse(user_input)
+```
+
+### 你的回合
+
+通过在命令行中运行 `iex` 打开 IEx shell。您必须在本地安装 Elixir 才能使其工作。
+
+```
+$ iex
+```
+
+这应该打开 IEx Shell。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Erlang/OTP 25 [erts-13.0.2] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [jit:ns]
+
+Interactive Elixir (1.13.0) - press Ctrl+C to exit (type h() ENTER for help)
+
+iex(1)>
+```
+
+您可以使用 [IO.gets/2](https://hexdocs.pm/elixir/IO.html#gets/2) 在此环境中检索用户输入（这在 Livebook 中不起作用，因为我们没有 Livebook 控制台）
+
+使用 [Integer.parse/1](https://hexdocs.pm/elixir/Integer.html#parse/1) 将字符串输入转换为整数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex(1)> IO.gets("给我一个数字！ ")
+给我一个数字！ 25
+"25\n"
+iex(2)> IO.gets("给我一个数字！ ") |> Integer.parse()
+给我一个数字！ 25
+{25, "\n"}
+```
+
+## Integer 数学函数
+
+[Integer](https://hexdocs.pm/elixir/Integer.html) 模块包含几个与数学相关的函数，例如 [Integer.gcd/2](https://hexdocs.pm/elixir/Integer.html#gcd/2)（最大公约数）、[Integer.pow/2](https://hexdocs.pm/elixir/Integer.html#pow/2）、[Integer.mod/2](https://hexdocs.pm/elixir/Integer.html#mod/2）等。
+
+您可能会使用 [Kernel](https://hexdocs.pm/elixir/Kernel.html) 模块中的算术运算符和函数，并且很少需要依赖 [Integer](https://hexdocs.pm/elixir/Integer.html) 模块中的这些函数，因此我们不会详细讨论它们。
+
+### 你的回合
+
+使用 [Integer.gcd/2](https://hexdocs.pm/elixir/Integer.html#gcd/2) 函数确定 `10` 和 `15` 的最大公约数。最大公约数（GCD）是同时整除 `10` 和 `15` 的最大正整数，因此结果应为 `5`。
+
+```elixir
+
+```
+
+## String 模块
+
+[String](https://hexdocs.pm/elixir/String.html#functions) 模块包含与字符串相关的功能。
+
+以下是一些常见函数，供您入门。
+
+* [String.at/2](https://hexdocs.pm/elixir/String.html#at/2) 获取字符串中索引处的值。
+* [String.contains?/2](https://hexdocs.pm/elixir/String.html#contains?/2) 检查字符串是否包含某个值。
+* [String.capitalize/2](https://hexdocs.pm/elixir/String.html#capitalize/2) 将字符串中的第一个字母大写，其余字母小写。
+* [String.downcase/2](https://hexdocs.pm/elixir/String.html#downcase/2) 将字符串转换为全小写。
+* [String.split/3](https://hexdocs.pm/elixir/String.html#split/3) 将字符串拆分为单词列表。
+* [String.trim/1](https://hexdocs.pm/elixir/String.html#trim/1) 从字符串中删除空格。
+* [String.upcase/2](https://hexdocs.pm/elixir/String.html#upcase/2) 将字符串转换为全大写。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 索引
+
+您可以将字符串想象成字符的列表。然而，请注意，这只是一个心理模型，字符串实际上并不是作为列表实现的，而是作为二进制实现的。
+
+```mermaid
+flowchart TB
+  subgraph Characters
+    S
+    T
+    R
+    I
+    N
+    G
+  end
+  subgraph Indexes
+    direction TB
+    S --- 0
+    T --- 1
+    R --- 2
+    I --- 3
+    N --- 4
+    G --- 5
+  end
+```
+
+请注意，索引从 0 开始，而不是 1，就像列表一样。
+
+因此，字符串 `"hello"` 中索引为 1 的字符将是 `"e"`。
+
+```mermaid
+flowchart TB
+  subgraph Characters
+    H
+    E
+    L1[L]
+    L2[L]
+    O
+  end
+  subgraph Indexes
+    direction TB
+    H --- 0
+    E --- 1
+    L1 --- 2
+    L2 --- 3
+    O --- 4
+  end
+```
+
+## 你的回合：字符串练习
+
+使用 [String.at/2](https://hexdocs.pm/elixir/String.html#at/2) 函数获取 `"hello"` 中索引为 `2` 的字符。结果应为字符 `l`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.at("hello", 2)
+  ```
+
+</details>
+
+```elixir
+"hello"
+```
+
+使用 [String.at/2](https://hexdocs.pm/elixir/String.html#at/2) 函数检索 `"hello"` 中的字母 `"o"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.at("hello", 4)
+  ```
+
+</details>
+
+```elixir
+"hello"
+```
+
+使用 [String.contains?/2](https://hexdocs.pm/elixir/String.html#contains?/2) 函数确定 `"hello"` 是否包含 `"lo"`。结果应为 `true`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.contains("hello", "lo")
+  ```
+
+</details>
+
+```elixir
+"Hello"
+```
+
+使用 [String.capitalize/2](https://hexdocs.pm/elixir/String.html#capitalize/2) 将 `"hello"` 大写为 `"Hello"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.capitalize("hello")
+  ```
+
+</details>
+
+```elixir
+"hello"
+```
+
+使用 [String.upcase/2](https://hexdocs.pm/elixir/String.html#upcase/2) 将 `"hello"` 大写为 `"HELLO"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.upcase("hello")
+  ```
+
+</details>
+
+```elixir
+"hello"
+```
+
+使用 [String.downcase/2](https://hexdocs.pm/elixir/String.html#downcase/2) 将 `"HELLO"` 小写为 `"hello"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.downcase("HELLO")
+  ```
+
+</details>
+
+```elixir
+"HELLO"
+```
+
+使用 [String.split/3](https://hexdocs.pm/elixir/String.html#split/3) 将以下以逗号分隔的字符串列表拆分为单词列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.split("have,a,great,day", ",")
+  ```
+
+</details>
+
+```elixir
+"have,a,great,day"
+```
+
+使用 [String.trim/1](https://hexdocs.pm/elixir/String.html#trim/1) 从字符串 `"  hello!  "` 中删除空格。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  String.trim("  hello!  ")
+  ```
+
+</details>
+
+```elixir
+"  hello!  "
+```
+
+## List 模块
+
+[List](https://hexdocs.pm/elixir/List.html) 模块包含与列表相关的功能。
+
+以下是一些常见函数，供您入门。
+
+* [List.delete_at/2](https://hexdocs.pm/elixir/List.html#delete_at/2) 删除列表中索引处的元素。
+* [List.first/2](https://hexdocs.pm/elixir/List.html#first/2) 检索列表中的第一个元素，类似于 `hd/1` 或对列表的头部和尾部进行模式匹配。
+* [List.flatten/2](https://hexdocs.pm/elixir/List.html#flatten/2) 扁平化列表中的嵌套列表。
+* [List.insert_at/3](https://hexdocs.pm/elixir/List.html#insert_at/3) 在列表中的指定索引处插入元素。
+* [List.last/2](https://hexdocs.pm/elixir/List.html#last/2) 检索列表中的最后一个元素。
+* [List.update_at/3](https://hexdocs.pm/elixir/List.html#update_at/3) 在列表中的指定索引处更新元素。
+* [List.zip/1](https://hexdocs.pm/elixir/List.html#zip/1) 将多个列表中的元素组合成一个元组列表。
+
+### 变异
+
+请记住，在 Elixir 中我们不变异变量。这意味着 [List.delete_at/2](https://hexdocs.pm/elixir/List.html#delete_at/2)、[List.insert_at/3](https://hexdocs.pm/elixir/List.html#insert_at/3) 和 [List.update_at/3](https://hexdocs.pm/elixir/List.html#update_at/3) 函数不会改变原始列表。相反，它们会创建一个应用了操作的新副本。
+
+```elixir
+list = [1, 2, 3]
+List.delete_at(list, 1)
+```
+
+请注意，原始的 `list` 变量没有改变。
+
+```elixir
+list
+```
+
+## 检索列表中的第一个元素
+
+我们有许多不同的方法来检索列表中的第一个元素。[List.first/2](https://hexdocs.pm/elixir/List.html#first/2) 检索列表中的第一个元素。我们还可以使用 [Kernel.hd/1](https://hexdocs.pm/elixir/Kernel.html#hd/1)、[Enum.at/2](https://hexdocs.pm/elixir/Enum.html#at/2) 或模式匹配。
+
+```elixir
+head = List.first([1, 2, 3])
+```
+
+```elixir
+[head | _tail] = [1, 2, 3]
+head
+```
+
+```elixir
+hd([1, 2, 3])
+```
+
+```elixir
+head = Enum.at([1, 2, 3], 0)
+```
+
+尝试使用模式匹配、[List.first/2](https://hexdocs.pm/elixir/List.html#first/2)、[Enum.at/2](https://hexdocs.pm/elixir/Enum.html#at/2) 和 `hd/1` 来检索下面列表的第一个元素。
+
+## 你的回合：列表练习
+
+使用 [List.delete_at/2](https://hexdocs.pm/elixir/List.html#delete_at/2) 从此列表中删除 `2`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  List.delete_at([2, 1, 3], 0)
+  ```
+
+</details>
+
+```elixir
+[2, 1, 3]
+```
+
+使用 [List.flatten/1](https://hexdocs.pm/elixir/List.html#flatten/1) 将以下列表扁平化为 `[1, 2, 3, 4, 5, 6, 7, 8, 9]`
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  List.flatten([1, 2, [3, 4, 5], 6, [7, [8, [9]]]])
+  ```
+
+</details>
+
+```elixir
+[1, 2, [3, 4, 5], 6, [7, [8, [9]]]]
+```
+
+使用 [List.insert_at/3](https://hexdocs.pm/elixir/List.html#insert_at/3) 将 `2` 插入到以下列表中，使其变为 `[1, 2, 3]`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  List.insert_at([1, 3], 1, 2)
+  ```
+
+</details>
+
+```elixir
+[1, 3]
+```
+
+使用 [List.last/2](https://hexdocs.pm/elixir/List.html#last/2) 从 `1` 到 `10000` 的列表中检索最后一个元素 `10000`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  List.last(Enum.to_list(1..10000))
+  ```
+
+  您也可以使用管道操作符 `|>`。
+
+  ```elixir
+  1..10000 |> Enum.to_list() |> List.last()
+  ```
+
+</details>
+
+```elixir
+Enum.to_list(1..10000)
+```
+
+使用 [List.update_at/3](https://hexdocs.pm/elixir/List.html#update_at/3) 将 `4` 减去 `2`，使以下列表变为 `[1, 2, 3]`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  List.update_at([1, 4, 3], 1, fn elem -> elem - 2 end)
+  ```
+
+</details>
+
+```elixir
+[1, 4, 3]
+```
+
+使用 [List.zip/1](https://hexdocs.pm/elixir/List.html#zip/1) 将这两个列表组合成 `[{"a", 1}, {"b", 2}, {"c", 3}]`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  letters = ["a", "b", "c"]
+  numbers = [1, 2, 3]
+
+  List.zip([letters, numbers])
+  ```
+
+</details>
+
+```elixir
+letters = ["a", "b", "c"]
+numbers = [1, 2, 3]
+```
+
+## Map 模块
+
+[Map](https://hexdocs.pm/elixir/Map.html#functions) 模块包含与映射相关的功能。
+
+以下是一些常见函数，供您入门。
+
+* [Map.get/3](https://hexdocs.pm/elixir/Map.html#get/3) 检索映射中的值。
+* [Map.put/3](https://hexdocs.pm/elixir/Map.html#put/3) 将值放入映射中。
+* [Map.keys/1](https://hexdocs.pm/elixir/Map.html#keys/1) 列出映射中的键。
+* [Map.delete/2](https://hexdocs.pm/elixir/Map.html#delete/2) 从映射中删除键和值。
+* [Map.merge/2](https://hexdocs.pm/elixir/Map.html#merge/2) 合并两个映射。
+* [Map.update/4](https://hexdocs.pm/elixir/Map.html#update/4) 和 [Map.update!/3](https://hexdocs.pm/elixir/Map.html#update!/3) 使用更新键的现有值更新映射。
+* [Map.values/1](https://hexdocs.pm/elixir/Map.html#values/1) 列出映射中的值。
+
+### 变异
+
+同样，[Map](https://hexdocs.pm/elixir/Map.html) 模块函数不会变异值。
+
+例如，如果我们使用 [Map.put/3](https://hexdocs.pm/elixir/Map.html#put/3) 将新值放入映射中，原始变量不会改变。函数返回一个新值，而不是修改原始值。
+
+```elixir
+original_map = %{}
+
+new_map = Map.put(original_map, :key, "value")
+```
+
+因此，`original_map` 仍然是一个空映射 `%{}`。
+
+```elixir
+original_map
+```
+
+而 `new_map` 已绑定到 [Map.put/3](https://hexdocs.pm/elixir/Map.html#put/3) 的结果。
+
+```elixir
+new_map
+```
+
+## 你的回合：映射练习
+
+使用 [Map.get/3](https://hexdocs.pm/elixir/Map.html#get/3) 检索以下映射中 `:hello` 键的 `"world"` 值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.get(%{hello: "world"}, :hello)
+  ```
+
+</details>
+
+```elixir
+%{hello: "world"}
+```
+
+使用 [Map.put/3](https://hexdocs.pm/elixir/Map.html#put/3) 将键 `:two` 和值 `2` 添加到以下映射中。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.put(%{one: 1}, :two, 2)
+  ```
+
+</details>
+
+```elixir
+%{one: 1}
+```
+
+使用 [Map.keys/1](https://hexdocs.pm/elixir/Map.html#keys/1) 检索以下映射的键。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.keys(%{key1: 1, key2: 2, key3: 3})
+  ```
+
+</details>
+
+```elixir
+%{key1: 1, key2: 2, key3: 3}
+```
+
+使用 [Map.delete/2](https://hexdocs.pm/elixir/Map.html#delete/2) 从以下映射中删除 `:key1`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.delete(%{key1: 1, key2: 2, key3: 3}, :key1)
+  ```
+
+</details>
+
+```elixir
+%{key1: 1, key2: 2, key3: 3}
+```
+
+使用 [Map.merge/2](https://hexdocs.pm/elixir/Map.html#merge/2) 合并 `%{one: 1}` 和 `%{two: 2}`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.merge(%{one: 1}, %{two: 2})
+  ```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Map.update/4](https://hexdocs.pm/elixir/Map.html#update/4) 或 [Map.update!/3](https://hexdocs.pm/elixir/Map.html#update!/3) 更新此映射中的 `:count` 键，使其为 `5` 加上现有值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.update(%{count: 10}, :count, 0, fn count -> count + 5 end)
+  ```
+
+</details>
+
+```elixir
+%{count: 10}
+```
+
+使用 [Map.values/1](https://hexdocs.pm/elixir/Map.html#values/1) 检索以下映射中的值 `[1, 2, 3]`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Map.values(%{key1: 1, key2: 2, key3: 3})
+  ```
+
+</details>
+
+```elixir
+%{key1: 1, key2: 2, key3: 3}
+```
+
+## Keyword 模块
+
+[Keyword](https://hexdocs.pm/elixir/Keyword.html#functions) 模块包含与关键字列表相关的功能。
+
+以下是一些常见函数，供您入门。
+
+* [Keyword.get/3](https://hexdocs.pm/elixir/Keyword.html#get/3) 检索关键字列表中的值。
+* [Keyword.keys/1](https://hexdocs.pm/elixir/Keyword.html#keys/1) 列出关键字列表中的键。
+* [Keyword.keyword?/1](https://hexdocs.pm/elixir/Keyword.html#keyword?/1) 检查某些数据是否为关键字列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 选项
+
+我们经常使用关键字列表为函数提供可选参数。
+
+例如，[IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2) 有 [许多可选参数](https://hexdocs.pm/elixir/Inspect.Opts.html)，包括 `:label`。
+
+```elixir
+IO.inspect("world", label: "hello")
+```
+
+在底层，这些函数可能使用 [Keyword.get/3](https://hexdocs.pm/elixir/Keyword.html#get/3) 来检索可选参数或提供默认参数。
+
+通常在 `opts` 参数中传递任意数量的选项，该参数应为函数的最后一个参数。
+
+```elixir
+defmodule MyIO do
+  def inspect(value, opts \\ []) do
+    label = Keyword.get(opts, :label, "default label")
+    "#{label}: #{value}"
+  end
+end
+```
+
+```elixir
+MyIO.inspect("world")
+```
+
+```elixir
+MyIO.inspect("world", label: "hello")
+```
+
+## 你的回合：关键字练习
+
+使用 [Keyword.get/3](https://hexdocs.pm/elixir/Keyword.html#get/3) 访问以下关键字列表中 `:color` 键的值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Keyword.get([color: "red"], :color)
+  ```
+
+</details>
+
+```elixir
+[color: "red"]
+```
+
+使用 [Keyword.get/3](https://hexdocs.pm/elixir/Keyword.html#get/3) 访问以下空列表中 `:color` 键的值。如果 `:color` 键不存在，则提供默认值 `"blue"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Keyword.get([], :color, "blue")
+  ```
+
+</details>
+
+```elixir
+[]
+```
+
+使用 [Keyword.keys/1](https://hexdocs.pm/elixir/Keyword.html#keys/1) 函数列出以下关键字列表中的所有键。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Keyword.keys([one: 1, two: 2, three: 3])
+  ```
+
+</details>
+
+```elixir
+[one: 1, two: 2, three: 3]
+```
+
+使用 [Keyword.keyword?/1](https://hexdocs.pm/elixir/Keyword.html#keyword?/1) 函数确定以下内容是否为关键字列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+
+  ```elixir
+  Keyword.keyword?([key: "value"])
+  ```
+
+</details>
+
+```elixir
+[key: "value"]
+```
+
+使用 [Keyword.keyword?/1](https://hexdocs.pm/elixir/Keyword.html#keyword?/1) 函数确定空列表是否为关键字列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  空列表在技术上是一个关键字列表。这是因为空关键字列表和空列表之间没有区别。
+
+  从技术上讲，空列表中的所有元素都遵循 `{:atom, value}` 模式，这是关键字列表所强制的。或者也许更好地说，没有元素违反该模式。
+
+  ```elixir
+  Keyword.keyword?([])
+  ```
+
+</details>
+
+```elixir
+[]
+```
+
+使用 [Keyword.keyword?/1](https://hexdocs.pm/elixir/Keyword.html#keyword?/1) 函数确定以下列表是否为关键字列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  如果列表中有任何元素不遵循 `{:atom, term}` 结构，则该列表不是关键字列表。
+  ```elixir
+  Keyword.keyword?([1, 2, 3])
+  ```
+
+</details>
+
+```elixir
+[1, 2, 3]
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Hexdocs: Kernel](https://hexdocs.pm/elixir/Kernel.html)
+* [Hexdocs: Integer](https://hexdocs.pm/elixir/Integer.html)
+* [Hexdocs: String](https://hexdocs.pm/elixir/String.html)
+* [Hexdocs: List](https://hexdocs.pm/elixir/List.html)
+* [Hexdocs: Map](https://hexdocs.pm/elixir/Map.html)
+* [Hexdocs: Keyword](https://hexdocs.pm/elixir/Keyword.html)
+* [Hexdocs: Tuple](https://hexdocs.pm/elixir/Tuple.html)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成内置 Elixir 模块阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Built-In Elixir Modules">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/measurements.livemd">测量</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/filter_values_by_type.livemd">按类型过滤值</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

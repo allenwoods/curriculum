@@ -1,0 +1,122 @@
+# 用户验证
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=User Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/message_validation.livemd">消息验证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_with_guards.livemd">带守卫的数学</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 用户验证
+
+你将使用 `with` 创建一个 `User` 模块，可以验证用户结构体的列表。处理 `:missing_name` 和 `:not_a_user` 错误。如果用户有效，返回 `{:ok, user}`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+valid_user = %User{name: "Mohsin"}
+invalid_user1 = %User{}
+invalid_user2 = "Yusef"
+
+[{:ok, %User{name: "Mohsin"}}, {:error, :missing_name}, {:error, :not_a_user}] =
+  User.validate_users([valid_user, invalid_user1, invalid_user2])
+```
+
+```elixir
+defmodule User do
+  @moduledoc """
+  在用户之间发送消息。
+  如果提供有效输入，则返回消息的字符串。
+
+  ## 示例
+
+    iex> User.validate_users([%User{name: "valid user"}])
+    [{:ok, %User{name: "valid user"}}]
+
+    iex> User.validate_users([%User{name: nil}])
+    [{:error, :missing_name}]
+
+    iex> User.validate_users(["invalid user", "invalid user", "invalid user"])
+    [{:error, :not_a_user}, {:error, :not_a_user}, {:error, :not_a_user}]
+  """
+  defstruct [:name]
+
+  def validate_users(users) do
+    Enum.map(users, fn user ->
+      with %User{name: name} <- user, true <- {:missing_name, is_binary(name)} do
+        {:ok, user}
+      else
+        false ->
+          {:error, :missing_name}
+
+        _ ->
+          {:e}
+          IO.inspect(thing)
+          :error
+      end
+    end)
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成用户验证练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=User Validation">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/message_validation.livemd">消息验证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/math_with_guards.livemd">带守卫的数学</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

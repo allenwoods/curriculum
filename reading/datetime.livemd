@@ -1,0 +1,444 @@
+# 日期和时间
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:timex, "~> 3.7.11"},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Dates And Times">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/data_traversal.livemd">数据遍历</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/time_converting.livemd">时间转换</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何使用 [Date](https://hexdocs.pm/elixir/Date.html)、[Time](https://hexdocs.pm/elixir/Time.html) 和 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构表示日期和时间？
+* 我们如何使用 [Date](https://hexdocs.pm/elixir/Date.html)、[Time](https://hexdocs.pm/elixir/Time.html) 和 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 模块函数操作日期和时间？
+* 我们如何格式化日期/时间以供显示？
+* 我们如何获取特定时区的当前时间？
+
+## 概述
+
+### UTC
+
+UTC（协调世界时）是一个标准化的时区。通常我们将时间存储为UTC，然后在必要时将UTC转换为所需的时区。这确保了一致性。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 日期
+
+[Date](https://hexdocs.pm/elixir/Date.html) 模块包含与日历日期相关的功能。[Date](https://hexdocs.pm/elixir/Date.html) 结构存储 `year`、`month` 和 `day` 以及其他相关字段。
+
+```elixir
+{:ok, date} = Date.new(2000, 10, 1)
+
+IO.inspect(date.year, label: "year")
+IO.inspect(date.month, label: "month")
+IO.inspect(date.day, label: "day")
+```
+
+### 时间
+
+[Time](https://hexdocs.pm/elixir/Time.html) 模块包含与时间相关的功能。时间结构存储 `hour`、`minute` 和 `second`。
+
+```elixir
+{:ok, time} = Time.new(12, 30, 10)
+
+IO.inspect(time.hour, label: "hour")
+IO.inspect(time.minute, label: "minute")
+IO.inspect(time.second, label: "second")
+```
+
+### 日期时间
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 是 [Date](https://hexdocs.pm/elixir/Date.html) 和 [Time](https://hexdocs.pm/elixir/Time.html) 的混合体，因此它可以表示一个日历日和一天中的时间。[DateTime](https://hexdocs.pm/elixir/DateTime.html) 模块包含与日期时间相关的功能。[DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构存储表示日期值和时间值的字段。
+
+```elixir
+{:ok, datetime} = DateTime.new(date, time)
+
+IO.inspect(datetime.year, label: "year")
+IO.inspect(datetime.month, label: "month")
+IO.inspect(datetime.day, label: "day")
+IO.inspect(datetime.hour, label: "hour")
+IO.inspect(datetime.minute, label: "minute")
+IO.inspect(datetime.second, label: "second")
+```
+
+### [Timex](https://github.com/bitwalker/timex)
+
+Timex 是一个使操作日期/时间更容易的库。它还支持时区，而Elixir本身并不提供这一点。
+
+如果你计划频繁操作日期和时间，或者需要使用多个时区，那么Timex可能是一个有用的库，可以在未来的项目中包含。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 符号
+
+我们可以通过替代的 [sigil](https://elixir-lang.org/getting-started/sigils.html) 语法使用 `~D[]`、`~T[]` 和 `~U` 创建 [Date](https://hexdocs.pm/elixir/Date.html)、[Time](https://hexdocs.pm/elixir/Time.html) 和 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构。
+
+```elixir
+date = ~D[2000-10-01]
+time = ~T[12:30:10]
+# Z偏移量指定时区偏移量。Z为UTC时为零。
+datetime = ~U[2000-10-01 12:30:10Z]
+```
+
+## 时区
+
+时间和时区可能会变得非常复杂。本课程的范围不包括深入探讨这种复杂性。
+
+本阅读旨在作为处理日期、时间和时区的入门。你需要查阅文档并进行自己的研究以深入了解。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=-5wpm-gesOY\")","title":"时间和时区"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=-5wpm-gesOY")
+```
+
+通常，我们处理的是UTC（协调世界时），这是一个标准化的时区，然后在必要时将UTC时间转换为客户端的时区。
+
+如果你反过来操作，不断处理许多不同的时区，那么从一个时区转换到另一个时区时很容易出错。
+
+除了常见的外部库如 [Timex](https://github.com/bitwalker/timex) 外，还有许多内置模块用于处理时间。
+
+通常，你最常使用的是 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构。
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构是给定时区内日期和时间的快照。
+
+你可以使用 `DateTime.utc_now/0` 获取当前的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+```elixir
+DateTime.utc_now()
+```
+
+你会注意到输出的字符串类似于 `~U[2022-04-27 02:13:29.306614Z]`。这就是一个符号。
+
+符号是数据的文本表示。你可以在 [Elixir Lang Sigil Getting Started Guide](https://elixir-lang.org/getting-started/sigils.html) 中找到符号的完整解释。
+
+符号使用波浪号 `~` 和一个字符来表示它们所代表的数据类型。例如，上面的日期使用 `~U` 符号来表示UTC日期时间。
+
+在底层，[DateTime](https://hexdocs.pm/elixir/DateTime.html) 是一个结构，我们可以在下面看到结构中包含的完整数据。
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 包含日期信息，如 `:day`、`:month` 和 `:year`。[DateTime](https://hexdocs.pm/elixir/DateTime.html) 还包含时间信息，如 `:hour`、`:minute`、`:second` 甚至 `:microsecond`。
+
+```elixir
+Map.from_struct(DateTime.utc_now())
+```
+
+## DateTime
+
+为了理解 [DateTime](https://hexdocs.pm/elixir/DateTime.html)，我们还需要考虑另外两个结构 [Date](https://hexdocs.pm/elixir/Date.html) 和 [Time](https://hexdocs.pm/elixir/Time.html)。
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构是使用 [Date](https://hexdocs.pm/elixir/Date.html) 和 [Time](https://hexdocs.pm/elixir/Time.html) 结构构建的。[Date](https://hexdocs.pm/elixir/Date.html) 表示日历日期，包含 `:year`、`:month` 和 `:day`。[Time](https://hexdocs.pm/elixir/Time.html) 表示一天中的时间，包含 `:hour`、`:minute` 和 `:second`。
+
+```elixir
+{:ok, date} = Date.new(2022, 6, 24)
+```
+
+```elixir
+{:ok, time} = Time.new(12, 30, 0)
+```
+
+```elixir
+{:ok, datetime} = DateTime.new(date, time)
+```
+
+在这里，我们可以看到 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构包含了我们上面创建的 `time` 和 `date` 的所有信息，以及UTC时区信息。
+
+```elixir
+Map.from_struct(datetime)
+```
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 也具有时区感知能力，而它的对应物 [NaiveDateTime](https://hexdocs.pm/elixir/NaiveDateTime.html) 则没有。你可以看到 [NaiveDateTime](https://hexdocs.pm/elixir/NaiveDateTime.html) 缺少时区信息，如 `:time_zone` 和 `:zone_abbr`。
+
+```elixir
+{:ok, naive_datetime} = NaiveDateTime.new(date, time)
+```
+
+```elixir
+Map.from_struct(naive_datetime)
+```
+
+作为一种简短的语法，通常使用 `~T` 符号表示 [Time](https://hexdocs.pm/elixir/Time.html) 结构，使用 `~D` 符号表示 [Date](https://hexdocs.pm/elixir/Date.html) 结构。
+
+```elixir
+{:ok, datetime} = DateTime.new(~D[2022-06-24], ~T[12:30:00])
+```
+
+你也可以直接使用 `~U` 符号创建 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+```elixir
+datetime = ~U[2022-06-24 12:30:00Z]
+```
+
+在底层，这仍然是相同的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构。
+
+```elixir
+Map.from_struct(datetime)
+```
+
+像任何结构或映射一样，你可以使用点符号直接访问所有这些属性。
+
+```elixir
+datetime.year
+```
+
+## 显示当前日期
+
+当你想显示时间信息时，可以使用 [Calendar](https://hexdocs.pm/elixir/Calendar.html) 模块的 `strftime/3` 函数。
+
+```elixir
+Calendar.strftime(DateTime.utc_now(), "%y-%m-%d %I:%M:%S %p")
+```
+
+`strftime/3` 函数接受一个 [Date](https://hexdocs.pm/elixir/Date.html)、[Time](https://hexdocs.pm/elixir/Time.html)、[DateTime](https://hexdocs.pm/elixir/DateTime.html) 或 [NaiveDateTime](https://hexdocs.pm/elixir/NaiveDateTime.html)，并使用结构中的信息显示格式化字符串。
+
+你可以使用百分号 `%` 符号，然后使用一个 [接受的格式选项](https://hexdocs.pm/elixir/Calendar.html#strftime/3-accepted-formats) 来显示给定结构中的信息。
+
+例如，你可以使用 `%B` 显示当前月份。
+
+```elixir
+Calendar.strftime(DateTime.utc_now(), "%B")
+```
+
+默认情况下，Elixir 没有任何时区数据。你会注意到当前的 DateTime 是 UTC，而不是你的本地时区，因此显示的时间可能与你的时间不匹配。
+
+```elixir
+Calendar.strftime(DateTime.utc_now(), "%c")
+```
+
+Elixir 可以配置时区数据，但这超出了本课的范围。
+
+有关更多信息，你可以查看公开可用的 Elixir School 关于 [处理时区](https://elixirschool.com/en/lessons/basics/date_time#working-with-timezones-4) 的课程。
+
+## DateTime 模块函数
+
+[DateTime](https://hexdocs.pm/elixir/DateTime.html) 模块包含用于时区感知日期和时间的函数。
+
+以下是一些常用函数，帮助你入门。
+
+* `add/4` 向现有的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构添加时间。
+* `compare/2` 比较两个 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构，以查看一个是否在另一个之前、之后或相同。
+* `diff/3` 确定两个 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构之间的时间。
+* `new/4` 创建一个新的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构并返回 `{:ok, datetime}` 元组。
+* `new!/4` 创建一个新的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 结构或引发错误。
+* `utc_now/2` 获取当前的 UTC [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+如果你不需要考虑时间，但只关心日历日期，这些函数的版本也存在于 [Date](https://hexdocs.pm/elixir/Date.html) 模块中。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+创建一个表示1938年4月19日中午（12点）的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+使用符号。
+
+```elixir
+~U[1938-04-19 12:00:00Z]
+```
+
+使用函数。
+
+```elixir
+DateTime.new!(Date.new!(1938, 4, 19), Time.new!(12, 0, 0))
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+如果你使用符号解决了上面的挑战，请再次使用函数完成。如果你使用函数解决了挑战，请再次使用符号完成。
+
+在下面输入你的新解决方案。
+
+```elixir
+DateTime.new!(~D[1938-04-18])
+```
+
+创建一个表示今天当前时间的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+DateTime.utc_now()
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+使用 [DateTime.add/4](https://hexdocs.pm/elixir/DateTime.html#add/4) 向当前 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 添加一天。这将创建一个新的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)，表示明天的当前时间。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+day_in_seconds = 60 * 60 * 24
+DateTime.add(DateTime.utc_now(), day_in_seconds)
+```
+
+</details>
+
+在下面输入你的解决方案
+
+```elixir
+
+```
+
+使用 [DateTime.compare/2](https://hexdocs.pm/elixir/DateTime.html#compare/2) 将下面的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 与当前的 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 进行比较。下面的 `date` 应该是 `:lt`（小于）当前的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+date = DateTime.new!(~D[2020-01-01], ~T[12:00:00])
+DateTime.compare(date, DateTime.utc_now())
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+date = DateTime.new!(~D[2020-01-01], ~T[12:00:00])
+```
+
+使用 [DateTime.diff/3](https://hexdocs.pm/elixir/DateTime.html#diff/3) 确定 `2000-01-01` 和 `2010-01-01` 之间有多少秒。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+start = DateTime.new!(~D[2000-01-01], ~T[12:00:00])
+finish = DateTime.new!(~D[2010-01-01], ~T[12:00:00])
+
+DateTime.diff(finish, start)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## Timex
+
+[Timex](https://hexdocs.pm/timex/Timex.html) 外部库提供了一些有用的功能，用于在Elixir中处理日期。它不是内置于Elixir中，需要在项目中安装。
+
+[Timex](https://hexdocs.pm/timex/Timex.html) 当前不在本课程的范围内，但我们在这个livebook文件中专门安装了 [Timex](https://hexdocs.pm/timex/Timex.html)。你通常不会有访问 [Timex](https://hexdocs.pm/timex/Timex.html) 的权限，因为本节的目的是建立对 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 的熟悉。
+
+[Timex](https://hexdocs.pm/timex/Timex.html) 使用 [tzdata](https://github.com/lau/tzdata) 时区数据库为Elixir提供支持。
+你可以使用 [Timex.now/1](https://hexdocs.pm/timex/Timex.html#now/1) 和时区名称创建一个时区感知的 [DateTime](https://hexdocs.pm/elixir/DateTime.html)。
+
+```elixir
+Timex.now("Asia/Kabul")
+```
+
+你可以使用 `Tzdata.zone_list/0` 找到可用时区的完整列表。
+
+```elixir
+Tzdata.zone_list()
+```
+
+许多网站托管可用时区的完整列表，例如 [timezonedb.com](https://timezonedb.com/time-zones)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用 [Timex.now/1](https://hexdocs.pm/timex/Timex.html#now/1) 创建一个表示你当前时区的日期时间。与本地时间进行比较以确保其正确。
+
+```elixir
+
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [DateTime](https://hexdocs.pm/elixir/DateTime.html)
+* [Date](https://hexdocs.pm/elixir/Date.html)
+* [Time](https://hexdocs.pm/elixir/Time.html)
+* [Calendar](https://hexdocs.pm/elixir/Calendar.html)
+* [Elixir Schools: 日期和时间](https://elixirschool.com/en/lessons/basics/date_time)
+* [Timex](https://github.com/bitwalker/timex)
+* [Elixir-lang: 日历符号](https://elixir-lang.org/getting-started/sigils.html#calendar-sigils)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成日期和时间阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Dates And Times">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/data_traversal.livemd">数据遍历</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/time_converting.livemd">时间转换</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

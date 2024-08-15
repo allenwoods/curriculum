@@ -1,0 +1,355 @@
+# 结构体
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Structs">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/modules.livemd">模块</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/rock_paper_scissors_lizard_spock.livemd">石头剪刀布蜥蜴斯波克</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何使用结构体来构造数据？
+* 为什么可能会使用结构体而不是映射？
+* 如何操作和访问结构体中的值？
+
+## 结构体
+
+我们已经学习了如何在程序中抽象行为，但数据呢？
+
+能够创建自定义数据结构通常是有用的。这就是结构体的用途。
+**结构体**只是结构的简短说法。它们是对映射的扩展，强制对数据施加约束。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 定义结构体
+
+我们使用 `defstruct` 关键字来定义结构体中允许的键。结构体的实例将不允许包含这些键以外的任何数据。
+
+这是一个名为 `StructName` 的示例结构体。名称 `StructName` 可以是任何有效的模块名称。我们为结构体定义了 `:key1`、`:key2` 和 `:key3` 键。结构体中的键应始终是原子，但它们可以是任何有效的原子。
+
+```elixir
+defmodule StructName do
+  defstruct [:key1, :key2, :key3]
+end
+```
+
+你会注意到结构体定义是在模块内部创建的。然后我们使用模块名称来创建结构体的实例。
+
+请记住，模块中的 **结构体定义** 就像房子的蓝图。它包含计划，但不是实际的物理建筑。
+
+同样，**结构体实例** 是结构体的实际实例。它是由结构体定义所定义的实际结构体数据的一个实例。
+
+我们可以使用 `%StructName{}` 语法创建结构体的实例。这看起来类似于映射，因为结构体实际上是使用映射在底层实现的。
+
+```elixir
+%StructName{}
+```
+
+你会注意到结构体有一个名称键，但没有值，因为我们没有提供任何内容。
+
+以下是如何为给定键传入值。
+
+```elixir
+%StructName{key1: "value 1"}
+```
+
+我们可以为任何或所有键传入值。
+
+```elixir
+%StructName{key1: "value 1", key2: "value 2", key2: "value 2"}
+```
+
+如果我们提供一个无效的值，我们的结构体实例将引发 [KeyError](https://hexdocs.pm/elixir/KeyError.html)。
+
+```elixir
+%StructName{invalid_key: "invalid key value"}
+```
+
+这种数据形状的强制性是我们可能希望使用结构体而不是映射的原因，后者不强制要求必须存在哪些键。
+
+## 默认值
+
+通过将结构体键提供为关键字列表，我们可以为键定义默认值。
+
+```elixir
+defmodule DefaultKeys do
+  defstruct key1: "default1", key2: "default2"
+end
+```
+
+如果我们没有为结构体的实例提供键，则该键将具有默认值。
+
+```elixir
+%DefaultKeys{}
+```
+
+或者我们可以像这样覆盖默认值。
+
+```elixir
+%DefaultKeys{key1: "OVERRIDE!"}
+```
+
+结构体可以有带和不带默认值的键。
+
+```elixir
+defmodule SomeDefaults do
+  defstruct [:key2, key1: "default"]
+end
+```
+
+```elixir
+%SomeDefaults{}
+```
+
+默认键必须在结构体键列表的最后，否则 Elixir 将引发 [SyntaxError](https://hexdocs.pm/elixir/SyntaxError.html)。
+
+```elixir
+defmodule BadDefaults do
+  defstruct [key1: "default", :key2]
+end
+```
+
+## 强制键
+
+在结构体中验证数据是常见的。例如，您可以使用 `@enforce_keys` 模块属性来强制设置某些键。
+
+```elixir
+defmodule EnforcedNamePerson do
+  @enforce_keys [:name]
+  defstruct [:name]
+end
+```
+
+创建 `EnforcedNamePerson` 的实例而不传递强制的 `:name` 键的值将导致结构体实例引发错误。
+
+```elixir
+%EnforcedNamePerson{}
+```
+
+为了避免重复，我们可以在 `defstruct` 定义中使用 `@enforce_keys` 模块属性，并使用 `++` 添加任何非强制键。
+
+```elixir
+defmodule EnforcedNamePersonWithAge do
+  @enforce_keys [:name]
+  defstruct @enforce_keys ++ [:age]
+end
+```
+
+### 你的回合
+
+定义一个 `Coordinate` 结构体，必须具有 `:x` 和 `:y` 键。强制这些键。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Coordinate do
+  @enforce_keys [:x, :y]
+  defstruct @enforce_keys
+end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 模块函数
+
+定义结构体的模块可以像普通模块一样包含函数。
+
+```elixir
+defmodule Person do
+  defstruct [:name]
+
+  def greet(person) do
+    "Hello, #{person.name}."
+  end
+end
+```
+
+```elixir
+person = %Person{name: "Peter"}
+
+Person.greet(person)
+```
+
+### 你的回合
+
+* 定义一个新的结构体 `Hero`。
+* `Hero` 将具有 `:name` 和 `:secret_identity`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+hero = %Hero{
+  name: "Spider-Man",
+  secret_identity: "Peter Parker"
+}
+```
+
+* 创建一个 `Hero.greeting/1` 函数，使用 `hero` 结构体实例并返回问候语。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Hero.greeting(hero) 
+"I am Spider-Man."
+```
+
+* 创建一个 `Hero.reveal/1` 函数，接受 `hero` 结构体实例并揭示英雄的秘密身份。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Hero.reveal(hero) 
+"I am Peter Parker."
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Hero do
+  defstruct [:name, :secret_identity]
+
+  def greeting(hero) do
+    "I am #{hero.name}."
+  end
+
+  def reveal(hero) do
+    "I am #{hero.secret_identity}."
+  end
+end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+完成后，将变量 `hero` 绑定到你的 `Hero` 结构体的实例。
+
+```elixir
+
+```
+
+在 `hero` 上使用 `Hero.greeting/1` 函数以确保其正常工作。
+
+```elixir
+
+```
+
+在 `hero` 上使用 `Hero.reveal/1` 函数以确保其正常工作。
+
+```elixir
+
+```
+
+## 操作结构体
+
+结构体在底层是映射的扩展，因此您可以使用相同的映射更新语法。
+
+```elixir
+defmodule MyStruct do
+  defstruct [:key]
+end
+```
+
+```elixir
+initial = %MyStruct{key: "value"}
+updated = %{initial | key: "new value"}
+```
+
+您还可以使用点符号访问值。
+
+```elixir
+instance = %MyStruct{key: "value"}
+
+instance.key
+```
+
+但是，我们不能使用方括号符号。这是有道理的，因为结构体实例应该始终具有结构体定义所定义的键。
+
+```elixir
+instance[:key]
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Elixir 文档：结构体](https://elixir-lang.org/getting-started/structs.html)
+* [Elixir 学校：结构体](https://elixirschool.com/en/lessons/basics/modules#structs-2)
+* [Exercism：结构体](https://exercism.org/tracks/elixir/concepts/structs)
+
+## 提交你的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "finish Structs reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供一门付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Structs">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/modules.livemd">模块</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/rock_paper_scissors_lizard_spock.livemd">石头剪刀布蜥蜴斯波克</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

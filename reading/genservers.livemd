@@ -1,0 +1,528 @@
+# GenServers
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=GenServers">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/process_mailbox.livemd">进程邮箱</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/genserver_drills.livemd">GenServer 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* [GenServer](https://hexdocs.pm/elixir/GenServer.html) 的目的是什么？
+* 解释向 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 发送消息和接收响应的生命周期。
+* 为什么我们可能会使用异步消息与同步消息？
+* 当我们向 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 发送太多消息时会发生什么？[GenServer](https://hexdocs.pm/elixir/GenServer.html) 邮箱可能会发生什么？
+
+## 通用服务器
+
+在 Elixir 中，通用服务器指的是使用 OTP（开放通信平台）库中的 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 模块实现的编程模式和行为。通用服务器模式是一种结构化并发和容错进程的方式，这些进程接收和处理消息。
+
+作为 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 实现的通用服务器，是一个长时间运行的 Elixir 进程，封装了状态和行为。它允许进程之间基于消息的通信，并提供了一种结构化的方式来处理这些消息。
+
+使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 实现的通用服务器的主要特征包括：
+
+1. **状态管理**： [GenServer](https://hexdocs.pm/elixir/GenServer.html) 进程持有并管理其自身的内部状态。这个状态可以通过处理特定消息并相应地更新状态来修改。
+
+2. **消息处理**： [GenServer](https://hexdocs.pm/elixir/GenServer.html) 进程异步接收消息，并使用模式匹配处理消息内容。服务器的行为可以根据接收到的消息进行定义。
+
+3. **同步和异步通信**： [GenServer](https://hexdocs.pm/elixir/GenServer.html) 进程可以通过发送消息并等待响应进行同步通信，或通过发送消息而不期望立即回复进行异步通信。
+
+4. **监督和容错**： [GenServer](https://hexdocs.pm/elixir/GenServer.html) 进程通常在监督树中使用，允许它们在发生故障或崩溃时被监控和重启。这有助于 OTP 应用程序的容错特性。
+
+5. **回调函数**： [GenServer](https://hexdocs.pm/elixir/GenServer.html) 需要实现特定的回调函数，如 [handle_call/3](https://hexdocs.pm/elixir/GenServer.html#c:handle_call/3)、[handle_cast/2](https://hexdocs.pm/elixir/GenServer.html#c:handle_cast/2) 和 [handle_info/2](https://hexdocs.pm/elixir/GenServer.html#c:handle_info/2)，以定义服务器对不同类型消息的行为。
+
+使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 实现的通用服务器模式是 Elixir/OTP 应用程序中的基本构建块。它通过封装状态、管理基于消息的通信和通过回调函数定义行为，提供了一种构建并发和容错系统的结构化方法。
+
+## 通用服务器生命周期
+
+通用服务器是围绕状态和消息处理的通用包装器。它们被赋予一个回调模块，该模块定义了自定义通用服务器行为的回调函数。
+
+回调模块包含特定的消息处理回调和初始化状态的回调。
+
+以下是一个图示，展示了 GenServer 如何与回调模块协同工作。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+Process ->> Generic Server: start_link/0
+Generic Server ->> Callback Module: init/1 
+Callback Module ->> Generic Server: initial state
+loop send/receive loop
+  Generic Server --> Generic Server: receive
+  Process ->> Generic Server: send message (e.g.  call/3)
+  Generic Server ->> Callback Module: handle message (e.g. handle_call/3)
+  Callback Module ->> Generic Server: sends response and new state
+  Generic Server --> Generic Server: updates state
+  Generic Server ->> Process: sends response
+end
+```
+
+## GenServer
+
+### 消息处理回调
+
+[GenServer](https://hexdocs.pm/elixir/GenServer.html) 模块定义了所有的样板代码，并允许我们方便地提供回调函数，包括：
+
+* [init/1](https://hexdocs.pm/elixir/GenServer.html#c:init/1) 在 `{:ok, state}` 元组中定义初始状态。
+* [handle_call/3](https://hexdocs.pm/elixir/GenServer.html#c:handle_call/3) 处理针对 GenServer 进程的同步消息。
+* [handle_cast/2](https://hexdocs.pm/elixir/GenServer.html#c:handle_cast/2) 处理针对 GenServer 进程的异步消息。
+* [handle_info/2](https://hexdocs.pm/elixir/GenServer.html#c:handle_info/2) 处理通用异步消息。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 启动 GenServer
+
+我们通常使用以下函数之一来启动 GenServer 进程。
+
+* [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 作为链接进程启动 GenServer。
+* [GenServer.start/3](https://hexdocs.pm/elixir/GenServer.html#start/3) 启动一个不链接的 GenServer 进程。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 向 GenServer 发送消息
+
+我们可以使用以下函数向 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 发送消息：
+
+* [GenServer.call/3](https://hexdocs.pm/elixir/GenServer.html#call/3) 发送一个同步消息，由 `handle_call/3` 处理。
+* [GenServer.cast/2](https://hexdocs.pm/elixir/GenServer.html#cast/2) 发送一个异步消息，由 `handle_cast/2` 处理。
+* [Kernel.send/2](https://hexdocs.pm/elixir/Kernel.html#send/2) 发送一个通用异步消息，由 `handle_info/2` 处理。
+* [Process.send/3](https://hexdocs.pm/elixir/Process.html#send/3) 发送一个带有一些附加选项的通用异步消息，由 `handle_info/2` 处理。
+* [Process.send_after/4](https://hexdocs.pm/elixir/Process.html#send_after/4) 发送一个通用异步消息，由 `handle_info/2` 处理。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 计数器示例
+
+这是一个简单的 `CounterServer` [GenServer](https://hexdocs.pm/elixir/GenServer.html)。它在状态中存储一个计数，我们可以向它发送消息以增加计数。
+
+* `GenServer.handle_call/3` 在 `{:reply, response, state}` 元组中返回同步响应。
+* `GenServer.handle_cast/2` 在 `{:noreply, new_state}` 元组中异步更新状态。
+* `GenServer.init/2` 在 `{:ok, state}` 元组中初始化初始状态（`0`）。
+
+```elixir
+defmodule CounterServer do
+  use GenServer
+
+  @impl true
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  @impl true
+  def handle_cast(:increment, state) do
+    {:noreply, state + 1}
+  end
+
+  @impl true
+  def handle_call(:get_count, _from, state) do
+    # 为了清晰而绑定的 `response`。
+    response = state
+    {:reply, response, state}
+  end
+end
+```
+
+使用上面的 GenServer，以下是使用 `GenServer.cast/2` 发送异步消息和使用 `GenServer.call/3` 发送同步消息的示例。
+
+```elixir
+{:ok, pid} = GenServer.start_link(CounterServer, [])
+GenServer.cast(pid, :increment)
+GenServer.call(pid, :get_count)
+```
+
+在 Livebook 中，我们可以使用 [Kino.Process.render_seq_trace/2](https://hexdocs.pm/kino/Kino.Process.html#render_seq_trace/2) 来可视化发送到 GenServer 的 **CAST** 和 **CALL** 消息。
+
+```elixir
+Kino.Process.render_seq_trace(fn ->
+  {:ok, pid} = GenServer.start_link(CounterServer, [])
+  GenServer.cast(pid, :increment)
+  GenServer.call(pid, :get_count)
+end)
+```
+
+**INFO: ack** 消息是发送回父进程的确认消息，并在底层由 `GenServer.start_link/3` 接收。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 带参数的消息
+
+我们将消息作为集合（通常是元组）发送，以添加附加数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def handle_cast({:increment_by, increment_by}, state)
+  {:noreply, state + increment_by}
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在上面的 `CounterServer` 中，为 `:decrement` 消息添加一个处理程序。
+
+## 客户端 API
+
+通常我们不直接使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 函数，而是创建一个 [Client API](https://hexdocs.pm/elixir/GenServer.html#module-client-server-apis)。客户端 API 使我们的代码更具可重用性、可读性和易于更改。这纯粹是为了代码组织。
+
+客户端 API 函数通常在引用当前模块时使用 `__MODULE__`，以便将来更容易重命名模块。
+
+回调函数通常被称为 **服务器 API**。
+
+```elixir
+defmodule ClientServerExample do
+  use GenServer
+  # 客户端 API
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def increment(pid) do
+    GenServer.cast(pid, :increment)
+  end
+
+  def get_count(pid) do
+    GenServer.call(pid, :get_count)
+  end
+
+  # 服务器 API
+
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  def handle_cast(:increment, state) do
+    {:noreply, state + 1}
+  end
+
+  def handle_call(:get_count, _from, state) do
+    response = state
+    {:reply, response, state}
+  end
+end
+```
+
+一些项目在模块变得足够大时会拆分客户端和服务器模块。如果我们拆分模块，则无法使用 `__MODULE__` 从客户端模块引用服务器模块。
+
+```elixir
+defmodule ClientExample do
+  def start_link(_opts) do
+    GenServer.start_link(ServerExample, [])
+  end
+
+  def increment(pid) do
+    GenServer.cast(pid, :increment)
+  end
+
+  def get_count(pid) do
+    GenServer.call(pid, :get_count)
+  end
+end
+
+defmodule ServerExample do
+  use GenServer
+
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  def handle_cast(:increment, state) do
+    {:noreply, state + 1}
+  end
+
+  def handle_call(:get_count, _from, state) do
+    response = state
+    {:reply, response, state}
+  end
+end
+```
+
+## 同步与异步
+
+以下是同步消息与异步消息的一些关键特征。
+
+* 同步消息：
+
+  * 阻塞调用进程，直到收到响应。
+  * 提供可靠性和可预测性。
+  * 提供简单且有序的通信流程。
+  * 在性能上可能较慢。
+
+* 异步消息：
+
+  * 不阻塞调用进程。
+  * 在性能上更快。
+  * 可能引入意外行为和时序问题。
+  * 可能导致通信流程不那么可预测。
+  * 通常被称为 **fire-and-forget**，因为它们不关心响应。
+
+以下是一个 `SlowCounter` 服务器示例，它在增加计数时需要一秒钟。我们将用它来演示同步和异步代码之间的区别。
+
+```elixir
+defmodule SlowCounter do
+  use GenServer
+
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  def handle_call(:slow_increment, _from, state) do
+    Process.sleep(2000)
+    IO.puts("完成同步增加")
+    {:reply, state + 1, state + 1}
+  end
+
+  def handle_cast(:slow_increment, state) do
+    Process.sleep(2000)
+    IO.puts("完成异步增加")
+    {:noreply, state + 1}
+  end
+end
+```
+
+同步消息会阻塞调用者进程。评估下面的单元格，注意它需要 2 秒才能完成。
+
+```elixir
+{:ok, pid} = GenServer.start_link(SlowCounter, [])
+GenServer.call(pid, :slow_increment)
+IO.puts("已评估")
+```
+
+异步消息不会阻塞调用者进程。评估下面的单元格，你会注意到它立即评估，但在 2 秒后打印 "完成异步增加" 消息。
+
+```elixir
+{:ok, pid} = GenServer.start_link(SlowCounter, [])
+GenServer.cast(pid, :slow_increment)
+IO.puts("已评估")
+```
+
+### 同步邮箱
+
+无论是同步还是异步，GenServers 都会按接收顺序处理消息。这些消息存储在进程 **邮箱** 中，直到被处理。
+
+同步邮箱提高了 GenServer 的可预测性。这是 Elixir 在构建并发系统时相比其他语言如此强大和简单的主要原因。
+
+注意，当我们在下面调用 `cast/2` 两次时，第二个 `cast/2` 处理程序需要 `4` 秒才能完成。它们不是并发处理的。
+
+```elixir
+{:ok, pid} = GenServer.start_link(SlowCounter, [])
+GenServer.cast(pid, :slow_increment)
+GenServer.cast(pid, :slow_increment)
+```
+
+## 并发
+
+要实现并发代码，我们只需要两个 GenServers。注意下面的两个消息同时完成，因为每个都在并发处理。
+
+> 如果你的 CPU 核心少于进程，则并发代码不会以 **并行** 方式运行，因此虽然代码获得了任务切换的好处，通常给人以并行运行的错觉，但它们实际上不会同时并行处理。
+
+```elixir
+{:ok, counter1} = GenServer.start_link(SlowCounter, [])
+{:ok, counter2} = GenServer.start_link(SlowCounter, [])
+
+GenServer.cast(counter1, :slow_increment)
+GenServer.cast(counter2, :slow_increment)
+```
+
+## 常规消息
+
+你可能会想知道为什么我们有 `handle_cast/2` 和 `handle_info/2`，如果它们都处理异步消息。以下是每个的关键特征。
+
+* `GenServer.handle_cast/2`
+  * 非阻塞消息处理。
+  * 通常仅用于更新 GenServer 状态。
+* `GenServer.handle_info/2`
+  * 非阻塞消息处理。
+  * 用于更广泛的消息，例如系统级行为，或处理发送到许多不同类型进程的消息。
+  * 可以接收在一段时间后发送的消息，使用 `Process.send_after/4`。
+
+有关更多信息，请参见 [HexDocs: 接收常规消息](https://hexdocs.pm/elixir/GenServer.html#module-receiving-regular-messages)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### GenServers 向自己发送消息
+
+[GenServer](https://hexdocs.pm/elixir/GenServer.html) 不能使用 `call/3` 同步地向自己发送消息，因为当前消息会阻塞进程邮箱。
+
+```elixir
+defmodule SendingSelfExample do
+  use GenServer
+
+  def init(_init_arg) do
+    {:ok, nil}
+  end
+
+  def handle_call(:talking_to_myself, _from, state) do
+    Process.sleep(1000)
+    IO.puts("自言自语")
+    GenServer.call(self(), :talking_to_myself)
+    {:reply, "响应", state}
+  end
+
+  def handle_cast(:talking_to_myself, state) do
+    Process.sleep(1000)
+    IO.puts("自言自语")
+    GenServer.cast(self(), :talking_to_myself)
+    {:noreply, state}
+  end
+end
+```
+
+运行下面的代码，你会注意到进程崩溃，消息为 `process attempted to call itself`。
+
+```elixir
+{:ok, pid} = GenServer.start(SendingSelfExample, [])
+GenServer.call(pid, :talking_to_myself)
+```
+
+## 调试
+
+我们可以使用 `:sys.get_state/2` 查看 GenServer 的状态。这应该 **仅** 用于调试目的。一般来说，不要使用 `:sys.get_state/2` 来暴露 GenServer 的状态或进行测试。
+
+```elixir
+{:ok, pid} = GenServer.start_link(CounterServer, [])
+
+:sys.get_state(pid)
+```
+
+## 命名进程
+
+`GenServer.start_link/3` 作为第三个参数接受额外选项。我们可以提供 `:name` 选项来命名进程。名称通常是原子或模块名称（在底层只是原子）。
+
+命名进程是唯一的，不能有两个进程具有相同的名称。命名进程也易于引用，因为你可以使用进程的名称向它们发送消息。
+
+```elixir
+defmodule NamedCounter do
+  def start_link(_opts) do
+    GenServer.start_link(NamedCounter, [], name: NamedCounter)
+  end
+
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  def handle_cast(:increment, state) do
+    {:noreply, state + 1}
+  end
+end
+```
+
+多次运行下面的单元格。
+
+启动一个已经启动的命名进程会返回 `{:error, {:already_started, #PID<0.613.0>}}`。
+
+```elixir
+NamedCounter.start_link([])
+```
+
+大多数与 GenServer 相关的函数接受命名进程名称而不是 `pid`。
+
+```elixir
+GenServer.cast(NamedCounter, :increment)
+:sys.get_state(NamedCounter)
+```
+
+然而，有些函数不接受。如果需要，我们可以使用 `Process.whereis/1` 查找命名进程的 `pid`。
+
+```elixir
+Process.whereis(NamedCounter)
+```
+
+## 配置
+
+我们通常会使 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 模块可配置，以适应不同的情况。
+
+GenServer 模块中的 `start_link/1` 函数通常接受一个选项列表。`init/1` 回调也接受一个参数，通常（但不一定）用于配置初始状态。
+
+以下是一个示例。根据你的用例，有许多方法可以使 GenServer 可配置。
+
+```elixir
+defmodule ConfigurableServer do
+  def start_link(opts) do
+    name = Keyword.get(opts, :name)
+    initial_state = Keyword.get(opts, :state, 0)
+
+    GenServer.start_link(__MODULE__, initial_state, name: name)
+  end
+
+  def init(init_arg) do
+    {:ok, init_arg}
+  end
+end
+
+ConfigurableServer.start_link(name: :example_name, state: 10)
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [HexDocs: GenServer](https://hexdocs.pm/elixir/GenServer.html#call/3)
+* [ElixirLang: GenServer](https://elixir-lang.org/getting-started/mix-otp/genserver.html)
+* [Exercism: GenServer](https://exercism.org/tracks/elixir/concepts/genserver)
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成 GenServers 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=GenServers">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/process_mailbox.livemd">进程邮箱</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/genserver_drills.livemd">GenServer 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

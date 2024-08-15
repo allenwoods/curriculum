@@ -1,0 +1,361 @@
+<!-- livebook:{"file_entries":[{"name":"tic_tac_toe.png","type":"attachment"},{"name":"tic_tac_toe_coordinates_grid.png","type":"attachment"}]} -->
+
+# 井字棋
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tic-tac-toe">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/filter_values_by_type.livemd">按类型过滤值</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/non_enumerables.livemd">非可枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+你将创建一个 [井字棋](https://en.wikipedia.org/wiki/Tic-tac-toe) 游戏。
+
+在井字棋中，玩家轮流在 3x3 的网格上放置 `X` 或 `O`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tic_tac_toe.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以将这样的网格表示为一个列表的列表。
+
+```elixir
+grid = [
+  ["X", "O", nil],
+  [nil, "X", "O"],
+  [nil, nil, "X"]
+]
+```
+
+通常我们说网格有 **x** 和 **y** 轴。网格中的每个位置称为坐标。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tic_tac_toe_coordinates_grid.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们将使用 `{x, y}` 元组来表示棋盘上的坐标。
+
+例如，上面棋盘左上角的 `"X"` 的坐标是 `{0, 2}`。
+
+## TicTacToe
+
+你将创建一个 `TicTacToe` 模块，该模块可以从棋盘读取坐标并填充它们。
+
+例如，读取以下棋盘上的坐标 `{0, 2}` 返回 `"X"`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+board = [
+  ["X", "O", nil],
+  [nil, "X", "O"],
+  [nil, nil, "X"]
+]
+
+TicTacToe.at(board, {0, 2})
+"X"
+```
+
+填充坐标将返回一个新更新的棋盘。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+board = [
+  ["X", "O", nil],
+  [nil, "X", "O"],
+  [nil, nil, "X"]
+]
+
+TicTacToe.fill(board, {0, 1}, "O")
+[
+  ["X", "O", nil],
+  ["O", "X", "O"],
+  [nil, nil, "X"]
+]
+```
+
+按照文档实现 `TicTacToe` 模块。
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+请记住，`Enum.at` 可以访问列表中的索引，但我们的坐标在棋盘上是翻转的，因此第一行列表的索引是 **y = 2**。
+
+因此，如果 `y` 是 `0`，那么我们想要访问索引为 `2` 的行列表。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TicTacToe do
+  def at(board, coordinate) do
+    {x, y} = coordinate
+
+    Enum.at(board, 2 - y) |> Enum.at(x)
+  end
+
+  def fill(board, coordinate, symbol) do
+    {x, y} = coordinate
+    List.update_at(board, 2 - y, fn row ->
+      List.replace_at(row, x, symbol)
+    end)
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule TicTacToe do
+  @moduledoc """
+    Documentation for `TicTacToe`
+  """
+
+  @doc """
+  读取棋盘上的坐标。
+
+  ## 示例
+
+      我们使用了一个带有字母符号的棋盘作为示例。
+
+      iex> board = [
+      ...> ["A", "B", "C"],
+      ...> ["D", "E", "F"],
+      ...> ["G", "H", "I"]
+      ...> ]
+      iex> TicTacToe.at(board, {0, 0})
+      "G"
+      iex> TicTacToe.at(board, {2, 1})
+      "F"
+      iex> TicTacToe.at(board, {0, 2})
+      "A"
+  """
+  def at(board, coordinate) do
+  end
+
+  @doc """
+  用提供的符号填充棋盘上的坐标并返回一个新更新的棋盘。
+
+  ## 示例
+
+      iex> board = [
+      ...> [nil, nil, nil],
+      ...> [nil, nil, nil],
+      ...> [nil, nil, nil]
+      ...> ]
+      iex> TicTacToe.fill(board, {0, 0}, "X")
+      [[nil, nil, nil], [nil, nil, nil], ["X", nil, nil]]
+      iex> TicTacToe.fill(board, {1, 1}, "O")
+      [[nil, nil, nil], [nil, "O", nil], [nil, nil, nil]]
+  """
+  def fill(board, coordinate, symbol) do
+  end
+end
+```
+
+### 奖励：赢家
+
+创建一个 `TicTacToe.winner/1` 函数，该函数接受一个棋盘并确定是否有赢家。如果玩家在一行、列或对角线上有三个符号，则该玩家获胜。
+
+例如：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+board = [
+  ["X", "O", "O"],
+  ["X", "O", nil],
+  ["X", nil, nil]
+]
+
+TicTacToe.winner(board) # 返回 "X"。
+"X"
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TicTacToe do
+  def winner(board) do
+    cond do
+      winner?(board, "X") -> "X"
+      winner?(board, "O") -> "O"
+      true -> nil
+    end
+  end
+
+  def winner?(board, symbol) do
+    row_winner =
+      Enum.any?(board, fn row ->
+        Enum.all?(row, fn element -> element == symbol end)
+      end)
+
+    column_winner =
+      Enum.any?(0..2, fn index ->
+        Enum.all?(board, fn row ->
+          Enum.at(row, index) == symbol
+        end)
+      end)
+
+    diagonal_winner =
+      Enum.all?(0..2, fn index ->
+        board
+        |> Enum.at(index)
+        |> Enum.at(index) == symbol
+      end) or
+        Enum.all?(0..2, fn index ->
+          board
+          |> Enum.at(index)
+          |> Enum.at(2 - index) == symbol
+        end)
+
+    row_winner or column_winner or diagonal_winner
+  end
+end
+```
+
+注意，也可以使用模式匹配来解决这个问题。
+
+```elixir
+defmodule TicTacToe do
+  def winner(board) do
+    cond do
+      winner?(board, "X") -> "X"
+      winner?(board, "O") -> "O"
+      true -> nil
+    end
+  end
+
+  def winner?(board, x) do
+    match?([[^x, ^x, ^x], [_, _, _], [_, _, _]], board) or
+      match?([[_, _, _], [^x, ^x, ^x], [_, _, _]], board) or
+      match?([[_, _, _], [_, _, _], [^x, ^x, ^x]], board) or
+      match?([[^x, _, _], [^x, _, _], [^x, _, _]], board) or
+      match?([[_, ^x, _], [_, ^x, _], [_, ^x, _]], board) or
+      match?([[_, _, ^x], [_, _, ^x], [_, _, ^x]], board) or
+      match?([[^x, _, _], [_, ^x, _], [_, _, ^x]], board) or
+      match?([[_, _, ^x], [_, ^x, _], [^x, _, _]], board)
+  end
+end
+```
+
+</details>
+
+要开始，请将以下代码复制到上面的 `TicTacToe` 模块中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@doc """
+确定玩家是否赢得了游戏。
+
+## 示例
+
+  行胜利：
+
+  iex> TicTacToe.winner([["X", "X", "X"], [nil, nil, nil], [nil, nil, nil]])
+  "X"
+  iex> TicTacToe.winner([[nil, nil, nil], ["X", "X", "X"], [nil, nil, nil]])
+  "X"
+  iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], ["X", "X", "X"]])
+  "X"
+
+  列胜利：
+
+  iex> TicTacToe.winner([["X", nil, nil], ["X", nil, nil], ["X", nil, nil]])
+  "X"
+  iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, "X", nil]])
+  "X"
+  iex> TicTacToe.winner([[nil, nil, "X"], [nil, nil, "X"], [nil, nil, "X"]])
+  "X"
+
+  对角线胜利
+
+  iex> TicTacToe.winner([["X", nil, nil], [nil, "X", nil], [nil, nil, "X"]])
+  "X"
+  iex> TicTacToe.winner([[nil, nil, "X"], [nil, "X", nil], ["X", nil, nil]])
+  "X"
+
+  无赢家
+
+  iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]])
+  nil
+  iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, nil, nil]])
+  nil
+
+"""
+def winner(board) do
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成井字棋练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tic-tac-toe">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/filter_values_by_type.livemd">按类型过滤值</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/non_enumerables.livemd">非可枚举</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

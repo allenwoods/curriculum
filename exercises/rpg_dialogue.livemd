@@ -1,0 +1,254 @@
+# RPG 对话
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=RPG Dialogue">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/rock_paper_scissors_lizard_spock.livemd">石头剪子布蜥蜴斯波克</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/pokemon_battle.livemd">宝可梦战斗</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+在这个练习中，你将为一个 RPG（角色扮演游戏）创建对话。
+
+要生成这个对话，定义一个 `Character` 结构体，包含 `:name`、`:class` 和 `:weapon` 键。强制要求 `:name` 键必须有值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+classDiagram
+  class Character {
+    name*: string
+    class: string
+    weapon: string
+  }
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Character do
+  @enforce_keys [:name]
+  defstruct @enforce_keys ++ [:class, :weapon]
+  
+  def introduce(character) do
+    "My name is #{character.name}."
+  end
+
+  def attack(character) do
+    "I attack with my #{character.weapon}!"
+  end
+
+  def class(character) do
+    "I am a #{character.class}"
+  end
+
+  def war_cry(character) do
+    "My name is #{character.name} and I am a #{character.class}!"
+  end
+
+  def defeat(character1, character2) do
+    "My name is #{character1.name} and I have defeated the #{character2.class} #{character2.name}!"
+  end
+end
+```
+
+</details>
+
+然后实现 `Character` 函数以生成根据下面文档示例的对话。
+
+```elixir
+defmodule Character do
+  @moduledoc """
+  Character
+
+  定义一个角色结构体，以及用于创建角色对话的函数。
+
+  iex> %Character{name: "Frodo", weapon: "Sting"}
+  %Character{name: "Frodo", weapon: "String", class: nil}
+
+  :name 键是必需的。但不能通过 doctests 测试
+  """
+  defstruct []
+
+  @doc """
+  通过名字介绍角色。
+
+  ## 示例
+    
+    iex> Character.introduce(%Character{name: "Gimli"})
+    "My name is Gimli."
+
+    iex> Character.introduce(%Character{name: "Aragorn"})
+    "My name is Aragorn."
+  """
+  def introduce(character) do
+  end
+
+  @doc """
+  宣告角色攻击。
+
+  ## 示例
+
+    iex> Character.attack(%Character{name: "Gimli", weapon: "axe"})
+    "I attack with my axe!"
+
+    iex> Character.attack(%Character{name: "Aragorn", weapon: "sword"})
+    "I attack with my sword!"
+  """
+  def attack(character) do
+  end
+
+  @doc """
+  宣告角色的职业。
+
+  ## 示例
+
+    iex> Character.class(%Character{name: "Gimli", class: "warrior"})
+    "I am a warrior."
+
+    iex> Character.class(%Character{name: "Aragorn", class: "ranger"})
+    "I am a ranger."
+  """
+  def class(character) do
+  end
+
+  @doc """
+  在战吼中宣告角色的名字和职业。
+
+  ## 示例
+
+    iex> Character.war_cry(%Character{name: "Gimli", class: "warrior"})
+    "My name is Gimli and I am a warrior!"
+
+    iex> Character.war_cry(%Character{name: "Aragorn", class: "ranger"})
+    "My name is Aragorn and I am a ranger!"
+  """
+  def war_cry(character) do
+  end
+
+  @doc """
+  宣告一个角色击败了另一个角色。
+
+  ## 示例
+
+    iex> Character.defeat(%Character{name: "Gimli"}, %Character{name: "Aragorn", class: "ranger"})
+    "My name is Gimli and I have defeated the ranger Aragorn!"
+
+    iex> Character.defeat(%Character{name: "Aragorn"}, %Character{name: "Gimli", class: "warrior"})
+    "My name is Aragorn and I have defeated the warrior Gimli!"
+  """
+  def defeat(character1, character2) do
+  end
+end
+```
+
+### 奖励：角色实例
+
+将三个变量 `aragorn`、`gandalf` 和 `gimli` 绑定到具有以下信息的 `Character` 结构体实例。
+
+```mermaid
+classDiagram
+  class aragorn {
+    name: "Aragorn"
+    class: "ranger"
+    weapon: "sword"
+  }
+  class gandalf {
+    name: "Gandalf"
+    class: "wizard"
+    weapon: "staff"
+  }
+  class gimli {
+    name: "Gimli"
+    class: "warrior"
+    weapon: "axe"
+  }
+```
+
+你可以使用这三个结构体来测试你的 `Character` 函数。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+aragorn = %Character{name: "Aragorn", class: "ranger", weapon: "sword"}
+gandalf = %Character{name: "Gandalf", class: "wizard", weapon: "staff"}
+gimli = %Character{name: "Gimli", class: "warrior", weapon: "axe"}
+
+# 示例测试
+Character.introduce(aragorn)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 RPG 对话练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=RPG Dialogue">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/rock_paper_scissors_lizard_spock.livemd">石头剪子布蜥蜴斯波克</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/pokemon_battle.livemd">宝可梦战斗</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

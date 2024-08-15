@@ -1,0 +1,275 @@
+# 监督者训练
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervisor Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/supervisors.livemd">监督者</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/supervised_stack.livemd">受监督的栈</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 训练
+
+训练帮助你通过重复练习来熟悉和记忆语法。与通常的问题不同，训练并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组训练是针对[监督者](https://hexdocs.pm/elixir/Supervisor.html)的。
+
+> 监督者是一个监督其他进程的进程，我们称之为子进程。监督者用于构建一种称为监督树的层次化进程结构。监督树提供容错能力，并封装我们的应用程序如何启动和关闭。
+> 
+> * [HexDocs: 监督者](https://hexdocs.pm/elixir/Supervisor.html)
+
+## 监督者
+
+我们为你创建了一个 `Worker` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，以便在以下[监督者](https://hexdocs.pm/elixir/Supervisor.html)训练中使用。
+
+```elixir
+defmodule Worker do
+  use GenServer
+
+  def start_link(state, opts \\ []) do
+    GenServer.start_link(__MODULE__, state, opts)
+  end
+
+  def init(state) do
+    {:ok, state}
+  end
+end
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 启动一个没有子进程的监督者进程。使用 [Supervisor.which_children/1](https://hexdocs.pm/elixir/Supervisor.html#which_children/1) 查看空的子进程列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+我们通常在演示中将 `children` 绑定到一个变量。
+
+```elixir
+children = []
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+但这并不是强制的，只是习惯用法。
+
+```elixir
+Supervisor.start_link([], strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，将 `Worker` 作为子进程，使用 **map** 语法。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  %{
+    id: :worker1,
+    start: {Worker, :start_link, ["initial state"]}
+  } 
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，三个 `Worker` 子进程，使用 **map** 语法。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  %{
+    id: :worker1,
+    start: {Worker, :start_link, ["initial state"]}
+  },
+  %{
+    id: :worker2,
+    start: {Worker, :start_link, ["initial state"]}
+  },
+  %{
+    id: :worker3,
+    start: {Worker, :start_link, ["initial state"]}
+  }
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，将 `Worker` 作为子进程，使用 **tuple** 语法。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  {Worker, "initial state"}
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，将 `Worker` 作为子进程，使用 **map** 语法将 `Worker` 进程作为命名进程启动。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  %{
+    id: :worker1,
+    start: {Worker, :start_link, ["initial state", [name: :named_worker1]]}
+  }
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+通常，工作者 GenServers 应该定义一个 `start_link/1` 函数以在监督树下启动。然而，这只是习惯用法，我们可以（但通常不应该）打破这个规则。
+
+使用 `starter/3` 函数在监督树下启动以下 `NonIdiomatic` [GenServer](https://hexdocs.pm/elixir/GenServer.html)。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  %{
+    id: :never_do_this,
+    start: {NonIdiomatic, :starter, ["arg", "arg", "arg"]}
+  }
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+defmodule NonIdiomatic do
+  use GenServer
+
+  def starter(_arg1, _arg2, _arg3) do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def init(_opts) do
+    {:ok, "initial state"}
+  end
+end
+```
+
+使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，三个 `Worker` 子进程，使用 **tuple** 语法。
+
+这应该导致监督者崩溃，因为每个 `Worker` 具有相同的 id。
+
+完成后请注释你的解决方案，以避免崩溃这个 livebook。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  {Worker, "initial state"},
+  {Worker, "initial state"},
+  {Worker, "initial state"}
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成监督者训练练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervisor Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/supervisors.livemd">监督者</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/supervised_stack.livemd">受监督的栈</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

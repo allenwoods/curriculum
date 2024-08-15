@@ -1,0 +1,350 @@
+<!-- livebook:{"file_entries":[{"name":"atom_key_maze.png","type":"attachment"},{"name":"string_maze_small.png","type":"attachment"}]} -->
+
+# 迷宫
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Mazes">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/family_tree.livemd">家谱</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/functions.livemd">函数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+在这个练习中，你将导航一个迷宫游戏。
+
+每个迷宫都是一个深度嵌套的 `map`。
+
+如果你成功导航，你的答案将返回 `"Exit!"`
+
+## 原子迷宫
+
+我们创建了一个表示以下迷宫的地图。每个必要的方向（北、南、西、东）都作为键存储在地图中。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/atom_key_maze.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+使用 **map.key** 语法访问 `"Exit!"` 字符串。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+maze = %{
+  south: %{
+    west: %{
+      south: %{
+        east: %{
+          south: %{
+            east: %{
+              south: "Exit!"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+maze.south.west.south.east.south.east.south
+```
+
+</details>
+
+```elixir
+maze = %{
+  south: %{
+    west: %{
+      south: %{
+        east: %{
+          south: %{
+            east: %{
+              south: "Exit!"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 字符串迷宫
+
+使用 **map[key]** 语法访问迷宫并检索 `"Exit!"` 字符串。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/string_maze_small.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+maze = %{
+  "south" => %{
+    "east" => %{
+      "south" => %{
+        "west" => %{
+          "south" => %{
+            "west" => %{
+              "south" => %{
+                "east" => %{
+                  "south" => "Exit!"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+maze["south"]["east"]["south"]["west"]["south"]["west"]["south"]["east"]["south"]
+```
+
+</details>
+
+```elixir
+maze = %{
+  "south" => %{
+    "east" => %{
+      "south" => %{
+        "west" => %{
+          "south" => %{
+            "west" => %{
+              "south" => %{
+                "east" => %{
+                  "south" => "Exit!"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 奖励：藏宝图
+
+你得到了一个藏宝图（双关语）。这将引导你找到 `"gold"`。
+
+使用 **map[key]** 和/或 **map.key** 语法检索 `treasure_map` 中的 `"gold"` 值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+treasure_map = %{
+  "south ten paces" => %{
+    10 => %{
+      :"east three paces" => %{
+        [1, 2, 3] => %{
+          {"turn", "right"} => %{
+            :dig => "gold"
+          }
+        }
+      }
+    }
+  }
+}
+
+treasure_map["south ten paces"][10][:"east three paces"][[1, 2, 3]][{"turn", "right"}][:dig]
+```
+
+</details>
+
+```elixir
+treasure_map = %{
+  "south ten paces" => %{
+    10 => %{
+      :"east three paces" => %{
+        [1, 2, 3] => %{
+          {"turn", "right"} => %{
+            :dig => "gold"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### （额外奖励）更新藏宝图
+
+使用地图更新语法创建并更新原始 `treasure_map`，使得 `"gold"` 现在变为 `"taken"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+treasure_map = %{
+  "south ten paces" => %{
+    10 => %{
+      :"east three paces" => %{
+        [1, 2, 3] => %{
+          {"turn", "right"} => %{
+            :dig => "gold"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+我们可以使用地图更新语法 `%{old_map | updated_key}` 更新藏宝图。
+
+```elixir
+%{
+  treasure_map
+  | "south ten paces" => %{
+      10 => %{
+        :"east three paces" => %{
+          [1, 2, 3] => %{
+            {"turn", "right"} => %{:dig => "taken"}
+          }
+        }
+      }
+    }
+}
+```
+
+你可能还发现了 [Kernel.put_in](https://hexdocs.pm/elixir/Kernel.html#put_in/3) 函数用于更新深度嵌套的地图。
+
+```elixir
+put_in(
+  treasure_map,
+  ["south ten paces", 10, :"east three paces", [1, 2, 3], {"turn", "right"}, :dig],
+  "taken"
+)
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+treasure_map = %{
+  "south ten paces" => %{
+    10 => %{
+      :"east three paces" => %{
+        [1, 2, 3] => %{
+          {"turn", "right"} => %{
+            :dig => "gold"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 奖励：模式匹配
+
+使用模式匹配将 `"Exit!"` 字符串绑定到 `exit` 变量。
+
+```elixir
+maze = %{
+  "south" => %{
+    "east" => %{
+      "south" => %{
+        "west" => %{
+          "south" => %{
+            "west" => %{
+              "south" => %{
+                "east" => %{
+                  "south" => "Exit!"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 奖励：创建你自己的迷宫
+
+使用 [在线迷宫生成器](https://www.mazegenerator.net/) 生成一个迷宫。它应该至少是 5 * 5 的宽度和高度。
+
+* 创建一个深度嵌套的地图来表示你的 `custom_maze`。它应该在最后有一个 `"Exit!"` 值。
+* 让一个伙伴使用 **map[key]** 语法或 **map.key** 语法导航你的迷宫以检索 `"Exit!"` 值。
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成迷宫练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Mazes">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/family_tree.livemd">家谱</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/functions.livemd">函数</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

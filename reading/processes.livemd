@@ -1,0 +1,420 @@
+# 进程
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Processes">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/file_search.livemd">文件搜索</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/process_drills.livemd">进程练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 进程如何发送和接收消息？
+* 什么是状态，我们为什么在程序中使用它？
+
+## 进程
+
+> 在 Elixir 中，所有代码都在进程中运行。
+> 进程彼此隔离，并且并发运行
+> 并通过消息传递进行通信。进程不仅是 Elixir 中并发的基础，
+> 还提供了构建分布式和容错程序的手段。
+> 
+> * [Elixir 文档](https://elixir-lang.org/getting-started/processes.html#:~:text=In%20Elixir%2C%20all%20code%20runs,distributed%20and%20fault%2Dtolerant%20programs.)
+
+关于进程的介绍、它们如何在底层工作以及为什么这很重要，我们推荐 Sasa Juric 的精彩演讲：“Erlang 的灵魂”。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=JvBT4XBdoUE\")","title":"The Soul of Erlang and Elixir • Sasa Juric • GOTO 2019"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=JvBT4XBdoUE")
+```
+
+所以所有 Elixir 代码都在一个进程中运行。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  subgraph 进程
+    E[Elixir 代码]
+  end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+进程彼此隔离，并通过消息传递进行通信。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+    进程1 ->> 进程2: 消息
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+进程可以存储状态，并允许我们实现内存中的持久性。
+
+```mermaid
+flowchart
+  subgraph 进程
+    状态
+  end
+```
+
+也许在不知不觉中，你已经使用进程一段时间了。每个 Livebook 中的 Elixir 单元都是一个进程。它甚至有一个 **pid**（个人标识符），我们可以通过 `self()` 查看。
+
+```elixir
+self()
+```
+
+我们可以通过使用它们的 **pid** 来 `send/2` 和 `receive/1` 进程之间的消息。同样，进程可以向其 `self()` 发送消息。
+
+```elixir
+send(self(), "消息")
+
+receive do
+  "消息" -> "已接收"
+end
+```
+
+接收表达式的左侧可以对任何值进行模式匹配。
+这就像一个 `case` 语句。
+
+```elixir
+send(self(), {:hello, "world"})
+
+receive do
+  {:hello, payload} -> payload
+end
+```
+
+我们可以 `spawn/1` 一个新进程并获取它的 pid。
+
+```mermaid
+sequenceDiagram
+    父进程->>子进程: 生成
+    activate 子进程
+    子进程-->>父进程: pid
+    deactivate 子进程
+```
+
+```elixir
+spawn(fn -> nil end)
+```
+
+一个进程接受一个回调函数，并在该回调函数完成时结束。
+一个进程是 **活着的**，然后它 **死去**。
+
+```mermaid
+flowchart LR
+spawn --> 进程 --> 活着 --> cn[回调函数] --> 死亡
+```
+
+我们可以使用 [Process](https://hexdocs.pm/elixir/Process.html) 模块来获取与进程相关的功能。
+我们将使用 `alive?/1` 函数来显示进程在执行其回调函数之前是活着的。[Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 暂停调用它的进程的执行。
+
+```elixir
+pid = spawn(fn -> IO.puts("我被调用了") end)
+
+Process.alive?(pid) && IO.puts("我还活着！")
+```
+
+我们可以使用 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来暂停执行，并显示生成的进程在被调用后死亡。
+
+```elixir
+pid = spawn(fn -> IO.puts("我被调用了") end)
+
+Process.sleep(100)
+
+Process.alive?(pid) || IO.puts("我死了 :(")
+```
+
+进程彼此隔离。这意味着当子进程引发错误时，它不会崩溃父进程。相反，它只会记录一个错误。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+    父进程->>子进程: 生成
+    activate 子进程
+    子进程-->>父进程: pid
+    子进程->>子进程: 引发
+    activate 子进程
+    子进程->>父进程: 记录终止
+    deactivate 子进程
+    子进程->>子进程: 死亡
+    deactivate 子进程
+```
+
+```elixir
+spawn(fn -> raise "哎呀" end)
+"上面的代码崩溃了，但我会继续运行。"
+```
+
+如果这不是期望的行为，我们可以将进程链接在一起，以便如果一个进程死亡，另一个也会崩溃。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+    父进程->>子进程: 生成链接
+    activate 子进程
+    子进程-->>父进程: pid
+    子进程->>子进程: 引发
+    activate 子进程
+    子进程->>父进程: 引发
+    deactivate 子进程
+    子进程->>子进程: 死亡
+    父进程->>父进程: 引发
+    deactivate 子进程
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以使用 `spawn_link/1`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+pid1 = spawn_link(fn -> raise "哎呀" end)
+"我不会运行，因为上面的代码崩溃了"
+```
+
+或者手动使用 [Process.link/1](https://hexdocs.pm/elixir/Process.html#link/1) 链接一个进程。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+pid1 = spawn(fn -> raise "哎呀" end)
+Process.link(pid1)
+"我不会运行，因为上面的代码崩溃了"
+```
+
+### 你的回合
+
+生成一个链接的进程并使下面的 Elixir 单元崩溃。
+完成后请注释掉你的解决方案，以避免持续崩溃 Livebook！
+
+```elixir
+
+```
+
+## 消息传递
+
+通过生成两个进程，它们可以使用 `send/2` 和 `receive/1` 进行双向通信。
+让我们在一个单元中生成一个进程，并在另一个单元中发送消息。
+
+```mermaid
+flowchart LR
+subgraph P1[进程 1]
+  pid -->
+  receive
+end
+
+subgraph 进程 2
+  P2 --> send --> pid
+end
+```
+
+```elixir
+pid1 =
+  spawn(fn ->
+    receive do
+      "消息" -> IO.puts("已接收！")
+    end
+  end)
+```
+
+评估上面的单元以创建一个等待接收消息的进程，然后评估下面的单元以向该进程发送消息。你会注意到 [IO.puts/1](https://hexdocs.pm/elixir/IO.html#puts/1) 在下面的单元中记录。
+
+一旦生成的进程接收到消息，它就会死亡。你会注意到你只能发送和接收一条消息。你可以重新评估上面的单元和下面的单元以重复这个例子。
+
+```elixir
+send(pid1, "消息")
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，生成一个新进程并向它发送消息 `{:hello, "world"}`。
+使用 `IO.puts` 输出消息的有效载荷，其中 `"world"` 是有效载荷。
+
+```elixir
+
+```
+
+## 状态
+
+到目前为止，我们生成了一个接收单条消息然后死亡的进程。
+
+```mermaid
+flowchart LR
+  P1[进程] --send-->
+  P2[进程2] --> receive --dies--> P2
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们还可以创建一个可以接收多条消息的进程，通过利用递归函数。
+
+这个递归函数将继续无限期地调用 receive，因此进程应该保持接收消息并保持活着。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+进程 --> loop --> receive --> loop
+```
+
+```elixir
+defmodule ServerProcess do
+  def loop do
+    IO.puts("调用了 #{Enum.random(1..10)}")
+
+    receive do
+      "消息" -> loop()
+    end
+  end
+end
+
+server_process = spawn(fn -> ServerProcess.loop() end)
+```
+
+我们使用了 [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 来显示进程继续循环并接收消息。
+
+```elixir
+send(server_process, "消息")
+```
+
+通过对 `ServerProcess` 进行轻微修改，我们可以存储状态！
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+ServerProcess --初始状态--> loop --状态--> receive --新状态--> loop
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们将状态存储为一个整数，以创建一个计数器。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+CounterProcess --> loop --0--> receive --1--> loop
+```
+
+```elixir
+defmodule CounterProcess do
+  def loop(state \\ 0) do
+    IO.inspect(state, label: "计数器")
+
+    receive do
+      :increment -> loop(state + 1)
+    end
+  end
+end
+
+counter_process = spawn(fn -> CounterProcess.loop() end)
+```
+
+尝试反复评估下面的单元。注意计数器值的递增！
+我们现在有了有状态的进程！
+
+```elixir
+send(counter_process, :increment)
+```
+
+有状态的进程是短期的内存持久性。我们可以创建一个有状态的进程来存储程序运行期间的一些值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+修改下面的 `Counter` 模块，使其能够接收 `:decrement` 消息以递减当前计数。
+
+```elixir
+defmodule Counter do
+  def loop(state \\ 0) do
+    IO.inspect(state, label: "计数器")
+
+    receive do
+      :increment -> loop(state + 1)
+    end
+  end
+end
+
+counter_process = spawn(fn -> Counter.loop() end)
+```
+
+你应该能够向生成的 `Counter` 发送 `:decrement` 消息。取消注释并评估下面的代码以测试你的解决方案。
+
+```elixir
+# send(counter_process, :decrement)
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不希望的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成进程阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Processes">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/file_search.livemd">文件搜索</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/process_drills.livemd">进程练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

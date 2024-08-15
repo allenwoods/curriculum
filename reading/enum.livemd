@@ -1,0 +1,802 @@
+# Enum
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:smart_animation, github: "brooklinjazz/smart_animation"},
+  {:visual, github: "brooklinjazz/visual"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Enum">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/ranges.livemd">范围</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fizzbuzz.livemd">FizzBuzz</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 在编程中，我们何时以及为什么使用枚举？
+* 我们如何转换可枚举中的每个元素？
+* 我们如何从可枚举中移除元素？
+* 我们如何使用可枚举中的每个元素构建累加器并返回一个转换后的值？
+
+## 概述
+
+### 枚举
+
+枚举是循环遍历元素的行为。与您可能在其他编程语言中遇到的迭代不同，枚举不允许您更改（变异）原始集合中的元素。
+
+例如，我们可以枚举一个从一到五的数字列表，并将它们转换为一个新的双倍数字列表。
+
+```mermaid
+flowchart
+subgraph Original
+  direction LR
+  1 --- 2 --- 3 --- 4 --- 5
+end
+subgraph Transformed
+  direction LR
+  T2[2] --- T4[4] --- T6[6] --- T8[8] --- T10[10]
+end
+
+Original --> Transformed
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Enum](https://hexdocs.pm/elixir/Enum.html)
+
+Elixir [Enum](https://hexdocs.pm/elixir/Enum.html) 模块包含用于与可枚举数据结构一起使用的函数。
+
+例如，有 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 函数用于将转换函数应用于可枚举中的每个元素。
+
+```elixir
+Enum.map([1, 2, 3, 4, 5], fn element -> element * 2 end)
+```
+
+### 可枚举
+
+Elixir 中的某些数据类型实现了 [Enumerable](https://hexdocs.pm/elixir/Enumerable.html) 协议。这意味着我们可以遍历这些可枚举数据类型中的元素。
+
+大多数可枚举是集合，但并非所有。例如，范围不包含其他元素，但它是可枚举的。
+
+```elixir
+Enum.map(1..5, fn element -> element * 2 end)
+```
+
+### 集合
+
+存储其他元素的数据类型通常被称为 **集合**。例如，映射、列表、关键字列表和元组都是集合。
+
+许多集合是可枚举的，但并非所有。例如，元组是不可枚举的。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 映射、过滤和归约
+
+[Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)、[Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 和 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 是最常用的枚举函数。通过理解这些函数及其使用时机，您将能够解决大多数枚举问题。
+
+* [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 返回相同数量的元素，并对每个元素应用转换。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+subgraph map
+  direction LR
+  subgraph input
+    direction LR
+    im1((1)) --> im2((2)) --> im3((3))
+  end
+  subgraph output
+    direction LR
+    om1[2] --> om2[4] --> om3[6]
+  end
+  input --"Enum.map(1..3, fn el -> el * 2 end)"--> output
+end
+```
+
+```elixir
+Enum.map(1..3, fn el -> el * 2 end)
+```
+
+* [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 从可枚举中移除元素，而不对其进行转换。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+subgraph map
+  direction LR
+  subgraph input
+    direction LR
+    im1((1)) --> im2((2)) --> im3((3))
+  end
+  subgraph output
+    direction LR
+    om1((1)) --> om2((2))
+  end
+  input --"Enum.filter(1..3, fn el -> el <= 2 end)"--> output
+end
+```
+
+```elixir
+Enum.filter(1..3, fn el -> el <= 2 end)
+```
+
+* [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 使用可枚举中的元素构建一个累加值并返回一个转换后的数据结构。
+
+```mermaid
+flowchart
+subgraph map
+  direction LR
+  subgraph input
+    direction LR
+    im1((1)) --> im2((2)) --> im3((3))
+  end
+  subgraph output
+    direction LR
+    om1[[6]]
+  end
+  input --"Enum.reduce(1..3, fn el, acc -> acc + el end)"--> output
+end
+```
+
+```elixir
+Enum.reduce(1..3, fn el, acc -> acc + el end)
+```
+
+## 场景
+
+在编程时，您经常会遇到需要多次执行某些操作的问题。
+
+例如，假设您正在创建一个购物应用程序。在这个应用程序中，客户创建购物清单。
+
+我们将这个购物车表示为一个以美分为单位的商品成本列表。
+
+```elixir
+shopping_cart = [100, 200, 150, 200]
+```
+
+我们可以创建一个函数来计算一个名为 `calculate_tax/1` 的商品的税后成本。假设税率为 `5%`，因此我们可以将成本乘以 `1.05`。
+
+```elixir
+calculate_tax = fn cost -> cost * 1.05 end
+```
+
+在我们的购物清单中有四个商品，逐个调用 `calculate_tax/1` 函数有点繁琐。我们需要将每个商品绑定到一个变量，并单独调用 `calculate_tax/1` 函数来确定每个商品的税后成本。
+
+```elixir
+[one, two, three, four] = shopping_cart
+
+[calculate_tax.(one), calculate_tax.(two), calculate_tax.(three), calculate_tax.(four)]
+```
+
+这仅在恰好有四个商品时有效。如果我们想处理一、二、三或四个商品，我们的代码会变得更加冗长。正如您所想，这种解决方案并不可扩展。
+
+```elixir
+shopping_cart = [100, 200, 150]
+
+case shopping_cart do
+  [] ->
+    []
+
+  [one] ->
+    [calculate_tax.(one)]
+
+  [one, two] ->
+    [calculate_tax.(one), calculate_tax.(two)]
+
+  [one, two, three] ->
+    [calculate_tax.(one), calculate_tax.(two), calculate_tax.(three)]
+
+  [one, two, three, four] ->
+    [calculate_tax.(one), calculate_tax.(two), calculate_tax.(three), calculate_tax.(four)]
+end
+```
+
+为了解决这个问题，我们需要对列表中的每个元素应用 `calculate_tax/1` 函数。每当我们需要重复类似的操作时，我们可以使用 **枚举**。
+
+枚举是循环遍历集合并读取其元素以返回某些输出的行为。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+  Input ---> Enumeration --> Function --> Enumeration
+  Enumeration --> Output
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+通过枚举，我们可以对任意数量的商品使用 `calculate_tax/1`，只需一次调用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2)。
+
+```elixir
+shopping_cart = [100, 200, 150]
+
+Enum.map(shopping_cart, fn item -> calculate_tax.(item) end)
+```
+
+## Enum 模块
+
+Elixir 提供了 [Enum](https://hexdocs.pm/elixir/Enum.html) 来实现枚举。 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块包含大量有用的函数，所有这些函数都适用于集合数据类型，如列表、范围、映射和关键字列表。
+
+大多数枚举问题可以通过以下 [Enum](https://hexdocs.pm/elixir/Enum.html) 函数解决。
+
+* [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 遍历每个元素并创建一个新集合，包含新值。
+* [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 和 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3)。遍历每个元素以生成一个累加值。
+* [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 从集合中过滤出元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+[Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 在集合中的每个元素上应用回调函数，以构建一个新列表。
+
+新列表中的每个元素将是提供的回调函数的返回值。
+
+```elixir
+Enum.map(1..10, fn element -> element * 2 end)
+```
+
+[Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 将回调函数应用于集合中的每个元素，并在回调函数返回 `true` 时保留该元素。
+
+```elixir
+Enum.filter(1..10, fn element -> rem(element, 2) == 0 end)
+```
+
+[Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 和 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3) 将回调函数应用于集合中的每个元素，并构建一个在每次函数调用之间存储的累加值。
+
+完成后，它返回最后一次函数调用的结果，通常是累加值。
+
+```elixir
+# 0 是初始累加器值
+Enum.reduce(1..3, 0, fn element, accumulator ->
+  element + accumulator
+end)
+```
+
+[Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 使用集合中的第一个值作为初始累加器。通常（但并不总是）为了清晰起见，建议使用 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3)，我们将在大多数用例中优先使用它。
+
+```elixir
+Enum.reduce(1..3, 5, fn element, accumulator ->
+  element + accumulator
+end)
+```
+
+```elixir
+Enum.reduce(1..3, fn element, accumulator ->
+  element + accumulator
+end)
+```
+
+### 其他实用函数
+
+[Enum](https://hexdocs.pm/elixir/Enum.html) 模块还提供其他有用的函数。以下是一些最常用的。
+
+* [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 检查集合中的所有元素是否匹配某个条件。
+* [Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) 检查集合中的任何元素是否匹配某个条件。
+* [Enum.count/2](https://hexdocs.pm/elixir/Enum.html#count/2) 返回集合中的元素数量。
+* [Enum.find/3](https://hexdocs.pm/elixir/Enum.html#find/3) 返回集合中匹配某个条件的元素。
+* [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 返回集合中的随机元素。
+
+每当我们处理集合时，我们应该参考 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块，以查看是否有我们可以使用的内置解决方案。或者，我们几乎可以仅使用 [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2)、[Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3) 和 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 来构建几乎所有功能，因此考虑与这三个函数建立最熟悉的关系。
+
+## Enum.map/2
+
+[Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 允许您遍历作为第一个参数提供的集合。然后，它在每个元素上调用您作为第二个参数提供的函数。最后，它返回一个包含修改值的新集合。
+
+```mermaid
+flowchart LR
+  A[集合] --> E[Enum.map]
+  E --> Function
+  Function --> E
+  E --> B[新集合]
+```
+
+这是一个将列表中所有整数加倍的示例。
+
+```elixir
+Enum.map([1, 2, 3, 4], fn integer -> integer * 2 end)
+```
+
+```mermaid
+flowchart LR
+  A["[1, 2, 3, 4]"] --> E[Enum.map]
+  E --> F["fn integer -> integer * 2 end"]
+  F --> E
+  E --> B["[2, 4, 6, 8]"]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+值得注意的是，您可以使用范围与可枚举一起轻松遍历大范围，而无需定义列表中的每个元素。
+
+```elixir
+Enum.map(1..100, fn integer -> integer * 2 end)
+```
+
+[Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 接受任何可枚举，并始终返回一个列表，无论输入是什么。
+
+**关键字列表** 和 **映射** 将被视为元组列表以进行枚举。
+
+```elixir
+Enum.map(%{"one" => 1, "two" => 2}, fn element -> element end)
+```
+
+```elixir
+Enum.map([one: 1, two: 2], fn element -> element end)
+```
+
+我们甚至可以对元组中的键和值进行模式匹配。
+
+```elixir
+Enum.map(%{"one" => 1, "two" => 2}, fn {_key, value} -> value end)
+```
+
+```elixir
+Enum.map([one: 1, two: 2], fn {key, _value} -> key end)
+```
+
+### 你的回合
+
+使用 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 将整数列表从 `1` 到 `10` 转换为字符串。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 预期输出
+["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+```elixir
+Enum.map(1..10, fn integer -> "#{integer}" end)
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## Enum.reduce/2 和 Enum.reduce/3
+
+[Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 允许您遍历集合并在每次枚举时构建一个累加值。
+
+与 [Enum.map/2](https://hexdocs.pm/elixir/Enum.html#map/2) 不同，这为您提供了显著更多的输出控制，因为累加器和返回值的数据类型不必是列表。
+
+```mermaid
+flowchart LR
+  A[集合] --> E[Enum.reduce]
+  E -- 累加器 --> Function
+  Function -- 累加器 --> E
+  E --最终累加器--> B[输出]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+例如，我们可以通过构建一个累加和来求和列表中的所有数字。
+
+```elixir
+list = [1, 2, 3, 4]
+
+Enum.reduce(list, fn integer, accumulator -> integer + accumulator end)
+```
+
+您作为 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 的第二个参数提供的函数将与当前元素和当前累加器一起调用。
+
+集合中的第一个值将是初始累加器值。
+
+<!-- livebook:{"attrs":{"source":"frames = [\n      \"\n首先，我们定义调用 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 函数的列表和函数。\n```elixir\nEnum.reduce([1, 2, 3, 4], fn integer, accumulator -> integer + accumulator  end)\n```\n\",\n      \"\n列表中的第一个元素 `1` 是初始累加器值。\n```elixir\nEnum.reduce([2, 3, 4], fn integer, 1 -> integer + 1  end)\n```\n\",\n      \"\n函数在下一个元素 `2` 上被调用。下一个累加器是 2 + 1\n```elixir\nEnum.reduce([3, 4], fn 2, 1 -> 2 + 1  end)\n```\n\",\n      \"\n函数在下一个元素 `3` 上被调用。下一个累加器是 3 + 3\n```elixir\nEnum.reduce([4], fn 3, 3 -> 3 + 3  end)\n```\n\",\n      \"\n函数在下一个元素 `4` 上被调用。下一个累加器是 4 + 6\n```elixir\nEnum.reduce([], fn 4, 6 -> 4 + 6  end)\n```\n\",\n      \"\n4 + 6 等于 10。\n```elixir\nEnum.reduce([], fn 4, 6 -> 10  end)\n```\n\",\n      \"\n`10` 是最后的累加器值，因此 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 返回 `10`。\n```elixir\n                           10\n```\n\"\n    ]\n\nSmartAnimation.new(0..Enum.count(frames) - 1, fn i ->\n    Kino.Markdown.new(Enum.at(frames, i))\nend)","title":"Reduce"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+````elixir
+frames = [
+  "
+首先，我们定义调用 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 函数的列表和函数。
+```elixir
+Enum.reduce([1, 2, 3, 4], fn integer, accumulator -> integer + accumulator  end)
+```
+",
+  "
+列表中的第一个元素 `1` 是初始累加器值。
+```elixir
+Enum.reduce([2, 3, 4], fn integer, 1 -> integer + 1  end)
+```
+",
+  "
+函数在下一个元素 `2` 上被调用。下一个累加器是 2 + 1
+```elixir
+Enum.reduce([3, 4], fn 2, 1 -> 2 + 1  end)
+```
+",
+  "
+函数在下一个元素 `3` 上被调用。下一个累加器是 3 + 3
+```elixir
+Enum.reduce([4], fn 3, 3 -> 3 + 3  end)
+```
+",
+  "
+函数在下一个元素 `4` 上被调用。下一个累加器是 4 + 6
+```elixir
+Enum.reduce([], fn 4, 6 -> 4 + 6  end)
+```
+",
+  "
+4 + 6 等于 10。
+```elixir
+Enum.reduce([], fn 4, 6 -> 10  end)
+```
+",
+  "
+`10` 是最后的累加器值，因此 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 返回 `10`。
+```elixir
+                           10
+```
+"
+]
+
+SmartAnimation.new(0..(Enum.count(frames) - 1), fn i ->
+  Kino.Markdown.new(Enum.at(frames, i))
+end)
+````
+
+### Enum.reduce/3
+
+另外，我们可以使用 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3) 为累加器提供一个默认值。
+
+[Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3) 将在每个元素上调用函数，而不是将初始累加器设置为第一个元素。下面，我们用初始和为 `10` 的方式求和列表中的所有数字。
+
+```elixir
+Enum.reduce([1, 2, 3], 10, fn integer, accumulator -> integer + accumulator end)
+```
+
+### 你的回合
+
+使用 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3) 或 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 来求和从 `1` 到 `10` 的所有偶数。它应该返回 `30`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+2 + 4 + 6 + 8 + 10 = 30
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+```elixir
+Enum.reduce(1..10, 0, fn int, acc ->
+  if rem(int, 2) == 0 do
+    acc + int
+    else
+    acc
+  end
+end)
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## Enum.filter
+
+[Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 函数允许我们过滤集合中的元素。 [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 在集合中的每个元素上调用函数。如果函数返回 `false`，则该元素将被过滤掉。
+
+```mermaid
+flowchart LR
+  C[集合] --> E[Enum.filter]
+  E --> F[函数]
+  F -- 布尔值 --> E
+  F --> true --> A[保留]
+  F --> false --> B[移除]
+  E --> O[过滤后的集合]
+```
+
+```elixir
+Enum.filter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], fn integer -> integer <= 5 end)
+```
+
+### 你的回合
+
+使用 [Enum.filter/2](https://hexdocs.pm/elixir/Enum.html#filter/2) 创建从 `1` 到 `10` 的奇数列表和偶数列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+even_numbers = Enum.filter(1..10, fn integer -> rem(integer, 2) == 0 end)
+odd_numbers = Enum.filter(1..10, fn integer -> rem(integer, 2) != 0 end)
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## Enum.all?/2
+
+[Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 检查集合中的所有元素是否匹配某个条件。
+
+[Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 在每个元素上执行提供的回调函数。如果每个元素都返回真值，则 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 返回 `true`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+集合 --> E[Enum.all?/2]
+E --> Function
+Function -- 真值 --> E
+E --> 布尔值
+```
+
+```elixir
+Enum.all?([1, 2, 3], fn integer -> is_integer(integer) end)
+```
+
+如果单个元素返回假值，则 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 返回 `false`。
+
+```elixir
+Enum.all?([1, 2, 3, "4"], fn element -> is_integer(element) end)
+```
+
+出于性能原因，当 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 找到一个返回假值的元素时，它将立即完成。
+
+请注意，下面的代码应该很快完成，因为第一个元素就失败了条件。
+
+```elixir
+Enum.all?(1..10_000_000, fn integer -> is_bitstring(integer) end)
+```
+
+如果 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 必须遍历整个集合，如果所有元素都通过条件，或者如果失败的元素在列表的末尾。
+
+请注意，下面的代码应该花费一些时间来完成，因为每个元素都通过了条件。
+
+```elixir
+Enum.all?(1..10_000_000, fn integer -> is_integer(integer) end)
+```
+
+### 你的回合
+
+使用 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2) 来确定此颜色列表中的所有 `colors` 是否为 `:green`。您可以更改 `colors` 的值以实验 [Enum.all?/2](https://hexdocs.pm/elixir/Enum.html#all?/2)。
+
+```elixir
+colors = [:green, :green, :red]
+```
+
+## Enum.any?/2
+
+[Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) 检查集合中是否有任何元素通过某个条件。如果单个元素在调用回调函数时返回真值，则 [Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) 返回 `true`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+集合 --> E[Enum.any?/2]
+E --> Function
+Function -- 真值 --> E
+E --> 布尔值
+```
+
+```elixir
+Enum.any?([1, "2", "3"], fn element -> is_integer(element) end)
+```
+
+[Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) 一旦集合中的一个元素返回真值，就会返回。
+
+请注意，下面的代码很快完成，因为集合中的第一个元素通过了条件。
+
+```elixir
+Enum.any?(1..10_000_000, fn integer -> is_integer(integer) end)
+```
+
+然而，以下代码需要一些时间来运行，因为集合中的所有元素都未通过条件。
+
+```elixir
+Enum.any?(1..10_000_000, fn integer -> is_bitstring(integer) end)
+```
+
+### 你的回合
+
+使用 [Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2) 来确定 `animals` 列表中是否有任何动物是 `:dogs`。您可以更改 `animals` 列表以实验 [Enum.any?/2](https://hexdocs.pm/elixir/Enum.html#any?/2)。
+
+```elixir
+animals = [:cats, :dogs, :bears, :lions, :penguins]
+```
+
+## Enum.count/1
+
+[Enum.count/1](https://hexdocs.pm/elixir/Enum.html#count/1) 返回集合中的项目数量。
+
+```mermaid
+flowchart LR
+  集合 --> Enum.count --> 整数
+```
+
+```elixir
+Enum.count([1, 2, 3])
+```
+
+元素的类型无关紧要。包含多个元素的集合仍然只计为一个单独的元素。
+
+```elixir
+Enum.count([{}, "hello", %{}, [[[]]]])
+```
+
+### 你的回合
+
+在 Elixir 单元中，计算 `collection` 中的元素数量。它应该返回 `5`。
+
+```elixir
+collection = [1, 2, 3, 4, 5]
+```
+
+## Enum.find/3
+
+[Enum.find/3](https://hexdocs.pm/elixir/Enum.html#find/3) 接受一个集合和一个函数。然后搜索集合并返回第一个在调用传入函数时返回 `true` 的元素。
+
+```elixir
+Enum.find(["hello", 2, 10], fn each -> is_integer(each) end)
+```
+
+如果未找到元素， [Enum.find/2](https://hexdocs.pm/elixir/Enum.html#find/2) 返回 `nil`。
+
+```elixir
+Enum.find(["h", "e", "l", "l", "o"], fn each -> is_integer(each) end)
+```
+
+您可能会注意到函数的 arity 为 `3`，即使我们只传入了 `2` 个参数。这是因为有一个可选的 `default` 值参数。如果未找到元素，将返回 `default` 值而不是 `nil`。
+
+```elixir
+Enum.find(["h", "e", "l", "l", "o"], 10, fn each -> is_integer(each) end)
+```
+
+### 你的回合
+
+使用 [Enum.find/2](https://hexdocs.pm/elixir/Enum.html#find/2) 找到此列表中的第一个偶数整数。
+
+```elixir
+[1, "2", "three", 4, "five", 6]
+```
+
+## Enum.random/1
+
+[Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 返回集合中的随机元素。它通常用于生成范围内的随机数。
+
+```elixir
+Enum.random(1..10)
+```
+
+### 你的回合
+
+生成一个包含从 `0` 到 `9` 的十个随机整数的列表。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+Enum.map(1..10, fn _ -> Enum.random(0..9) end)
+```
+
+</details>
+
+在下面输入您的解决方案。
+
+```elixir
+
+```
+
+## 捕获运算符和模块函数
+
+当我们向任何 [Enum](https://hexdocs.pm/elixir/Enum.html) 提供一个函数时，我们传递的是一个匿名函数，该函数将在内部被调用。
+
+我们将这个函数绑定到一个变量并检查每个值以进行演示。
+
+```elixir
+my_function = fn element -> IO.inspect(element) end
+
+Enum.map(1..10, my_function)
+```
+
+我们可以使用捕获运算符 `&` 语法来提供模块函数。
+
+```elixir
+defmodule NonAnonymous do
+  def function(element) do
+    IO.inspect(element)
+  end
+end
+
+Enum.map(1..10, &NonAnonymous.function/1)
+```
+
+这也可以与 Elixir 的任何内置函数一起使用，只要它们的 arity 与回调函数匹配。
+
+```elixir
+Enum.map(1..10, &is_integer/1)
+```
+
+我们还可以单独使用捕获运算符来创建匿名函数。然而，我们通常不推荐这样做，因为这通常会降低可读性。 `&1` 是函数的第一个参数。
+
+```elixir
+Enum.map(1..10, &(&1 * 2))
+```
+
+## 进一步阅读
+
+[Enum](https://hexdocs.pm/elixir/Enum.html) 模块还有许多其他函数。您将有机会在需要它们来解决未来挑战时遇到更多。
+
+有关更多信息，您可能还希望阅读：
+
+* [Enum 文档](https://hexdocs.pm/elixir/Enum.html)
+* [Elixir 学校的 Enum](https://elixirschool.com/en/lessons/basics/enum)
+
+我们有几个专门针对 [Enum](https://hexdocs.pm/elixir/Enum.html) 模块的练习，作为本课程的一部分。然而，如果您希望获得更多练习， [Exercism.io](https://exercism.org/tracks/elixir/concepts/enum) 有许多优秀的练习。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Enum 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供一门付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Enum">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/ranges.livemd">范围</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fizzbuzz.livemd">FizzBuzz</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

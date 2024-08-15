@@ -1,0 +1,306 @@
+# 匹配操作符
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Match Operator">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/comparison_operators.livemd">比较操作符</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fun_formulas.livemd">有趣的公式</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 变量是什么，我们如何使用匹配操作符将其绑定？
+* 我们如何深入了解我们的程序并调试它们？
+
+## 变量绑定
+
+匹配操作符 `=` 是将一些数据绑定到一个命名的 **变量** 的一种方式，我们可以在程序的其余部分中使用该数据。
+
+例如，你可以将数字 `9` 存储在名为 `my_variable` 的变量中，然后在需要的地方使用 `my_variable` 替代 9。
+
+```elixir
+my_variable = 9
+
+my_variable + 1
+```
+
+你可以将变量命名为几乎任何东西，然后在程序的其余部分中使用该名称。在上面的例子中，我们使用 `my_variable`，但你可以将变量命名为几乎任何东西，只要它不违反某些规则。
+
+```elixir
+a_different_variable_name = 9
+a_different_variable_name + 1
+```
+
+为什么将值存储在变量中是有用的？想象一下你有一个程序，它对一个数字进行多次计算。
+假设这个数字是 8。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+8 + 7 - 8 * 10 * 8 + 8
+```
+
+如果我们想对数字 7 进行这些操作，那就突然变得繁琐。
+
+变量允许我们存储一个值并在整个程序中重用它。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+my_number = 8
+my_number + 7 - my_number * 10 * my_number + my_number
+```
+
+如果所需的值发生变化，你只需更改变量。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+my_number = 7
+my_number + 7 - my_number * 10 * my_number + my_number
+```
+
+变量对于使程序更清晰也很有帮助。在编程中有一种反模式称为 **魔法值**。魔法值是程序中没有名称但很重要的值。你会看到 **魔法数字** 和 **魔法字符串** 作为常见的 **反模式**。反模式意味着你应该在程序中通常避免这样做，否则它们会变得不清晰且难以处理。
+
+例如，想象一下你正在处理一个接受付款的程序，你发现以下代码
+
+```elixir
+100 * 1.12
+```
+
+1.12 是什么？100 又是什么？这些都是 **魔法值** 的例子。它们可能对代码的正常运行很重要，但程序员没有提供任何上下文来说明它们是什么。如果我们使用命名良好的变量，这个程序会清晰得多。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+item_cost = 100
+tax_multiplier = 1.12
+item_cost * tax_multiplier
+```
+
+哦！所以这是一个计算商品成本并加上税的程序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 命名变量
+
+变量名称必须遵循一些规则：
+
+* 必须以字母开头。
+* 可以包含有效的字母数字字符。
+* 可以以 `!` 或 `?` 等谓词结尾。
+* 不能包含空格。
+* 不能包含某些特殊字符，如 `$`。
+
+除了这些强制规则外，通常用下划线 `_` 分隔变量中的单词，并且只使用小写字母。
+
+如果你违反了命名变量的规则，你的程序将崩溃并出现错误。
+就像命名原子一样，记住命名变量的规则并不重要。
+通过反复接触，你会对变量名称是否有效产生直觉。
+在实践中，大多数变量名称仅由小写字母、下划线和有时的数字组成。
+
+一般来说，你应该给变量起有意义的名称，以提高代码的清晰度。
+
+短而通用的变量名称通常难以理解，除非有既定的约定。例如，你经常会看到变量 `i` 用于表示索引。
+
+以下是一些没有传达意义的变量名称示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+t = "12:00"
+c = 10
+```
+
+相反，建议使用冗长的变量名称来提高程序的清晰度。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+time = "12:00"
+cost = 10
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 未绑定变量
+
+使用未绑定的变量将导致程序崩溃。
+
+```elixir
+a_variable_that_has_not_been_bound
+```
+
+如果你仔细查看错误，你会看到 `undefined function a_variable_that_has_not_been_bound/0 (there is no such import)`
+
+当你使用未绑定的变量时，Elixir 假设它是一个未定义的函数。你还没有学习函数，但你将在未来的课程中了解更多。
+
+现在，熟悉这个错误就足够了，这样如果你看到它，你就会知道你在使用未绑定的变量。
+
+### 你的回合
+
+在下面的 Elixir 单元中，创建一个变量 `hello` 并将其绑定到值 `"world"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+hello = "world"
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+### 变异
+
+在底层，绑定到变量的值存储在计算机的内存中。
+
+变量指向该位置的值。
+
+```mermaid
+flowchart LR
+    variable --> location
+```
+
+例如，变量 `hello` 的值为 `"world"`，将字符串 `"world"` 存储在 **内存** 的某个地方。**内存** 是计算机上的一个硬件组件。
+你可能听说过 **RAM**（随机存取内存）。
+
+```mermaid
+flowchart LR
+    hello --> w["world"]
+```
+
+面向对象编程语言允许你变异内存中的实际值。
+所以当我们写 `hello = 4` 时，数据 `"world"` 变异为 `4`。
+
+```mermaid
+flowchart LR
+    hello --> w["4"]
+```
+
+然而，在像 Elixir 这样的函数式编程语言中，我们不允许变异。
+因此，我们不变异数据，而是 **重新绑定** 变量到新数据。
+
+```mermaid
+flowchart
+    w["world"]
+    hello --> 4
+```
+
+这就是我们称数据在 Elixir 中为 **不可变** 的原因。
+
+这可能不清楚为什么这很重要，但没关系。现在，了解数据是不可变的就足够了，因为你将有更多机会在未来的课程中看到不可变性的影响。
+
+然而，我们可以重新绑定变量，因此以下语句是有效的。
+
+```elixir
+my_variable = 1
+
+my_variable = 2
+
+# 返回 2，因为我们重新绑定了 my_variable
+my_variable
+```
+
+## 调试
+
+通常，通过了解变量的值来调试代码是有用的。
+
+我们可以使用 `IO.inspect` 来记录代码中的值。`IO.inspect` 返回传递给它的值。
+
+```elixir
+my_value = "hello"
+
+IO.inspect(my_value)
+```
+
+我们可以将一个值包装在 `IO.inspect` 中。只要我们正确地这样做，`IO.inspect` 将在我们的代码中打印该值，而不会影响其行为。
+
+```elixir
+my_value = IO.inspect("hello")
+
+my_value
+```
+
+### 你的回合
+
+使用 `IO.inspect` 打印 `hello` 变量。
+
+```elixir
+hello = "world!"
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir-lang: 模式匹配](https://elixir-lang.org/getting-started/pattern-matching.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成匹配操作符阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Match Operator">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/comparison_operators.livemd">比较操作符</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fun_formulas.livemd">有趣的公式</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

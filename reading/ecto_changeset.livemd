@@ -1,0 +1,419 @@
+# Ecto Changesets
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:ecto, "~> 3.9.5"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Ecto Changesets">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/custom_enum_with_recursion.livemd">自定义枚举与递归</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/sign_up_form.livemd">注册表单</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何使用 Ecto 验证复杂结构数据？
+* 为什么使用 Ecto.Changeset 而不是编写自己的验证逻辑？
+
+## Ecto Changesets
+
+[Ecto](https://hexdocs.pm/ecto/Ecto.html) 是我们通常用来与数据库通信的库。我们将在未来的课程中学习更多关于数据库的内容，但现在，我们将看到 Ecto 如何帮助与数据交互。
+
+除了作为我们与数据库通信的层，Ecto 在验证数据方面也非常强大。到目前为止，您已经创建了具有自己（有限）数据验证的结构体。
+
+结构体并不总是适合验证，因为它们只允许我们强制执行键。然后我们必须编写带有数据验证或守卫的函数。
+
+```elixir
+defmodule Person do
+  @enforce_keys [:name, :age]
+  defstruct @enforce_keys
+
+  def new(%{name: name, age: age}) when is_binary(name) and is_integer(age) do
+    {:ok,
+     %Person{
+       name: name,
+       age: age
+     }}
+  end
+
+  def new(_), do: {:error, :invalid_params}
+end
+```
+
+结构体创建函数通常返回一个 `{ok, struct}` 元组或一个 `{:error, message}` 元组。
+
+```elixir
+# 有效参数
+{:ok, %Person{age: 20, name: "valid name"}} = Person.new(%{name: "valid name", age: 20})
+
+# 无效参数
+{:error, :invalid_params} = Person.new(%{name: ["invalid name"], age: 20})
+```
+
+随着结构体复杂性的增加，这种解决方案并不总是可扩展的。这是因为结构体除了强制执行键之外没有任何内置的数据验证。
+
+作为替代方案，我们可以使用 [Ecto Changesets](https://hexdocs.pm/ecto/Ecto.Changeset.html) 来验证数据。
+
+## Changesets
+
+一个 [Ecto.Changeset](https://hexdocs.pm/ecto/Ecto.Changeset.html) 结构允许我们验证数据，并在某些内容无效时返回有用的错误消息。
+
+一个 changeset 描述了您数据的预期形状，并确保数据符合所需的形状。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+n[username]
+User --> n --> s1[string]
+n --> l[less than 40 characters]
+n --> gr[greater than 3 characters]
+User --> password --> s2[string]
+password --> g[greater than 10 characters]
+User --> a[accepted terms of service] --> true
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+要创建一个 changeset，我们需要知道。
+
+* `initial_data`。
+* 预期的数据验证为 `types`。
+* 从 `params` 的尝试更改。
+* 要 `cast/3` 到符合 changeset 的数据的 `params` 的键。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  i[initial_data]
+  t[types]
+  p[params]
+  k[keys]
+  ca[cast/3]
+  c[Ecto.Changeset]
+  i --> ca
+  t --> ca
+  p --> ca
+  k --> ca
+  ca --> c
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们使用 changesets 来验证新数据或验证对某些已验证数据的更改。
+
+在这里，我们使用原始类型 `:string` 和 `:integer`。有关允许类型的完整列表，请参见 [Primitive Types](https://hexdocs.pm/ecto/Ecto.Schema.html#module-primitive-types) 表。
+
+```elixir
+initial_data = %{}
+params = %{name: "Peter", age: 22}
+types = %{name: :string, age: :integer}
+keys = [:name, :age]
+
+changeset = Ecto.Changeset.cast({initial_data, types}, params, keys)
+```
+
+我们现在将 `changeset` 变量绑定到一个 `Ecto.Changeset` 结构。
+
+changeset 包含：
+
+* **changes**: 我们想要更新源数据的 `params`。
+* **data**: changeset 的源数据。
+* **valid?**: 所需更改是否违反任何验证。
+* **errors**: 任何更改的错误的关键字列表。
+* **action**: 我们暂时忽略这一点，因为在处理数据库时更为重要。请参见 [Changeset Actions](https://hexdocs.pm/ecto/Ecto.Changeset.html#module-changeset-actions)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+  e[Ecto.Changeset]
+  a[action]
+  d[data]
+  v[valid?]
+  c[changes]
+  er[errors]
+  e --> a
+  e --> d
+  e --> v
+  e --> c
+  e --> er
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+changeset 将错误存储为关键字列表，当参数无效时 `valid?` 将为 false。
+
+```elixir
+invalid_params = %{name: 2, age: "hello"}
+invalid_changeset = Ecto.Changeset.cast({initial_data, types}, invalid_params, keys)
+```
+
+您会注意到 changeset 将 `errors` 存储在关键字列表中。`name` 和 `age` 都无效，每个都存储了不同的错误消息。
+
+## Ecto 验证函数
+
+我们还可以向 changeset 添加额外的验证。有关函数的完整列表，请参见 [Ecto Validation Functions](https://hexdocs.pm/ecto/Ecto.Changeset.html#validate_acceptance/3)。
+
+这些验证函数根据它们验证的内容更改 `errors`。
+
+```elixir
+initial_data = %{}
+
+# 注意我们缺少年龄。
+params = %{name: "Peter"}
+types = %{name: :string, age: :integer}
+keys = [:name, :age]
+
+changeset =
+  Ecto.Changeset.cast({initial_data, types}, params, keys)
+  |> Ecto.Changeset.validate_required(:age)
+```
+
+让我们以上面的 `User` 示例为例。一个 `User` 应该有一个 `username` 在 `3` 到 `40` 个字符之间，一个密码大于 `10` 个字符，并且应该接受我们的 `:terms_and_conditions`。
+
+这是一个无效数据的示例。请注意返回的 changeset 上有一个 `errors` 列表。
+
+```elixir
+initial_data = %{}
+
+# 故意留空以显示错误
+params = %{}
+types = %{username: :string, password: :string, terms_and_conditions: :boolean}
+keys = [:username, :password, :terms_and_conditions]
+
+invalid_changeset =
+  {initial_data, types}
+  |> Ecto.Changeset.cast(params, keys)
+  |> Ecto.Changeset.validate_required([:username, :password])
+  |> Ecto.Changeset.validate_length(:username, min: 3, max: 40)
+  |> Ecto.Changeset.validate_length(:password, min: 10)
+  |> Ecto.Changeset.validate_acceptance(:terms_and_conditions)
+```
+
+这是一个有效参数的示例。请注意，changeset 上没有 `errors`。
+
+```elixir
+initial_data = %{}
+
+params = %{username: "Peter", password: "secret_spider", terms_and_conditions: true}
+types = %{username: :string, password: :string, terms_and_conditions: :boolean}
+keys = [:username, :password, :terms_and_conditions]
+
+valid_changeset =
+  Ecto.Changeset.cast({initial_data, types}, params, keys)
+  |> Ecto.Changeset.validate_required([:username, :password])
+  |> Ecto.Changeset.validate_length(:username, min: 3, max: 40)
+  |> Ecto.Changeset.validate_length(:password, min: 10)
+  |> Ecto.Changeset.validate_acceptance(:terms_and_conditions)
+```
+
+要应用更改，我们可以使用 [Ecto.Changeset.apply_changes/1](https://hexdocs.pm/ecto/Ecto.Changeset.html#apply_changes/1)，这将仅在更改有效时应用更改。因为我们不使用数据库，所以我们必须手动将操作设置为 `:update`。
+
+```elixir
+Ecto.Changeset.apply_action(valid_changeset, :update)
+```
+
+如果更改无效，我们将收到一个错误和 changeset。
+
+```elixir
+Ecto.Changeset.apply_action(invalid_changeset, :update)
+```
+
+使用此模式创建验证数据或处理错误是很常见的。
+
+```elixir
+case Ecto.Changeset.apply_action(valid_changeset, :update) do
+  {:ok, data} -> data
+  {:error, message} -> message
+end
+```
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+使用 `Ecto.Changeset` 验证一些参数以创建一本书的映射。
+
+一本书应该具有：
+
+* 一个必需的 `:title` 字符串字段，长度在 `3` 到 `100` 个字符之间。
+* 一个必需的 `:content` 字符串字段。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+initial_data = %{}
+types = %{title: :string, content: :string}
+params = %{title: "title", content: "content"}
+keys = [:title, :content]
+
+{initial_data, types}
+|> Ecto.Changeset.cast(params, keys)
+|> Ecto.Changeset.validate_required([:title, :content])
+|> Ecto.Changeset.validate_length(:title, min: 3, max: 100)
+|> Ecto.Changeset.apply_action(:update)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 无模式 Changesets
+
+我们通常将相关的 changeset 和验证存储在定义结构体的模块中。通常，该模块定义一个 `changeset/2` 函数来创建 changeset 和 `new/1` 函数来创建结构体实例。
+
+这个模块被称为 [Schemaless Changeset](https://hexdocs.pm/ecto/Ecto.Changeset.html#module-schemaless-changesets)。Schema 是一个我们将在覆盖数据库时返回的概念。
+
+现在，知道我们可以依赖 [Schemaless Changeset](https://hexdocs.pm/ecto/Ecto.Changeset.html#module-schemaless-changesets) 在创建结构体实例之前验证数据。
+
+以下是一个示例，通过将上面的 `User` 结构转换为使用无模式 changeset 来获得。
+
+```elixir
+defmodule User do
+  # 定义 User 的结构体，包含字段 :username, :password 和 :terms_and_conditions
+  defstruct [:username, :password, :terms_and_conditions]
+
+  # 定义结构体中字段的类型
+  @types %{username: :string, password: :string, terms_and_conditions: :boolean}
+
+  # 定义 User 结构体的 changeset 函数
+  def changeset(%User{} = user, params) do
+    # 将用户结构体和之前定义的类型与 params 映射中的键进行转换
+    {user, @types}
+    |> Ecto.Changeset.cast(params, Map.keys(@types))
+    # 验证 username 和 password 字段是否存在
+    |> Ecto.Changeset.validate_required([:username, :password])
+    # 验证 password 字段至少为 10 个字符
+    |> Ecto.Changeset.validate_length(:password, min: 10)
+    # 验证 username 字段在 3 到 40 个字符之间
+    |> Ecto.Changeset.validate_length(:username, min: 3, max: 40)
+    # 验证 terms_and_conditions 字段是否被接受
+    |> Ecto.Changeset.validate_acceptance(:terms_and_conditions)
+  end
+
+  # 定义创建新用户的新函数
+  def new(params) do
+    # 从空的 User 结构体开始
+    %User{}
+    # 将结构体和参数传递给 changeset 函数
+    |> changeset(params)
+    # 将更新操作应用于 changeset
+    |> Ecto.Changeset.apply_action(:update)
+  end
+end
+
+# 使用提供的参数创建新用户
+User.new(%{username: "Peter Parker", password: "secret_spider", terms_and_conditions: true})
+```
+
+### 你的回合
+
+创建一个 `Book` 无模式 changeset 结构。一本书应该具有：
+
+* 一个必需的 `:title` 字符串字段，长度在 `3` 到 `100` 个字符之间。
+* 一个必需的 `:content` 字符串字段。
+* 一个 `:author` 字符串字段。
+* 一个 `:is_licenced` 字段，必须始终为 true。
+* 一个 `:is_published` 布尔字段。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Book do
+  defstruct [:title, :content]
+
+  @types %{
+    title: :string,
+    content: :string,
+    author: :string,
+    is_licenced: :boolean,
+    is_published: :boolean
+  }
+
+  def changeset(%Book{} = book, params) do
+    {book, @types}
+    |> Ecto.Changeset.cast(params, Map.keys(@types))
+    |> Ecto.Changeset.validate_required([:title, :content])
+    |> Ecto.Changeset.validate_length(:title, min: 3, max: 100)
+    |> Ecto.Changeset.validate_acceptance(:is_licenced)
+  end
+
+  def new(params) do
+    %Book{}
+    |> changeset(params)
+    |> Ecto.Changeset.apply_action(:update)
+  end
+end
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "完成 Ecto Changesets 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Ecto Changesets">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/custom_enum_with_recursion.livemd">自定义枚举与递归</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/sign_up_form.livemd">注册表单</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

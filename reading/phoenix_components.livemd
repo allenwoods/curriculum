@@ -1,0 +1,384 @@
+# Phoenix 组件
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:ecto, "~> 3.9.5"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Components">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_search.livemd">博客：搜索</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_migration.livemd">博客：可见性迁移</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何在 Phoenix 应用程序中创建表单？
+* 什么是表单操作，它是如何触发的？
+* 我们如何使用更改集验证数据并在表单中显示错误？
+
+## 概述
+
+这是 [博客：可见性迁移](../exercises/blog_migration.livemd) 练习的配套阅读。本课概述了如何使用 [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html) 和 Phoenix 1.7 应用程序中提供的核心组件。
+
+## Phoenix.Component
+
+[Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#module-attributes) 模块允许我们定义可重用的函数组件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyComponent do
+  use Phoenix.Component
+
+  def greeting(assigns) do
+    ~H"""
+    <p>hello</p>
+    """
+  end
+end
+```
+
+自定义组件可以在任何 HEEx 模板中使用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.MyComponent.greeting />
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Attr
+
+[attr/3](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#attr/3) 宏定义了组件的类型属性。
+
+属性可以通过 `@` 或 `assigns.` 访问。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyComponent do
+  use Phoenix.Component
+
+  attr :name, :string
+  def greeting(assigns) do
+    ~H"""
+    <p><%= @name %></p>
+    """
+  end
+end
+```
+
+属性可以配置默认值、要求等。有关更多信息，请参见 [attr/3 选项](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#attr/3-options)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Slots
+
+[slot/3] 宏定义了函数组件插槽。这使得提供可重用的组件部分变得更容易。
+
+[render_slot/2](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#render_slot/2) 渲染给定的插槽条目。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyComponent do
+  use Phoenix.Component
+
+  slot :header
+  slot :inner_block, required: true
+  slot :footer
+  def page(assigns) do
+    ~H"""
+    <h1>
+      <%= render_slot(@header) %>
+    </h1>
+
+    <p>
+      <%= render_slot(@inner_block) %>
+    </p>
+
+    <section>
+      <%= render_slot(@footer) %>
+    </section>
+    """
+  end
+end
+```
+
+插槽通过 HTML 元素名称中的冒号 `:` 提供。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.page>
+  My Inner Block
+  <:header>My Header</:header>
+  <:footer>My Header</:footer>
+</.page>
+```
+
+`inner_block` 是组件中直接子元素的默认插槽名称。任何不包含在其他插槽中的 HTML 元素将包含在 `inner_block` 插槽中。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 全局属性
+
+HTML 元素接受大量可选属性，我们可能希望能够在不显式定义它们的情况下传递。
+
+我们可以使用全局属性来收集这些属性。默认情况下，接受的属性是所有标准 HTML 标签的常见属性。您可以在 [全局属性 MDN 文档](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes) 中找到这些属性的完整列表。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+attr :rest, :global
+
+def hello(assigns) do
+  ~H"""
+  <p {@rest}>Hello</p>
+  """
+end
+```
+
+## 核心组件
+
+在 Phoenix 应用程序中的 `core_components.ex` 文件中定义的组件会自动导入，因此可以在不使用模块名称的情况下使用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.header>
+  Listing Posts
+  <:actions>
+    <.link href={~p"/posts/new"}>
+      <.button>New Post</.button>
+    </.link>
+  </:actions>
+</.header>
+```
+
+以下是您经常使用的主要组件：
+
+* modal
+* simple_form
+* button
+* input
+* label
+* error
+* header
+* table
+* list
+* back
+* icon
+
+这些组件在 Phoenix 文档中没有记录，因为它们是在您生成 Phoenix 1.7 应用程序时定义在您的应用程序内部的。
+
+请查看任何 Phoenix 1.7 应用程序中的 `core_components.ex` 文件以获取文档和这些函数的内部实现细节。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 简单表单
+
+`core_components.ex` 中的 `simple_form/1` 组件定义了一个我们可以在 HEEx 模板中使用的表单，以便用户发送 HTTP 请求。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+attr :for, :any, required: true, doc: "表单的数据结构"
+attr :as, :any, default: nil, doc: "用于收集所有输入的服务器端参数"
+
+attr :rest, :global,
+  include: ~w(autocomplete name rel action enctype method novalidate target),
+  doc: "应用于表单标签的任意 HTML 属性"
+
+slot :inner_block, required: true
+slot :actions, doc: "表单操作的插槽，例如提交按钮"
+
+def simple_form(assigns) do
+  ~H"""
+  <.form :let={f} for={@for} as={@as} {@rest}>
+    <div class="mt-10 space-y-8 bg-white">
+      <%= render_slot(@inner_block, f) %>
+      <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+        <%= render_slot(action, f) %>
+      </div>
+    </div>
+  </.form>
+  """
+end
+```
+
+表单接受一个更改集和一个操作。操作是提交 HTTP POST 请求的 URL。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    哎呀，出了点问题！请检查下面的错误。
+  </.error>
+  <.input field={f[:title]} type="text" label="标题" />
+  <.input field={f[:subtitle]} type="text" label="副标题" />
+  <.input field={f[:content]} type="text" label="内容" />
+  <:actions>
+    <.button>保存帖子</.button>
+  </:actions>
+</.simple_form>
+```
+
+可以通过提供一个空映射来创建没有更改集的表单。也可以更改要发送的请求类型。
+
+以下是一个没有更改集的表单示例，该表单向 `/posts` 路由发送 GET 请求。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.simple_form :let={f} for={%{}} method={"get"} action={~p"/posts"}>
+  <.input field={f[:title]} type="text" label="搜索帖子" />
+  <:actions>
+    <.button>搜索</.button>
+  </:actions>
+</.simple_form>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 内部组件
+
+[Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html) 还定义了几个内部组件。
+
+例如，`core_components.ex` 中的 `simple_form/1` 组件依赖于 [form/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#form/1) 组件。
+
+以下是一些有用的组件，您应该了解：
+
+* [form/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#form/1)
+* [link/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#link/1)
+
+有关更多信息，请参见 [components](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#components)。
+
+## Phoenix.LiveView.JS
+
+[Phoenix.LiveView.JS](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html) 提供了 JavaScript 命令，允许您执行常见的客户端任务，例如添加或删除 CSS 类、修改标签属性以及显示或隐藏内容。与客户端钩子不同，JS 命令能够感知服务器对网页所做的更改，确保即使在服务器的补丁之后，更新也能保留。
+
+例如，我们可以在点击按钮时隐藏和显示一个元素。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<button phx-click={JS.toggle(to: "#toggleable")}>测试</button>
+<div id="toggleable">隐藏和显示我</div>
+```
+
+这些 JS 命令可以绑定到 phoenix 事件，例如 `phx-click`、`phx-mounted` 等。有关这些事件的更多信息，请参见 [Bindings](https://hexdocs.pm/phoenix_live_view/bindings.html)。
+
+虽然该模块属于 `LiveView`，但其许多功能也可以在传统的控制器视图中使用。
+
+## Phoenix *HTML 模块
+
+Phoenix 1.7 用统一的函数组件替换了 [视图](https://hexdocs.pm/phoenix/1.6.16/views.html)。
+
+Phoenix 应用程序中的 `*HTML` 模块在底层使用 [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule BlogWeb.PostHTML do
+  use BlogWeb, :html
+
+  embed_templates "post_html/*"
+
+  @doc """
+  渲染帖子表单。
+  """
+  attr :changeset, Ecto.Changeset, required: true
+  attr :action, :string, required: true
+
+  def post_form(assigns)
+end
+```
+
+因此，函数组件可以在 `*HTML` 模块内部定义。这些函数组件可以在函数体中使用 sigil `~H` 返回 HEEx。
+
+或者，函数可以省略主体以自动委托给相应的 `*.html.heex` 文件，如上面在 `post_form/1` 中所示，这将委托给 `post_form.html.heex` 文件。
+
+## Phoenix.HTML
+
+[Phoenix.HTML](https://hexdocs.pm/phoenix_html/Phoenix.HTML.html) 项目还定义了使用嵌入 Elixir 语法的 HTML 元素。了解这一点是有用的，因为许多 Phoenix 项目仍然使用这种语法，特别是在 Phoenix 1.6 或更早版本中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<%= form_for @changeset, Routes.user_path(@conn, :create), fn f -> %>
+  名称: <%= text_input f, :name %>
+<% end %>
+```
+
+## 进一步阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Phoenix.Component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html)
+* [Phoenix.LiveView.JS](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html)
+* [Phoenix.HTML](https://hexdocs.pm/phoenix_html/Phoenix.HTML.html)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Phoenix 组件阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Components">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_search.livemd">博客：搜索</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_migration.livemd">博客：可见性迁移</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

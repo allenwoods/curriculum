@@ -1,0 +1,664 @@
+# 元编程
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Metaprogramming">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/advanced_score_tracker.livemd">高级分数跟踪器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/meta_math.livemd">MetaMath</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* `use` 关键字的作用是什么？
+* 宏和函数之间有什么区别？
+
+## 概述
+
+### 编译时与运行时
+
+在编程中，编译时指的是程序从源代码编译成可执行机器代码的时间段，而运行时指的是程序执行的时间段。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [OTP](https://en.wikipedia.org/wiki/Open_Telecom_Platform)
+
+开放电信平台（OTP）是一个用于构建并发、容错和分布式系统的 Erlang 库和工具的集合。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [BEAM（Erlang 虚拟机）](https://en.wikipedia.org/wiki/BEAM_(Erlang_virtual_machine))
+
+BEAM 是 Erlang 和 Elixir 的运行时环境。它是一个在多种平台上运行的虚拟机，包括类 Unix 操作系统、Windows 和 MacOS。我们通常将 **Erlang 虚拟机** 和 **BEAM** 这两个术语互换使用。
+
+Elixir 编译器将 Elixir 源代码编译成在 BEAM 上执行的 [字节码](https://en.wikipedia.org/wiki/Bytecode) `.beam` 文件。
+
+BEAM 是 Erlang 运行时系统（ERTS）的一部分。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Erlang 运行时系统](https://www.erlang.org/doc/apps/erts/erts.pdf)
+
+Erlang 运行时系统（ERTS）是开放电信平台（OTP）的一个组件，负责在 Erlang 虚拟机（VM）上执行 Erlang 和 Elixir 程序。BEAM 虚拟机是 Erlang 运行时系统的一部分。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [抽象语法树（AST）](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
+
+抽象语法树（AST）是程序源代码结构的树状数据结构表示。Elixir AST 被 Elixir 编译器用来将 Elixir 代码转换为可以由 BEAM 虚拟机执行的字节码。Elixir 编译器将 Elixir 代码转换为 AST，然后使用 AST 生成字节码。
+
+AST 提供了源代码的方便中间表示，可以在代码被翻译成字节码之前对其进行各种优化和转换。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 元编程
+
+元编程是编写生成代码的代码的过程。
+
+在 Elixir 中，我们使用宏进行代码生成。宏是生成代码的强大工具。然而，它们可能导致额外的复杂性，因此应谨慎使用。
+
+> 尽管 Elixir 尽力为宏提供安全环境，但编写干净代码的主要责任仍然在于开发者。宏比普通的 Elixir 函数更难编写，当不必要时使用它们被认为是坏风格。因此，请负责任地编写宏。
+> 
+> * [elixir-lang.org](https://elixir-lang.org/getting-started/meta/macros.html)
+
+我们将学习如何利用元编程扩展 Elixir 语言并最小化样板代码。
+
+虽然我们在日常编程中不太可能使用元编程（这取决于你正在构建的内容），但我们将使用元编程来更好地理解 Elixir 的内部工作原理。
+
+## 引用
+
+在底层，Elixir 将表达式表示为三元组。
+我们称这种表示为 [AST（抽象语法树）](https://en.wikipedia.org/wiki/Abstract_syntax_tree)。Elixir 允许我们使用 `quote` 宏检查表达式的 AST 表示。
+
+```elixir
+quote do
+  2 + 2
+end
+```
+
+上面的三元组通常称为 **引用表达式**。
+
+元组中的第一个元素是函数名。
+第二个元素是包含元数据的关键字列表，第三个元素是参数列表。
+
+`{function, metadata, arguments}`
+
+因此，`2 + 2` 作为引用表达式是
+
+* 函数: `:+`
+* 元数据: `[context: Elixir, import: Kernel]`
+* 参数: `[2, 2]`
+
+函数名是 `:+`，它指的是 `Kernel.+/2` 函数。`+` 只是调用此函数的便捷语法。
+
+```elixir
+Kernel.+(2, 2) == 2 + 2
+```
+
+元数据包含有关环境的信息。默认情况下，`:context` 是 `Elixir`，因为我们处于顶层作用域。
+
+如果我们在模块中使用 `quote`，上下文会发生变化。现在上下文将是模块的名称。
+
+```elixir
+defmodule MyModule do
+  def example do
+    quote do
+      2 + 2
+    end
+  end
+end
+
+MyModule.example()
+```
+
+我们也可以在单行上调用 `quote`。
+
+```elixir
+quote do: 1 - 1
+```
+
+AST 将原始数据类型表示为它们本身，而不是三元组。
+
+```elixir
+quote do: 2
+```
+
+所有其他表达式将是三元组——即使是非原始数据类型，如映射。
+
+```elixir
+quote do: %{key: "value"}
+```
+
+这是一个匿名函数作为引用表达式。
+
+```elixir
+sum = fn int1, int2, int3 -> int1 + int2 + int3 end
+
+quote do: sum(1, 2, 3)
+```
+
+这是一个命名函数作为引用表达式。
+
+```elixir
+defmodule Math do
+  def sum(int1, int2, int3) do
+    int1 + int2 + int3
+  end
+end
+
+quote do: Math.sum(1, 2, 3)
+```
+
+三元组中的参数本身也可以是三元组。
+
+```elixir
+quote do: sum(1, 2, sum(1, 2, 3))
+```
+
+### 你的回合
+
+使用 `quote` 宏发现以下表达式的 AST 表示。你也可以选择用其他 Elixir 表达式实验 `quote`，以查看它们的引用表达式表示。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+2 + 2 + 2
+```
+
+```elixir
+
+```
+
+## 取消引用
+
+`unquote` 将代码注入到 `quote` 宏中。
+
+我们可以使用 `unquote` 将一些计算值注入到 `quote` 块中。
+
+例如，以下 `unquote(1 + 1)` 在 `quote` 块内评估为 `2`。
+
+```elixir
+quote do
+  2 + unquote(1 + 1)
+end
+```
+
+上面的 `quote` 表达式等同于 `2 + 2`，因为我们使用 `unquote` 将 `1 + 1` 的结果注入到 `quote` 表达式中。
+
+```elixir
+quote do
+  2 + 2
+end
+```
+
+请注意，这与 `2 + 1 + 1` 的 AST 不同，后者分解为多个三元组，因为它实际上是两个独立的加法表达式。
+
+```elixir
+quote do
+  2 + 1 + 1
+end
+```
+
+在引用块外的变量在引用块内不可用。因此，我们可以使用 `unquote` 注入它们的评估值。
+
+```elixir
+my_variable = 5
+
+quote do
+  2 + unquote(my_variable)
+end
+```
+
+这创建了与 `2 + 5` 相同的引用表达式。
+
+```elixir
+quote do
+  2 + 5
+end
+```
+
+## 宏和代码模块
+
+Elixir [Code](https://hexdocs.pm/elixir/Code.html) 模块是 Elixir 标准库中的一个模块，提供用于在运行时处理代码的函数。[Code](https://hexdocs.pm/elixir/Code.html) 模块提供了几个用于评估代码的函数，如 [Code.eval_string/2](https://hexdocs.pm/elixir/Code.html#eval_string/2) 和 [Code.eval_quoted/2](https://hexdocs.pm/elixir/Code.html#eval_quoted/2)，允许你根据运行时条件动态生成和执行代码。
+
+Code 模块还提供用于处理 Elixir 代码的抽象语法树（AST）的函数，如 [Code.string_to_quoted/1](https://hexdocs.pm/elixir/Code.html#string_to_quoted/1)，允许你在 Elixir 代码作为字符串和代码的 AST 表示之间进行转换。
+
+[Macro](https://hexdocs.pm/elixir/Macro.html) 模块包含用于操作 AST 和实现宏的函数。[Macro](https://hexdocs.pm/elixir/Macro.html) 模块提供了 [Macro.to_string/1](https://hexdocs.pm/elixir/Macro.html#to_string/1) 函数。
+
+Code 模块通常与 Elixir 中的元编程技术结合使用，因为它允许你在运行时操作和执行代码。然而，重要的是要谨慎使用这些函数，因为动态生成和执行代码可能复杂且难以理解，如果使用不当可能会产生意想不到的后果。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 读取 AST
+
+我们可以使用 [Macro.to_string/1](https://hexdocs.pm/elixir/Macro.html#to_string/1) 将引用表达式转换为 Elixir 表达式（以字符串形式）。
+
+```elixir
+quoted = quote do: 2 + 2
+
+Macro.to_string(quoted)
+```
+
+我们可以直接提供 AST 作为三元组。
+
+```elixir
+ast = {:+, [context: Elixir, imports: [{1, Kernel}, {2, Kernel}]], [2, 5]}
+
+Macro.to_string(ast)
+```
+
+### 将字符串作为源代码评估
+
+我们可以使用 [Code.eval_string/3](https://hexdocs.pm/elixir/Code.html#eval_string/3) 函数评估字符串作为 Elixir 代码。
+
+```elixir
+Code.eval_string("2 + 5")
+```
+
+字符串中的变量可以通过将绑定的关键字列表作为函数的第二个参数提供。
+
+```elixir
+Code.eval_string("2 + a", a: 2)
+```
+
+### 评估 AST
+
+我们可以使用 [Code.eval_quoted/2](https://hexdocs.pm/elixir/Code.html#eval_quoted/2) 函数评估 AST。在这里，我们获取一个引用表达式并评估它以找到结果。
+
+```elixir
+quoted =
+  quote do
+    2 + 2
+  end
+
+Code.eval_quoted(quoted)
+```
+
+引用表达式无法访问绑定的变量。下面我们将看到 `a` 在引用表达式中未定义。
+
+```elixir
+a = 2
+
+quoted =
+  quote do
+    a + 2
+  end
+
+Code.eval_quoted(quoted)
+```
+
+为了访问变量，我们可以使用 `unquote` 将其评估到引用表达式中。
+
+```elixir
+a = 2
+
+quoted =
+  quote do
+    unquote(a) + 2
+  end
+
+Code.eval_quoted(quoted)
+```
+
+或者，我们可以在 [Code.eval_quoted/2](https://hexdocs.pm/elixir/Code.html#eval_quoted/2) 函数的第二个参数中提供变量绑定的关键字列表。
+
+```elixir
+quoted =
+  quote do
+    unquote(a) + 2
+  end
+
+Code.eval_quoted(quoted, a: 2)
+```
+
+## 宏
+
+我们可以使用宏扩展 Elixir 语言或创建 [DSL（领域特定语言）](https://en.wikipedia.org/wiki/Domain-specific_language)。例如，每次你在 ExUnit 中使用 `test` 和 `assert` 时，你都在使用 ExUnit 宏。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule Test do
+  use ExUnit.Case
+
+  test "example" do
+    assert 1 == 2
+  end
+end
+
+ExUnit.run()
+```
+
+通常，使用宏时不带圆括号是惯用的。然而，没有什么可以阻止你在宏中使用括号。`do end` 块实际上只是将关键字列表作为参数的另一种语法。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule BracketExample do
+  use ExUnit.Case
+
+  test("example", do: assert(1 == 1))
+end
+
+ExUnit.run()
+```
+
+Elixir 语法的许多部分是通过宏实现的。像 `def` 这样的关键字实际上只是 [Kernel](https://hexdocs.pm/elixir/Kernel.html) 模块上的宏，而 `do end` 块实际上只是作为参数提供给宏的关键字列表。🤯
+
+```elixir
+Kernel.defmodule(Mind, do: Kernel.def(blown, do: "🤯"))
+
+Mind.blown()
+```
+
+## 编写我们自己的宏
+
+与函数不同，宏在编译时展开，因此它们保留了调用时的值的知识。
+
+请注意，ExUnit 可以确定在断言 `assert 1 == 2` 中使用的运算符和值，以提供测试反馈。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"""
+使用 `==` 的断言失败。
+
+左侧: 1
+右侧: 2
+"""
+```
+
+为了理解 ExUnit 如何利用宏的力量提供更好的测试反馈，我们将创建自己的 `assert` 宏。
+
+`assert` 宏将接受一个真值表达式并打印带有反馈的消息。请注意，我们无法通过函数实现这一点。函数接受表达式的评估结果作为参数。我们失去了有关运算符和值的上下文。
+
+```elixir
+inspect_argument = fn expression ->
+  IO.inspect(expression, label: "表达式的评估结果")
+end
+
+inspect_argument.(1 == 2)
+```
+
+我们使用 `defmacro` 定义一个宏。
+
+表达式的 AST 表示知道宏被调用时的函数和参数。
+
+```elixir
+defmodule ASTInspector do
+  defmacro inspect(ast) do
+    IO.inspect(ast, label: "ast")
+  end
+end
+```
+
+要使用宏，我们需要 `require` 它。
+
+```elixir
+require ASTInspector
+
+ASTInspector.inspect(2 == 1)
+```
+
+在这个 AST 元组中，我们拥有获取 `operator`、表达式的 `left` 侧和 `right` 侧所需的一切。
+
+```elixir
+defmodule ExpressionInspector do
+  defmacro inspect({operator, _meta, [left, right]}) do
+    IO.inspect(operator, label: "运算符")
+    IO.inspect(left, label: "左侧")
+    IO.inspect(right, label: "右侧")
+  end
+end
+```
+
+```elixir
+require ExpressionInspector
+
+ExpressionInspector.inspect(2 == 2)
+```
+
+我们想要验证 `left` 和 `right` 值是否相等。我们将创建一个 `Assertion.Test` 模块，使用模式匹配返回成功消息或失败断言消息，具体取决于 `left` 和 `right` 侧是否相等。
+
+```elixir
+defmodule Assertion.Test do
+  def assert(:==, left, right) when left == right do
+    "成功！"
+  end
+
+  def assert(:==, left, right) do
+    """
+    使用 == 的断言失败。
+    左侧: #{left}
+    右侧: #{right}
+    """
+  end
+end
+
+Assertion.Test.assert(:==, 1, 2) |> IO.puts()
+```
+
+然后我们可以使用宏获取 `operator`、`left` 和 `right` 值，以便与我们的 `Assertion.Test` 模块一起使用。
+
+宏生成代码，因此通常它应该返回一个 AST 表达式，而不是返回值。我们使用 `quote` 创建函数调用的 AST 表示。我们还需要使用 `unquote` 在引用块中使用绑定变量。参数也是如此。因此，我们需要使用 `unquote` 将它们的评估值注入到 `quote` 块中。
+
+```elixir
+defmodule Assertion do
+  defmacro assert({operator, _meta, [left, right]}) do
+    quote do
+      Assertion.Test.assert(unquote(operator), unquote(left), unquote(right))
+    end
+  end
+end
+```
+
+当我们在下面调用 `assert` 宏时，它编译为 `Assertion.Test.assert(:==, 1, 2)`，然后在运行时评估。
+
+```elixir
+require Assertion
+
+Assertion.assert(1 == 2) |> IO.puts()
+```
+
+或者，我们可以使用 `bind_quoted` 将多个值绑定到引用表达式，而无需使用 `unquote`。这只是避免多次使用 `unquote` 的语法糖。
+
+```elixir
+defmodule AssertionWithBindQuoted do
+  defmacro assert({operator, _meta, [left, right]}) do
+    quote bind_quoted: [operator: operator, left: left, right: right] do
+      Assertion.Test.assert(operator, left, right)
+    end
+  end
+end
+```
+
+宏继续按预期工作。
+
+```elixir
+require AssertionWithBindQuoted
+
+AssertionWithBindQuoted.assert(1 == 2) |> IO.puts()
+```
+
+## 使用和 __using__
+
+虽然你可能不会经常编写宏，但你可能每天都会使用它们。
+例如，我们已经依赖于 `use` 关键字中的宏。
+
+当我们 `use GenServer` 时，一个宏生成必要的样板代码以创建一个 [GenServer](https://hexdocs.pm/elixir/GenServer.html)。
+
+```elixir
+defmodule Server do
+  use GenServer
+
+  def init(state) do
+    {:ok, state}
+  end
+end
+```
+
+我们可以在 `Server` 模块上使用 `__info__/2` 函数来深入了解底层生成的代码。在这里我们看到它定义了几个函数。
+
+```elixir
+Server.__info__(:functions)
+```
+
+`use` 关键字为使用宏提供了一个干净且受控的接口。在底层，`use` 关键字在指定模块中调用一个 `__using__` 宏。
+
+```elixir
+defmodule Template do
+  defmacro __using__(_opts) do
+    quote do
+      def template_function do
+        "hello"
+      end
+    end
+  end
+end
+```
+
+从概念上讲，考虑定义宏的模块作为模板或我们可以在程序中重用的通用模式可能会有所帮助。例如，[GenServer](https://hexdocs.pm/elixir/GenServer.html) 是我们希望扩展和重用的常见模式。
+
+```elixir
+defmodule ExtendedTemplate do
+  use Template
+
+  def extended_function() do
+    template_function() <> " world"
+  end
+end
+```
+
+一旦我们定义了我们的模式，就可以在整个程序中重用它并扩展其功能。
+
+```elixir
+ExtendedTemplate.template_function()
+```
+
+```elixir
+ExtendedTemplate.extended_function()
+```
+
+在现实世界的例子中，通常会为常见测试场景创建自定义 ExUnit 用例。下面的示例只是可能性的一个小示例。在这里，我们创建一个 `IOCase` 模块，它自动导入 `ExUnit.CaptureIO` 模块，该模块提供用于测试我们是否使用 [IO](https://hexdocs.pm/elixir/IO.html) 打印消息的 [capture_io/1](https://hexdocs.pm/ex_unit/ExUnit.CaptureIO.html#capture_io/1)。
+
+```elixir
+defmodule IOCase do
+  # 使用该模块
+  defmacro __using__(_opts) do
+    quote do
+      use ExUnit.Case
+      import ExUnit.CaptureIO
+    end
+  end
+end
+
+ExUnit.start(auto_run: false)
+
+defmodule IOTest do
+  use IOCase
+
+  test "捕获 IO" do
+    capture_io(fn -> IO.puts("hello") end) =~ "hello"
+  end
+end
+
+ExUnit.run()
+```
+
+### 你的回合
+
+创建一个 `Greetings` 模块，带有一个 `__using__` 宏。在 `__using__` 宏内部定义一个 `hello/0` 函数。你可以选择实验定义其他函数或模块属性。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def hello do
+  "hello"
+end
+```
+
+创建一个 `Usage` 模块，使用 `use` 关键字调用 `Greetings` 模块中的 `__using__` 宏。
+
+```elixir
+defmodule Greetings do
+end
+
+defmodule Usage do
+end
+```
+
+调用 `Usage.hello()` 以确保你的解决方案正常工作。
+
+```elixir
+Usage.hello()
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir 学校：元编程](https://elixirschool.com/en/lessons/advanced/metaprogramming/)
+* [PragProg：元编程 Elixir](https://pragprog.com/titles/cmelixir/metaprogramming-elixir/)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成元编程阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Metaprogramming">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/advanced_score_tracker.livemd">高级分数跟踪器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/meta_math.livemd">MetaMath</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

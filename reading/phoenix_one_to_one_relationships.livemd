@@ -1,0 +1,384 @@
+# 一对一关系
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=One-to-One Relationships">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_tags.livemd">博客：标签</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_cover_image.livemd">博客：封面图片</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 为什么你可能会使用一对一关系而不是在表中添加额外字段？
+* 如何将关联的数据结构添加到资源的表单中？
+
+## 概述
+
+这是[博客：封面图片](../exercises/blog_cover_image.livemd)练习的配套阅读。本课概述了如何在Phoenix应用程序中处理一对一关联。请查看`example_projects/blog`项目文件夹，以便为本课中的示例提供上下文。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 一对一关系
+
+一对一关系是两个数据库表之间的关系，其中一个表中的单个记录与另一个表中的单个记录相关联。
+
+以下是我们可能选择使用一对一关系而不是简单地在同一表中存储数据的原因。
+
+* **性能**：一对一关系可以通过将不常用或检索成本高的数据存储在单独的表中来提高数据库性能。
+* **领域设计**：将数据（如具有单独字段的`PhoneNumber`）分离到自己的表中可能在语义上是合理的。创建关联还可以确保使用公共资源的表之间的一致性。
+* **灵活性**：一对一关系允许在不影响数据库其余部分的情况下更改相关数据的结构。例如，将用户`Profile`数据存储在单独的表中，可以在不更改主`User`表结构的情况下添加或删除个人资料字段。
+
+一对一关系可能会增加数据库模式的复杂性，并不总是最佳选择，因此请考虑权衡并选择最适合您特定需求的设计。
+
+我们使用术语**属于**和**有一个**来描述一对一关系的性质。通常一个资源将拥有另一个资源。例如，一个博客`Post`可能有一个`CoverImage`，而`CoverImage`属于`Post`。
+
+在这种情况下，**belongs_to**某个资源的资源存储对该资源的外键。
+
+```mermaid
+erDiagram
+
+Post {
+    string title
+    string subtitle
+    text content
+}
+
+CoverImage {
+    string url
+    id post_id
+}
+
+Post ||--O| CoverImage: "has one/belongs to"
+```
+
+## 迁移
+
+一对一关系使用外键将一个资源与另一个资源关联。**belongs_to**关系中的父资源的资源存储外键。
+
+以下是创建`cover_images`的迁移示例，其中包含`post_id`外键。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.CreateCoverImages do
+  use Ecto.Migration
+
+  def change do
+    create table(:cover_images) do
+      add :url, :text
+      add :post_id, references(:posts, on_delete: :delete_all), null: false
+
+      timestamps()
+    end
+
+    create index(:cover_images, [:post_id])
+  end
+end
+```
+
+## 模式
+
+模式使用[has_one/3](https://hexdocs.pm/ecto/Ecto.Schema.html#has_one/3)和[belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3)定义一对一关系的方向。
+
+存储外键的记录应[belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3)关联的父记录。
+
+以下是一个`Post`模式的示例，该模式[has_one/3](https://hexdocs.pm/ecto/Ecto.Schema.html#has_one/3) `CoverImage`记录。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+has_one :cover_image, Blog.Posts.CoverImage, on_replace: :update
+```
+
+我们在上面设置`on_replace: :update`以更新关联的`cover_image`，而不是`：raise`错误（默认行为）或`：delete`并重新创建封面图片。
+
+有关更深入的解释，请参见[on_replace选项](https://hexdocs.pm/ecto/Ecto.Changeset.html#module-the-on_replace-option)。
+
+以下是一个`CoverImage`模式的示例，该模式[belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3)一个`Post`记录。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+belongs_to :post, Blog.Posts.Post
+```
+
+## 上下文：替换关联
+
+在更新关联时，我们需要设置`on_replace`行为。在一对一关系中，我们可能考虑使用`:update`行为来简单地更新关联记录，而不是删除它并创建一个新记录。这需要在更新之前预加载关联。
+
+以下是在上下文中预加载关联的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def update_post(%Post{} = post, attrs, tags \\ []) do
+  post
+  |> Repo.preload(:cover_image)
+  |> Post.changeset(attrs, tags)
+  |> Repo.update()
+end
+```
+
+## 表单数据
+
+在创建父数据的同时创建关联数据时，我们可以使用[inputs_for/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#inputs_for/1)将关联数据嵌入到同一表单中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.inputs_for :let={cover_image} field={f[:cover_image]}>
+  <.input type="text" field={cover_image[:url]} label="封面图片 URL" />
+</.inputs_for>
+```
+
+以下是一个在帖子表单中使用封面图片字段的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    哎呀，出了点问题！请检查下面的错误。
+  </.error>
+  <.input field={f[:user_id]} type="hidden" value={@current_user.id} />
+  <.input field={f[:title]} type="text" label="标题" />
+  <.input field={f[:content]} type="text" label="内容" />
+  <.inputs_for :let={cover_image} field={f[:cover_image]}>
+    <.input type="text" field={cover_image[:url]} label="封面图片 URL" />
+  </.inputs_for>
+  <.input field={f[:published_on]} type="datetime-local" label="发布日期" value={DateTime.utc_now()} />
+  <.input field={f[:visible]} type="checkbox" label="可见" />
+  <.input field={f[:tag_ids]} type="select" label="标签" multiple={true} options={@tag_options} />
+
+  <:actions>
+    <.button>保存帖子</.button>
+  </:actions>
+</.simple_form>
+```
+
+提交表单将发送包含嵌套映射的关联数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%{
+  "content" => "一些内容",
+  # 嵌套的封面图片数据
+  "cover_image" => %{"url" => "https://www.example.com/image.png"},
+  "published_on" => "2023-05-23T19:36",
+  "title" => "一些标题",
+  "user_id" => "1",
+  "visible" => "true"
+}
+```
+
+## 处理关联数据
+
+在同时创建父记录和子记录时，我们可以使用[cast_assoc/3](https://hexdocs.pm/ecto/Ecto.Changeset.html#cast_assoc/3)将关联数据（通常来自表单）转换为`Repo`需要插入关联记录到数据库的结构。
+
+以下是在`Post`模式中处理关联封面图片数据的示例更改集。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@doc false
+def changeset(post, attrs, tags \\ []) do
+  post
+  |> cast(attrs, [:title, :content, :visible, :published_on, :user_id])
+  |> cast_assoc(:cover_image)
+  |> validate_required([:title, :content, :visible, :user_id])
+  |> unique_constraint(:title)
+  |> foreign_key_constraint(:user_id)
+  |> put_assoc(:tags, tags)
+end
+```
+
+## 上下文测试
+
+通常，上下文应该（至少）测试资源的创建、更新和删除行为。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建
+
+以下是创建带有关联封面图片的帖子的上下文测试示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "create_post/1 with image" do
+  valid_attrs = %{
+    content: "一些内容",
+    title: "一些标题",
+    cover_image: %{
+      url: "https://www.example.com/image.png"
+    },
+    visible: true,
+    published_on: DateTime.utc_now(),
+    user_id: user_fixture().id
+  }
+
+  assert {:ok, %Post{} = post} = Posts.create_post(valid_attrs)
+  assert %CoverImage{url: "https://www.example.com/image.png"} = Repo.preload(post, :cover_image).cover_image
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 更新
+
+以下是更新帖子图片的上下文测试示例。测试关联数据的替换行为以确保其按预期工作非常重要。例如，除非您在模式中设置了关联的`on_replace`行为，否则上面的测试将失败。
+
+以下是更新时创建新图片的测试。这确保了`：cover_image`数据如[上下文：替换关联](#context:-replacing-associations)中所示被预加载。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "update_post/1 add an image" do
+  user = user_fixture()
+  post = post_fixture(user_id: user.id)
+
+  assert {:ok, %Post{} = post} = Posts.update_post(post, %{cover_image: %{url: "https://www.example.com/image2.png"}})
+  assert post.cover_image.url == "https://www.example.com/image2.png"
+end
+```
+
+以下是更新现有图片的测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "update_post/1 update existing image" do
+  user = user_fixture()
+  post = post_fixture(user_id: user.id, cover_image: %{url: "https://www.example.com/image.png"})
+
+  assert {:ok, %Post{} = post} = Posts.update_post(post, %{cover_image: %{url: "https://www.example.com/image2.png"}})
+  assert post.cover_image.url == "https://www.example.com/image2.png"
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 删除
+
+以下是删除带有封面图片的帖子的测试示例。由于可能没有直接处理封面图片的上下文函数，因此我们使用`Repo`来测试封面图片。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "delete_post/1 deletes post and cover image" do
+  user = user_fixture()
+  post = post_fixture(user_id: user.id, cover_image: %{url: "https://www.example.com/image.png"})
+  assert {:ok, %Post{}} = Posts.delete_post(post)
+  assert_raise Ecto.NoResultsError, fn -> Posts.get_post!(post.id) end
+  assert_raise Ecto.NoResultsError, fn -> Repo.get!(CoverImage, post.cover_image.id) end
+end
+```
+
+## 控制器测试
+
+以下是测试控制器中一对一关系的示例测试。此示例创建一个带有封面图片的帖子，并测试在帖子显示页面上找到帖子的封面图片。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "create post with cover image", %{conn: conn} do
+  user = user_fixture()
+  conn = log_in_user(conn, user)
+
+  create_attrs = %{
+    content: "一些内容",
+    title: "一些标题",
+    visible: true,
+    published_on: DateTime.utc_now(),
+    user_id: user.id,
+    cover_image: %{
+      url: "https://www.example.com/image.png"
+    }
+  }
+
+  conn = post(conn, ~p"/posts", post: create_attrs)
+
+  assert %{id: id} = redirected_params(conn)
+  assert redirected_to(conn) == ~p"/posts/#{id}"
+
+  conn = get(conn, ~p"/posts/#{id}")
+  post = Posts.get_post!(id) 
+  # 帖子是带有封面图片创建的
+  assert %CoverImage{url: "https://www.example.com/image.png"} = post.cover_image
+  # 帖子封面图片在显示页面上显示
+  assert html_response(conn, 200) =~ "https://www.example.com/image.png"
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Ecto：一对一关系](https://hexdocs.pm/ecto/associations.html#has-one-belongs-to)
+* [Pragmatic Bookshelf：编程Ecto](https://pragprog.com/titles/wmecto/programming-ecto/)
+* [Elixir学校：关联](https://elixirschool.com/en/lessons/ecto/associations)
+
+## 提交您的进度
+
+DockYard Academy现在建议您使用最新的[发布](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成一对一关系阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=One-to-One Relationships">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_tags.livemd">博客：标签</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_cover_image.livemd">博客：封面图片</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

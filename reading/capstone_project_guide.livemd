@@ -1,0 +1,100 @@
+# 毕业设计项目指南
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Capstone Project Guide">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/group_project_blog_presentation.livemd">小组项目：演示</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/capstone_github_project.livemd">毕业设计 GitHub 项目</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 毕业设计项目
+
+毕业设计项目是 DockYard Academy 课程的最终项目。这个项目是一个机会，让你将你在整个课程中学到的技能和知识应用于你选择的现实世界问题。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 要求
+
+你的毕业设计项目应包含以下功能：
+
+* 使用 Phoenix LiveView 和 PubSub 构建实时分布式功能。
+* 使用 Ecto 连接到数据库并管理一个或多个关联（单对单、单对多、多对多）。
+* 与外部 API、库或服务进行交互。
+* 使用身份验证来授权用户。
+
+如果你有一个偏离这些要求的项目想法，但仍能充分展示你在本课程中学到的内容，请与您的讲师沟通以请求批准。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 演示
+
+学生将向 Elixir 社区公开展示他们的毕业设计项目。在演示期间，我们建议你：
+
+* 概述项目中使用的技术（语言、框架、API、服务等）。
+* 演示项目的主要功能。
+* 分享一段特别具有挑战性或引人注目的代码。
+* 如果你在学院之后扩展项目，想要添加的任何功能。
+
+你将有十分钟的时间来展示你的项目，并有五分钟的时间回答观众的问题。考虑计时并练习从一个功能到另一个功能的过渡，以做好准备。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "finish Capstone Project Guide reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Capstone Project Guide">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/group_project_blog_presentation.livemd">小组项目：演示</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/capstone_github_project.livemd">毕业设计 GitHub 项目</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

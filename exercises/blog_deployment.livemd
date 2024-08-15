@@ -1,0 +1,130 @@
+# 博客：部署
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Deployment">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_deployment.livemd">Phoenix 部署</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_custom_feature.livemd">博客：自定义功能</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 部署
+
+使用 [Fly.io](https://fly.io/) 部署你的 [博客](group_project_blog.livemd) 项目。
+
+<div style="background-color: lightcoral; font-weight: bold; padding: 1rem; color: black; margin: 1rem 0;">
+在撰写时，Fly.io 允许你拥有两个免费的应用。如果你选择部署其他项目，请记住这可能会影响你部署博客或顶点项目的能力。
+</div>
+
+## CI/CD
+
+### 设置持续集成
+
+使用 GitHub Actions 设置一个 CI 系统，该系统将在你对 `Blog` 项目进行 PR 时自动运行测试。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 设置持续部署系统
+
+使用 GitHub Actions 设置一个与 Fly.io 的 CD 系统，该系统将在你将 PR 合并到 `main` 分支时自动部署你的项目。
+
+## 可选的额外功能
+
+以下是你可以添加的完全可选的功能，以便更深入地了解部署和 CI/CD。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 生产种子
+
+创建一个模块，用于用数据填充你的生产数据库。在你的生产应用中打开 IEx shell，并使用该模块填充你的生产数据库。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 格式化和警告 CI 检查
+
+将以下步骤添加到你的 CI 过程中。
+
+代码格式化：
+
+```
+Run mix format --check-formatted
+```
+
+将警告视为错误：
+
+```
+mix compile --warnings-as-errors
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Credo CI 检查
+
+将 [Credo](https://hexdocs.pm/credo/Credo.html) 添加到你的项目，并与持续集成系统进行配置。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Dialyzer CI 检查
+
+将 [Dialyzer](https://github.com/jeremyjh/dialyxir) 添加到你的项目，并与持续集成系统进行配置。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成博客：部署练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Deployment">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_deployment.livemd">Phoenix 部署</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_custom_feature.livemd">博客：自定义功能</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

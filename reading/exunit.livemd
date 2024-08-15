@@ -1,0 +1,701 @@
+# ExUnit
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=ExUnit">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_rock_paper_scissors.livemd">游戏：石头剪刀布</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_wordle.livemd">游戏：Wordle</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何有效地组织和命名我们的测试？
+* 我们如何使用断言来编写稳健的测试？
+
+## 测试
+
+我们测试是为了确保我们的代码按预期行为运行。
+
+自动化测试自动化了手动测试我们代码的过程，并验证我们的代码继续按预期行为运行。
+
+没有测试，很容易引入破坏性更改。有了测试，当某些东西出错时，自动化测试套件会捕捉到问题，并通过提供有用的反馈来促进调试。
+
+> 我们测试是为了增加对我们的软件按预期工作的信心。测试让我们有信心我们的代码按预期工作。这对于所有类型的测试都是正确的，无论是机器执行的自动化测试还是人类执行的手动测试。
+> 
+> * [Testing Elixir](https://pragprog.com/titles/lmelixir/testing-elixir/) by Andrea Leopardi and Jeffrey Matthias
+
+## 测试输入和输出
+
+测试可以是**脆弱的**，这意味着随着你更改代码库，测试会频繁失败。通常，测试之所以脆弱，是因为它们测试实现而不是行为。
+
+将行为视为函数的输入和输出，而实现则是其中的黑箱。
+
+```mermaid
+flowchart
+  subgraph Behavior
+    subgraph BB[黑箱]
+      Implementation
+    end
+    Input --> BB --> Output
+  end
+```
+
+我们的测试应该关注我们代码的行为，而不是内部细节。然而，这说起来容易做起来难，作为一般规则，如果重构你的代码（在不改变行为的情况下进行改进）导致测试失败，那么你很可能是在测试实现。
+
+现在，专注于测试你代码的**输入**，并对其**输出**进行断言。
+
+例如，如果我们正在测试一个 `double/1` 函数，该函数将一个数字加倍，我们会测试当给定一个数字如 `3` 时，它会返回 `6`。
+
+```mermaid
+flowchart LR
+2 --> double/1 --> 4
+```
+
+## ExUnit
+
+ExUnit 是 Elixir 的内置测试框架。
+
+让我们看一个非常简单的测试。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule ExampleTest do
+  use ExUnit.Case
+
+  test "truthy" do
+    assert true
+  end
+end
+
+ExUnit.run()
+```
+
+1. 首先，我们启动 [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html)。在 mix 项目中，这一步在我们的 `test_helpers.ex` 文件中为我们处理。在 Livebook 中，我们必须手动启动它。
+2. 接下来，我们定义一个测试模块。通常，如果我们为特定模块编写测试，我们会将其命名为 `ModuleNameTest`，因此名为 `Greeter` 的模块的测试将位于 `GreeterTest` 模块中。
+3. 下一行，`use ExUnit.Case`，从 [ExUnit.Case](https://hexdocs.pm/ex_unit/ExUnit.Case.html) 模块生成一些代码，这使我们可以访问 [test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 和 [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 宏以及其他测试工具。
+4. [test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 是一个定义单个测试的宏。[test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 接受测试名称作为字符串，在这种情况下是 `"truthy"`。
+5. [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 是一个在测试中进行单个断言的宏。如果它接收到一个真值，测试通过；如果接收到任何假值，测试失败。
+
+一个测试可以包含多个断言，一个测试模块可以有多个测试。
+
+## 断言
+
+[ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html) 提供了许多不同的断言宏，来自 [ExUnit.Assertion](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#functions) 模块。我们将重点关注以下常见断言。
+
+* [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 检查一个值是否为真值。
+* [refute/1](https://hexdocs.pm/ex_unit/1.14.1/ExUnit.Assertions.html#refute/1) 检查一个值是否为假值。
+* [assert_raise/2](https://hexdocs.pm/ex_unit/1.14.1/ExUnit.Assertions.html#assert_raise/2) 检查代码是否引发错误。
+
+### [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1)
+
+我们可以使用 ExUnit 提供的 [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 宏来断言一个值为真值。任何真值都会使测试通过。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule AssertExampleTest do
+  use ExUnit.Case
+
+  test "assert examples" do
+    assert true
+    assert fn -> 2 end
+    assert []
+    assert 1
+    assert %{}
+  end
+end
+
+ExUnit.run()
+```
+
+[assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 在提供假值 `nil` 或 `false` 时失败。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule FailingTest do
+  use ExUnit.Case
+
+  test "failing test" do
+    assert false
+  end
+end
+
+ExUnit.run()
+```
+
+[assert/2](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/2) 接受一个消息作为第二个参数，如果测试失败，将显示该消息。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule FailingTestWithMessage do
+  use ExUnit.Case
+
+  test "failing example" do
+    assert false, "此消息将在测试失败时显示。"
+  end
+end
+
+ExUnit.run()
+```
+
+### [refute/2](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#refute/2)
+
+[refute/2](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#refute/2) 宏是 [assert/2](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/2) 宏的相反。它检查一个值是否为假值（`nil` 或 `false`）。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule RefuteExampleTest do
+  use ExUnit.Case
+
+  test "refute examples" do
+    refute false
+    refute not true
+    refute !5
+    refute is_map(4)
+  end
+end
+
+ExUnit.run()
+```
+
+`refute/2` 也会在测试失败时显示一条消息。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule RefuteTruthyValueTest do
+  use ExUnit.Case
+
+  test "failing example" do
+    refute true, "此消息将在测试失败时显示。"
+  end
+end
+
+ExUnit.run()
+```
+
+## 实用断言
+
+由于 [assert/2](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/2) 测试一个值是否为真值，我们可以使用它与运算符结合，针对函数的输出编写断言。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 比较运算符
+
+例如，我们可能会使用比较运算符（`==`、`===`、`>=`、`>`、`<=`、`<`）来比较我们接收到的值与预期值。
+
+让我们通过 `double/1` 函数来实践这一点。
+
+```mermaid
+flowchart LR
+2 --> d1[double/1] --> 4
+3 --> d2[double/1] --> 6
+```
+
+```elixir
+defmodule Number do
+  def double(number) do
+    number * 2
+  end
+end
+```
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule NumberTest do
+  use ExUnit.Case
+
+  test "double/1" do
+    assert Number.double(2) == 4
+    assert Number.double(3) == 6
+  end
+end
+
+ExUnit.run()
+```
+
+### 匹配运算符
+
+使用匹配运算符 `=` 来检查值是否匹配特定模式也是常见的。
+
+```elixir
+map = %{one: 1, two: 2}
+
+%{one: _} = map
+```
+
+以下是实践示例。通常我们不应该测试 Elixir 函数，但为了示例，我们将使用 [Map.merge/2](https://hexdocs.pm/elixir/Map.html#merge/2)。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule MapMergeTest do
+  use ExUnit.Case
+
+  test "merge/2" do
+    assert %{one: _value} = Map.merge(%{one: 1}, %{two: 2})
+  end
+end
+
+ExUnit.run()
+```
+
+基于测试的匹配运算符 `=~` 可以测试一个字符串是否包含一个值。
+
+```elixir
+string = "hello world"
+string =~ "hello"
+```
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule StringContainsTest do
+  use ExUnit.Case
+
+  test "string contains hello" do
+    string = "hello world"
+    assert string =~ "hello"
+  end
+end
+
+ExUnit.run()
+```
+
+还有许多内置函数，例如 `is_map`、`is_list`、`is_integer` 等，我们可以用来断言被测试值的一些属性。
+
+这些运算符和函数可以与 `assert` 结合使用，以便进行更有用的断言。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule AssertionExampleTest do
+  use ExUnit.Case
+
+  test "practical assertions example" do
+    # 比较运算符
+    assert 2 == 2.0
+    assert 2.0 === 2.0
+    assert 1 < 2
+    assert 2 > 1
+    assert 2 >= 2
+    assert 2 <= 2
+
+    # 匹配运算符
+    assert %{one: _} = %{one: 1, two: 2}
+    assert [one: _, two: _] = [one: 1, two: 2]
+    assert {_, _, _} = {1, 2, 3}
+    assert [1 | _tail] = [1, 2, 3]
+
+    # 函数
+    assert is_integer(2)
+    assert is_map(%{})
+
+    # 基于文本的匹配运算符
+    assert "hello world" =~ "hello"
+    assert "hello world" =~ ~r/\w+/
+  end
+end
+
+ExUnit.run()
+```
+
+使用运算符的断言提供了 `:left` 和 `:right` 值以供反馈。通常，`:left` 应该是被测试系统的**接收**值，而 `:right` 应该是被测试系统的**预期**值。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  1) test left/right == example (LeftRightExampleTest)
+     reading/exunit.livemd#cell:6
+     Assertion with == failed
+     code:  assert 4 == 5
+     left:  4
+     right: 5
+     stacktrace:
+       reading/exunit.livemd#cell:7: (test)
+```
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule LeftRightExampleTest do
+  use ExUnit.Case
+
+  test "left/right == example" do
+    assert 4 == 5
+  end
+
+  test "left/right > example" do
+    assert 4 > 5
+  end
+
+  test "left/right =~ example" do
+    assert "hello world" =~ "non-matching pattern"
+  end
+end
+
+ExUnit.run()
+```
+
+## 测试驱动开发
+
+许多开发者遵循**[TDD（测试驱动开发）](https://en.wikipedia.org/wiki/Test-driven_development)**的实践，即在编写实现之前为其功能编写测试。
+
+这些开发者可能会声称 TDD 导致更好的测试代码、更简单的接口和其他好处。然而，其他开发者使用不同的方法，可能会过度使用 TDD 或在错误的情况下使用它。
+
+你可以自行决定 TDD 的价值，而本课程旨在保持中立。然而，我们确实相信理解 TDD 对你是有益的，以便在你选择使用时，它可以成为你工具箱中的一个工具。
+
+TDD 有三个主要阶段，通常称为**红、绿、重构**。
+
+* 红：编写一个失败的测试。
+* 绿：编写代码使测试通过。
+* 重构：在不改变行为的情况下改进和优化你的代码。
+
+在本课程中，你将有机会实践 TDD。对于 TDD 和测试的更深入了解，你可以考虑观看 Ian Cooper 的这段视频。它超过一个小时，完全是可选的。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=EZ05e7EMOLM")
+```
+
+## 基于示例的测试
+
+在上面，我们展示了基于示例的测试，即我们提供一个输入和输出的单一示例，并假设被测试系统继续按预期行为运行。
+
+然而，对于 `Math.add/2` 函数，可能存在无限数量的输入和输出。假设单一示例全面测试所有输入是否安全？
+
+<!-- livebook:{"attrs":{"source":"for int1 <- 1..3, int2 <- 1..3 do\n  [input: int1, input: int2, output: int1 + int2]\nend\n|> Kino.DataTable.new()","title":"基于示例的测试"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+for int1 <- 1..3, int2 <- 1..3 do
+  [input: int1, input: int2, output: int1 + int2]
+end
+|> Kino.DataTable.new()
+```
+
+例如，我们可以用一个假解决方案使我们的 `NumberTest` 通过。
+
+```elixir
+defmodule FakeNumber do
+  def double(number) do
+    if number == 2 do
+      4
+    else
+      6
+    end
+  end
+end
+
+ExUnit.start(auto_run: false)
+
+defmodule FakeNumberTest do
+  use ExUnit.Case
+
+  test "double/1" do
+    assert FakeNumber.double(2) == 4
+    assert FakeNumber.double(3) == 6
+  end
+end
+
+ExUnit.run()
+```
+
+### 稳健性
+
+一个稳健的测试确保代码在多种场景下正确运行。为了提高我们测试的稳健性，我们可以编写更多基于示例的测试或在同一测试中添加更多断言。
+
+```elixir
+ExUnit.start(auto_run: false)
+
+defmodule RobustNumberTest do
+  use ExUnit.Case
+
+  test "double/1" do
+    # 现在我们捕捉到 `FakeNumber` 失败了许多测试用例。
+    assert FakeNumber.double(2) == 4
+    assert FakeNumber.double(3) == 6
+    assert FakeNumber.double(4) == 8
+    assert FakeNumber.double(5) == 10
+  end
+end
+
+ExUnit.run()
+```
+
+这更全面。然而，仍然可以伪造解决方案。此外，如果我们继续这种模式，我们将编写比必要更多的测试，这使得我们的测试套件更长，并可能更难维护。
+
+## 测试类型
+
+主要有三种类型的测试。
+
+* **单元测试**：覆盖单个单元的测试。
+* **集成测试**：覆盖多个组件集成的测试。
+* **端到端（E2E）测试**：覆盖整个系统从开始到结束的测试。
+
+到目前为止，我们只看到了单元测试的示例。此外，单元的定义在编程社区中经常被热烈讨论，因此集成测试和单元测试之间的界限可能模糊。
+
+我们将有机会看到各种类型的测试。现在，了解有多种类型的测试就足够了。
+
+有关集成测试的更多信息，可以考虑阅读 [Integration Tests](https://martinfowler.com/bliki/IntegrationTest.html)，这是 Martin Fowler 的一篇博客文章。
+
+对于端到端测试，你可以查看 [Wallaby](https://github.com/elixir-wallaby/wallaby) 项目，它可以通过模拟真实用户交互来测试 Web 应用程序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试套件结构
+
+我们希望对我们的测试套件有信心，以便在我们添加功能、重构和以其他方式更改代码库时，不会冒着引入破坏性更改的风险。
+
+关于如何全面测试应用程序，有几种不同的观点。
+
+许多开发者认为 [测试金字塔](https://martinfowler.com/articles/practical-test-pyramid.html) 创建了一个快速且全面的测试套件，包含许多单元测试、一些集成测试和更少的端到端测试。
+
+或者，你可以考虑 [测试奖杯](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications)，它优先考虑集成测试。
+
+我们并不推荐特定的模式，而是希望向你介绍它们，以便你可以形成自己的观点并进行进一步研究。
+
+## 测试命名
+
+命名测试很重要，但也高度主观。有一些常见的模式，例如 [Given, When, Then](https://www.agilealliance.org/glossary/gwt/#q=~(infinite~false~filters~(postType~(~'page~'post~'aa_book~'aa_event_session~'aa_experience_report~'aa_glossary~'aa_research_paper~'aa_video)~tags~(~'given*20when*20then))~searchTerm~'~sort~false~sortDirection~'asc~page~1))。
+
+一般来说，一个好的测试名称应该捕捉到：
+
+1. 被测试的系统
+2. 被测试的状态
+3. 期望的行为
+
+以下所有内容都可以捕捉到所需的信息。
+
+在我们的 `Number` 模块示例中，这转化为：
+
+1. Number 模块
+2. 输入值（`2`）
+3. 期望输出值（`4`）
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "double/1 with 2 returns 4"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可能会省略测试名称中的期望行为，因为它也通过测试中的断言隐含地表述。通过省略期望行为，我们防止测试名称在期望行为变化时变得过时，代价是可能降低我们测试的即时清晰度。
+
+因此，以下测试名称可能是合适的：
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "double/1 with 2"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们不会教条地推荐一种模式，而是说一个好的测试名称使理解测试目标变得更容易。你如何做到这一点取决于你，许多开发团队会发展出不同的模式。
+
+## 测试组织
+
+我们可以将测试分组到 [describe/2](https://hexdocs.pm/ex_unit/1.14.1/ExUnit.Case.html#describe/2) 块中。一个 [describe/2](https://hexdocs.pm/ex_unit/1.14.1/ExUnit.Case.html#describe/2) 块通过某种共性组织测试。例如，通常将模块下单个函数的测试分组在一起。
+
+```elixir
+defmodule OrganizedNumber do
+  def double(number), do: number * 2
+  def triple(number), do: number * 3
+end
+
+ExUnit.start(auto_run: false)
+
+defmodule OrganizedNumberTest do
+  use ExUnit.Case
+
+  describe "double/1" do
+    test "1 -> 2" do
+      assert OrganizedNumber.double(1) == 2
+    end
+
+    test "2 -> 4" do
+      assert OrganizedNumber.double(2) == 4
+    end
+  end
+
+  describe "triple/1" do
+    test "1 -> 3" do
+      assert OrganizedNumber.triple(1) == 3
+    end
+
+    test "2 -> 6" do
+      assert OrganizedNumber.triple(2) == 6
+    end
+  end
+end
+
+ExUnit.run()
+```
+
+## ExUnit 与 Mix
+
+Mix 项目在使用 [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html) 时提供了一些便利。
+
+Mix 项目中的测试位于 `test/` 文件夹中。通常，`lib` 文件夹中每个被测试文件在 `test/` 文件夹中都有一个等效文件。
+
+ExUnit 在 `test/test_helper.exs` 文件中为我们启动，`test/` 文件夹中的文件在我们运行测试时会自动编译、评估和执行。
+
+我们强烈推荐 [Elixir Test](https://marketplace.visualstudio.com/items?itemName=samuel-pordeus.elixir-test) 扩展用于 Visual Studio Code，因为它提供了一些有用的命令来运行 Elixir 中的测试。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 运行测试
+
+我们可以通过在项目文件夹的命令行中运行以下命令来执行所有测试。
+
+```
+$ mix test
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 运行文件中的测试
+
+我们可以通过提供其路径来运行单个测试文件。
+
+```
+$ mix test path/to/test/file.exs
+```
+
+例如，我们可以运行 `math_test.exs` 文件。
+
+```
+$ mix test test/math_test.exs
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 按行号运行测试
+
+我们可以通过提供行号来执行特定测试或 `describe` 块下的多个测试。
+
+```
+$ mix test test/math_test.exs:5
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试标签
+
+我们可以使用 `@moduletag`、`@describetag` 和 `@tag` 模块属性来标记我们的测试。一旦标记，我们可以配置 ExUnit 以排除、包含或仅运行具有特定标签的测试，使用 [ExUnit.configure/1](https://hexdocs.pm/ex_unit/ExUnit.html#configure/1)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@tag :my_tag
+test "example test" do
+  assert false
+end
+```
+
+一旦标记，我们可以使用 `--only`、`--exclude` 和 `--include` 标志来运行特定测试。
+
+```
+$ mix test --exclude my_tag
+```
+
+或者，我们可以将 [ExUnit.configure/1](https://hexdocs.pm/ex_unit/ExUnit.html#configure/1) 函数放在 `test_helpers.exs` 中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+ExUnit.start()
+ExUnit.configure(exclude: :my_tag)
+```
+
+`:skip` 标签默认被排除。这对于跳过测试很有用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@tag :skip
+test "example test" do
+  assert false
+end
+```
+
+## 进一步阅读
+
+有关测试的更多信息，可以考虑使用以下资源。
+
+* [Mix Test](https://hexdocs.pm/mix/Mix.Tasks.Test.html)，了解如何使用 `mix test` 命令。
+* [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html)，有关 ExUnit 的文档。
+* [ElixirSchools: Documentation](https://elixirschool.com/en/lessons/basics/documentation)，Elixir 学校关于文档和文档测试的课程。
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹的命令行中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 ExUnit 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供一门付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=ExUnit">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_rock_paper_scissors.livemd">游戏：石头剪刀布</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_wordle.livemd">游戏：Wordle</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

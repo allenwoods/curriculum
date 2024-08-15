@@ -1,0 +1,137 @@
+# 游戏：受监督的得分追踪器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Supervised Score Tracker">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/supervised_stack.livemd">受监督的栈</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/task.livemd">任务</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 游戏：受监督的得分追踪器
+
+你将设置你的 [Games](../exercises/games.livemd) 项目作为一个受监督的 mix 项目。
+
+然后，创建一个 `Games.ScoreTracker` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，它将跟踪玩家在不同游戏中的得分。
+
+决定赢得游戏的积分奖励，例如：
+
+* **猜数字游戏**：5 分
+* **剪刀石头布**：10 分
+* **Wordle**：25 分
+
+每当用户赢得游戏时，增加 `ScoreTracker` 的得分。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 要求
+
+* 初始得分追踪器状态应为 `0`。
+* 处理异步 `{:add_points, points}` 消息以增加得分状态。
+* 处理同步 `:get_score` 消息以检索当前得分。
+* `Games.ScoreTracker` 应由监督者作为命名进程启动。
+* 创建 `start_link/1`、`add_points/1` 和 `current_score/1` 函数，如下文所述。
+* 编写完整的测试套件，包括至少以下情况：
+  * `"current_score/1 检索当前得分"`
+  * `"add_points/1 将积分添加到得分"`
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Games.ScoreTracker 应该是一个命名进程，因此我们不需要提供 pid。
+{:ok, _pid} = Games.ScoreTracker.start_link()
+:ok = Games.ScoreTracker.add_points(10)
+:ok = Games.ScoreTracker.add_points(10)
+20 = Games.ScoreTracker.current_score()
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 得分菜单
+
+为游戏菜单创建一个 `"score"` 命令，以显示用户的当前得分。例如：
+
+```
+$ ./games
+你想玩什么游戏？
+1. 猜数字游戏
+2. 剪刀石头布
+3. Wordle
+
+输入 "stop" 退出
+输入 "score" 查看当前得分
+score
+
+==================================================
+你的得分是 0
+==================================================
+
+你想玩什么游戏？
+1. 猜数字游戏
+2. 剪刀石头布
+3. Wordle
+
+输入 "stop" 退出
+输入 "score" 查看当前得分
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成游戏：受监督的得分追踪器练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Games: Supervised Score Tracker">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/supervised_stack.livemd">受监督的栈</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/task.livemd">任务</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

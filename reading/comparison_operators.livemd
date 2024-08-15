@@ -1,0 +1,231 @@
+# 比较运算符
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Comparison Operators">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/booleans.livemd">布尔值</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/match_operator.livemd">匹配运算符</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是比较运算符，它们通常比较什么？
+* 我们如何在程序中使用比较运算符？
+
+## 比较运算符
+
+比较运算符允许我们比较值。
+
+使用比较运算符，我们可以检查值是否相等 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;">==</span>，大于 `>`，小于 `<`，大于或等于 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;">>=</span>，以及小于或等于 <span style="background-color: rgb(225 232 240); padding: 0.1rem 0.5rem; border-radius: 0.5rem;"><=</span>。
+
+比较运算符可以用于任何值，但最常用于比较整数和浮点数。
+
+比较的结果是布尔值，可能是 `true` 或 `false`。
+
+例如，如果我们检查 `5` 是否等于 `5`，我们返回 `true`。
+
+```elixir
+5 == 5
+```
+
+### 记住大于和小于
+
+`>` 大于
+
+`<` 小于
+
+为了帮助记住哪个符号 `<` 或 `>` 表示大于或小于，你可能会发现记住如果较大的数字在较大的边上，语句为 `true` 是有帮助的。
+
+有些人发现将语句可视化为一只鳄鱼在吃东西是有帮助的。鳄鱼总是想要最大的食物。
+
+```elixir
+# 鳄鱼想要最大的食物。最大的数字是 `10`，所以返回 true。
+10 > 2
+```
+
+```elixir
+# 鳄鱼想要最大的食物。最大的数字是 `10`，但它吃了 `2`，所以返回 false。
+10 < 2
+```
+
+### 严格相等
+
+<!-- livebook:{"break_markdown":true} -->
+
+在 Elixir 中有两个运算符用于检查相等性。`===` 将检查两个值在值和类型上是否严格相等。因此，尽管具有相同的数值，`1` 不等于 `1.0`，因为整数和浮点数不是相同的类型。
+
+```elixir
+1 === 1.0
+```
+
+然而，如果你只关心数值而不关心数据类型，你可以只使用两个等号而不是三个 `==`
+
+```elixir
+1.0 == 1
+```
+
+### 你的回合
+
+使用比较运算符，确定 `10 + 10 * 15` 是否大于 `(10 + 10) * 15`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+10 + 10 * 15 > (10 + 10) * 15
+```
+
+</details>
+
+```elixir
+
+```
+
+使用比较运算符，确定 `4 ** 6` 是否等于 `4 * 4 * 4 * 4 * 4 * 4`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+4 ** 6 == 4 * 4 * 4 * 4 * 4 * 4
+```
+
+</details>
+
+```elixir
+
+```
+
+使用比较运算符，确定 `100 / 2` 是否严格等于 `50`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+100 / 2 === 50
+```
+
+</details>
+
+```elixir
+
+```
+
+## 比较不同数据类型
+
+你可以将不同数据类型彼此比较，遵循以下 [排序顺序](https://hexdocs.pm/elixir/master/operators.html#term-ordering)。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+number < atom < reference < function < port < pid < tuple < map < list < bitstring
+```
+
+你会注意到上面有几个你可能不熟悉的数据类型。别担心。没有必要记住这个排序顺序或了解所有这些数据类型。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 比较字符串
+
+在比较字符串时，它们根据字母顺序进行比较。字母表中较早的字母被评估为小于字母表中较晚的字母。
+
+```elixir
+"a" < "z"
+```
+
+大写字母总是小于小写字母，无论字母顺序如何。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"Z" < "a"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用比较运算符确定 `"hello"` 是否等于 `"hello"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+"hello" == "hello"
+```
+
+</details>
+
+```elixir
+
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [HexDocs: 运算符](https://hexdocs.pm/elixir/operators.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成比较运算符阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Comparison Operators">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/booleans.livemd">布尔值</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/match_operator.livemd">匹配运算符</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

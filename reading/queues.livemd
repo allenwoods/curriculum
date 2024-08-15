@@ -1,0 +1,778 @@
+<!-- livebook:{"file_entries":[{"name":"FIFO%20Double%20Ended%20Queue.drawio.png","type":"attachment"},{"name":"FIFO%20Queue.drawio.png","type":"attachment"},{"name":"Priority_Queue.png","type":"attachment"},{"name":"Stack.drawio.png","type":"attachment"}]} -->
+
+# 队列
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:benchee, "~> 1.1"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Queues">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/custom_assertions.livemd">自定义断言</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/worker_pools.livemd">工作池</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+* 队列的**前**和**后**是什么？
+* $O(1)$ 性能与 $O(n)$ 性能有什么区别？
+* 平摊队列的理想性能与最坏情况性能是什么？最坏情况发生在什么情况下？
+* 队列与双端队列（DEQ）在重新平衡队列时有什么不同？
+
+## 概述
+
+### FIFO 队列
+
+FIFO（先进先出）队列是一种数据结构，它按照添加的顺序存储元素，并以相同的顺序检索它们。在 FIFO 队列中，首先添加到队列的元素是第一个被移除的元素。它的工作方式就像商店里的一排人，最先到达的人是第一个被服务的。
+
+队列中的元素被插入（入队）到**后**（也称为尾部），元素从**前**（出队）中移除。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/FIFO%20Queue.drawio.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### LIFO 队列
+
+LIFO 队列（后进先出）是一种数据结构，它存储元素并检索最近存储的元素。它也被称为**栈**。
+
+我们将元素**推入**栈的顶部，并从栈的顶部**弹出**它们。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/Stack.drawio.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 双端队列
+
+双端队列（Deque）是一种数据结构，允许从队列的两端高效地插入和移除元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/FIFO%20Double%20Ended%20Queue.drawio.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 优先队列
+
+优先队列存储具有相关优先级的元素。元素按优先级顺序移除。
+
+最小优先队列检索优先级最低的元素，而最大优先队列检索优先级最高的元素。
+
+例如，医生办公室可以被视为优先队列，因为更严重的问题的患者会优先得到治疗。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/Priority_Queue.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 平摊 $O(1)$
+
+我们使用大 O 符号来描述算法的性能如何随着数据集的增长而变化。$O(1)$ 意味着算法的执行时间保持不变，无论数据集的大小如何。$O(n)$ 意味着算法的执行时间与数据集的大小成正比增长。
+
+我们的队列和双端队列都有平摊 $O(1)$ 性能。平均而言，它们的性能是常数，但在最坏情况下可能会有 $O(n)$ 性能。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 天真的实现
+
+实现一个天真的算法涉及开发一个简单的解决方案来解决问题，这可能并不一定是最有效或最优的解决方案。天真的算法通常是想到一个问题时首先想到的算法，通常易于理解和执行。然而，对于较大或更复杂的输入大小，它可能不是最有效的解决方案，尤其是与其他更复杂的算法相比。天真的解决方案有时也被称为暴力算法。
+
+## 栈
+
+栈是一种相对简单的数据结构，因为我们可以仅使用列表实现一个高性能的栈。
+
+```elixir
+defmodule Stack do
+  def new do
+    []
+  end
+
+  def push(stack, element) do
+    [element | stack]
+  end
+
+  def pop(stack) do
+    {hd(stack), tl(stack)}
+  end
+end
+```
+
+列表的头部是栈的顶部。
+
+元素被推入栈的顶部，并从栈的顶部移除。
+
+```elixir
+stack =
+  Stack.new()
+  |> Stack.push(1)
+  |> Stack.push(2)
+  |> Stack.push(3)
+```
+
+```elixir
+Stack.pop(stack)
+```
+
+## 天真队列
+
+对于我们的天真解决方案，我们可以将队列表示为一个列表。
+
+```elixir
+queue = []
+```
+
+我们可以在想要插入元素时简单地将元素添加到列表的前面。这具有 $O(1)$ 性能。
+
+```elixir
+queue = [1 | queue]
+```
+
+```elixir
+queue = [2 | queue]
+```
+
+```elixir
+queue = [3 | queue]
+```
+
+然而，我们必须反转列表以移除队列中的第一个元素。然后，我们还需要重新反转剩余的元素以将队列恢复到正确的顺序。反转列表的性能为 $O(n)$，这并不理想。
+
+```elixir
+[value | reversed_queue] = Enum.reverse(queue)
+{value, Enum.reverse(reversed_queue)}
+```
+
+这是将其制作成 `NaiveQueue` 模块。
+
+```elixir
+defmodule NaiveQueue do
+  def new, do: []
+
+  def enqueue(queue, el) do
+    [el | queue]
+  end
+
+  def dequeue([]), do: {nil, []}
+
+  def dequeue(queue) do
+    [value | reversed_queue] = Enum.reverse(queue)
+    {value, Enum.reverse(reversed_queue)}
+  end
+end
+```
+
+我们可以高效地将项目插入（入队）到队列中。
+
+```elixir
+queue =
+  NaiveQueue.new()
+  |> NaiveQueue.enqueue(1)
+  |> NaiveQueue.enqueue(2)
+  |> NaiveQueue.enqueue(3)
+```
+
+我们也可以从队列中移除（出队）元素，但这具有 $O(n)$ 性能。
+
+```elixir
+{value, queue} = NaiveQueue.dequeue(queue)
+```
+
+```elixir
+{value, queue} = NaiveQueue.dequeue(queue)
+```
+
+```elixir
+{value, queue} = NaiveQueue.dequeue(queue)
+```
+
+我们通过返回 `nil` 来处理空队列的情况。
+
+```elixir
+{value, queue} = NaiveQueue.dequeue(queue)
+```
+
+## 平摊队列
+
+我们可以将队列建模为一个包含**前**元素和**后**元素的列表，从而通过拥有两个独立的列表头来优化我们的队列。
+
+元素被添加到**后**列表中，并从**前**列表中移除。
+
+```mermaid
+flowchart
+subgraph back
+  6 --> 5 --> 4 --> 3 --> 2 --> 1
+end
+```
+
+当我们移除（出队）一个元素时，我们可以反转**后**列表中的元素并将它们存储在**前**列表中。反转列表导致我们的最坏情况性能为 $O(n)$。然而，未来的移除将具有 $O(1)$ 性能。
+
+```mermaid
+flowchart
+  subgraph front
+    direction LR
+    1 --> 2 --> 3 --> 4 --> 5 --> 6
+  end
+```
+
+### 实现
+
+我们可以将每个列表存储在一个元组中，以实现我们的**前**和**后**列表。
+
+```elixir
+# {back, Front}
+{[], []}
+```
+
+当我们插入元素时，我们将它们添加到**后**列表的前面。
+
+```elixir
+# Enqueue 1, 2, 3
+{[3, 2, 1], []}
+```
+
+当我们移除元素时，我们抓取**前**列表的头部。当**前**列表为空时，我们将反转**后**列表以形成**前**列表。这是我们的最坏情况 $O(n)$ 性能场景。
+
+```elixir
+# Dequeue
+{[], [1, 2, 3]}
+```
+
+在反转**后**列表后，从**前**队列中抓取元素是 $O(1)$ 操作。
+
+```elixir
+{back, front} = {[], [1, 2, 3]}
+
+[removed | front] = front
+
+{removed, front}
+```
+
+这是将其放入模块中的实现。我们处理了最佳和最坏情况场景。当队列为空时，我们也处理了返回 `nil` 的情况。
+
+```elixir
+defmodule AmortizedQueue do
+  def new, do: {[], []}
+
+  def enqueue({back, front}, el) do
+    {[el | back], front}
+  end
+
+  def dequeue({[], []} = queue), do: {nil, queue}
+  # best-case scenario O(1)
+  def dequeue({back, [el | front]}), do: {el, {back, front}}
+
+  # worst-case scenario O(n)
+  def dequeue({back, []}) do
+    [removed | front] = Enum.reverse(back)
+    {removed, {[], front}}
+  end
+end
+```
+
+我们在**后**列表中入队项目。
+
+```elixir
+queue =
+  AmortizedQueue.new()
+  |> AmortizedQueue.enqueue(1)
+  |> AmortizedQueue.enqueue(2)
+  |> AmortizedQueue.enqueue(3)
+```
+
+然后，如果**前**列表中没有元素，我们就反转**后**列表。虽然这具有 $O(n)$ 性能，但我们只需在**前**列表为空时执行此操作。
+
+```elixir
+{value, queue} = AmortizedQueue.dequeue(queue)
+```
+
+后续操作将是 $O(1)$。
+
+```elixir
+{value, queue} = AmortizedQueue.dequeue(queue)
+```
+
+```elixir
+{value, queue} = AmortizedQueue.dequeue(queue)
+```
+
+如果整个队列为空，我们只需返回 `nil`。
+
+```elixir
+{value, queue} = AmortizedQueue.dequeue(queue)
+```
+
+## 双端队列
+
+与我们的平摊队列类似，我们可以用**后**列表和**前**列表表示双端队列。
+
+由于我们可以在任一端执行操作，因此我们需要优化从**后**和**前**移除/插入的操作。因此，像我们在平摊队列中那样反转整个列表是不可取的。
+
+相反，当**后**或**前**列表为空时，执行高效的方法是将队列平衡为两个部分。
+
+例如，如果我们将六个元素插入到**后**列表中：
+
+```mermaid
+flowchart
+subgraph back
+  direction RL
+  1 --> 2 --> 3 --> 4 --> 5 --> 6
+end
+```
+
+我们将列表分成两半，使**后**列表为 `[6, 5, 4]`，而**前**列表为 `[1, 2, 3]`。
+
+```mermaid
+flowchart
+  subgraph front
+    direction LR
+    1 --> 2 --> 3
+  end
+
+  subgraph back
+    direction LR
+    6 --> 5 --> 4
+  end
+```
+
+通过分割我们的队列，我们将能够访问**后**和**前**列表的头部，因此在队列的任一侧进行插入/移除操作将具有 $O(1)$ 性能。
+
+这是将其放入模块中的实现。
+
+```elixir
+defmodule DoubleEndedQueue do
+  def new, do: {[], []}
+
+  def insert_back({back, front}, el), do: {[el | back], front}
+
+  def insert_front({back, front}, el), do: {back, [el | front]}
+
+  def remove_back({[], []} = queue), do: {nil, queue}
+
+  # best-case scenario O(1)
+  def remove_back({[removed | back], front}), do: {removed, {back, front}}
+
+  # worse-case scenario O(n)
+  def remove_back({[], front}) do
+    middle_index = div(length(front), 2)
+    {half_front, reversed_back} = Enum.split(front, middle_index)
+    [removed | back] = Enum.reverse(reversed_back)
+    {removed, {back, half_front}}
+  end
+
+  def remove_front({[], []} = queue), do: {nil, queue}
+
+  # best-case scenario O(1)
+  def remove_front({back, [removed | front]}), do: {removed, {back, front}}
+
+  # worst-case scenario O(n)
+  def remove_front({back, []}) do
+    middle_index = div(length(back), 2)
+    {half_back, reversed_front} = Enum.split(back, middle_index)
+    [removed | front] = Enum.reverse(reversed_front)
+    {removed, {half_back, front}}
+  end
+end
+```
+
+现在我们可以高效地在**后**或**前**插入/移除元素。
+
+```elixir
+deq =
+  DoubleEndedQueue.new()
+  |> DoubleEndedQueue.insert_back(1)
+  |> DoubleEndedQueue.insert_back(2)
+  |> DoubleEndedQueue.insert_back(3)
+  |> IO.inspect()
+
+{value, deq} = DoubleEndedQueue.remove_back(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_back(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_back(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_back(deq)
+```
+
+```elixir
+deq =
+  DoubleEndedQueue.new()
+  |> DoubleEndedQueue.insert_front(1)
+  |> DoubleEndedQueue.insert_front(2)
+  |> DoubleEndedQueue.insert_front(3)
+  |> IO.inspect()
+
+{value, deq} = DoubleEndedQueue.remove_front(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_front(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_front(deq) |> IO.inspect()
+{value, deq} = DoubleEndedQueue.remove_front(deq)
+```
+
+当我们从空的**前**列表中移除元素时，我们会重新平衡队列。
+
+```elixir
+deq =
+  DoubleEndedQueue.new()
+  |> DoubleEndedQueue.insert_back(1)
+  |> DoubleEndedQueue.insert_back(2)
+  |> DoubleEndedQueue.insert_back(3)
+  |> DoubleEndedQueue.insert_back(4)
+  |> DoubleEndedQueue.insert_back(5)
+  |> DoubleEndedQueue.insert_back(6)
+  |> IO.inspect()
+
+DoubleEndedQueue.remove_front(deq)
+```
+
+当我们从空的**后**列表中移除元素时，情况也是如此。我们将**前**列表分割以重新平衡我们的队列。
+
+```elixir
+deq =
+  DoubleEndedQueue.new()
+  |> DoubleEndedQueue.insert_front(6)
+  |> DoubleEndedQueue.insert_front(5)
+  |> DoubleEndedQueue.insert_front(4)
+  |> DoubleEndedQueue.insert_front(3)
+  |> DoubleEndedQueue.insert_front(2)
+  |> DoubleEndedQueue.insert_front(1)
+  |> IO.inspect()
+
+DoubleEndedQueue.remove_back(deq)
+```
+
+我们还处理了在**后**和**前**都为空时从任一端移除元素的情况，通过返回 `nil` 和一个空的 DEQ。
+
+```elixir
+DoubleEndedQueue.new()
+|> DoubleEndedQueue.remove_back()
+```
+
+```elixir
+DoubleEndedQueue.new()
+|> DoubleEndedQueue.remove_front()
+```
+
+## 双端队列（跟踪大小）
+
+为了分割我们的 DEQ，我们需要计算队列的大小。不幸的是，计算列表的长度是一个昂贵的操作 $O(n)$。
+
+为了避免这个操作，我们可以在添加或移除元素时跟踪队列的大小。
+
+这是一个使用结构体的替代 DEQ 实现，它跟踪**右**列表、**左**列表和 DEQ 的总**大小**。
+
+最坏情况仍然是 $O(n)$。然而，总体上更高效，因为它需要更少的遍历列表。
+
+```elixir
+defmodule DoubleEndedQueueStruct do
+  defstruct back: [], front: [], size: 0
+  def new, do: %__MODULE__{}
+
+  def insert_back(queue, el) do
+    %{queue | back: [el | queue.back], size: queue.size + 1}
+  end
+
+  def insert_front(queue, el) do
+    %{queue | front: [el | queue.front], size: queue.size + 1}
+  end
+
+  def remove_back(%__MODULE__{back: [], front: []} = queue) do
+    {nil, queue}
+  end
+
+  def remove_back(%__MODULE__{back: [], front: front} = queue) do
+    mid = div(queue.size, 2)
+    {half_front, reversed_back} = Enum.split(front, mid)
+    [removed | back] = Enum.reverse(reversed_back)
+    {removed, %{queue | back: back, front: half_front, size: queue.size - 1}}
+  end
+
+  def remove_back(%__MODULE__{back: [removed | back]} = queue) do
+    {removed, %{queue | back: back, size: queue.size - 1}}
+  end
+
+  def remove_front(%__MODULE__{front: [], back: []} = queue) do
+    {nil, queue}
+  end
+
+  def remove_front(%__MODULE__{front: []} = queue) do
+    mid = div(queue.size, 2)
+    {back_half, reversed_front} = Enum.split(queue.back, mid)
+    [removed | front] = Enum.reverse(reversed_front)
+    {removed, %{queue | front: front, back: back_half, size: queue.size - 1}}
+  end
+
+  def remove_front(%__MODULE__{front: [removed | front]} = queue) do
+    {removed, %{queue | front: front, size: queue.size - 1}}
+  end
+end
+```
+
+虽然表示队列的结构发生了变化以优化性能，但行为保持不变。
+
+```elixir
+deq =
+  DoubleEndedQueueStruct.new()
+  |> DoubleEndedQueueStruct.insert_front(6)
+  |> DoubleEndedQueueStruct.insert_front(5)
+  |> DoubleEndedQueueStruct.insert_front(4)
+  |> DoubleEndedQueueStruct.insert_front(3)
+  |> DoubleEndedQueueStruct.insert_front(2)
+  |> DoubleEndedQueueStruct.insert_front(1)
+  |> IO.inspect()
+
+DoubleEndedQueueStruct.remove_back(deq)
+```
+
+## Erlang 队列
+
+Erlang 提供了一个 [:queue](https://www.erlang.org/doc/man/queue.html) 模块，具有进一步优化的 DEQ 性能。
+
+它提供了以下用于插入和移除元素的函数。
+
+* [in/2](https://www.erlang.org/doc/man/queue.html#in-2) 将元素插入到队列的**后**。
+* [out/2](https://www.erlang.org/doc/man/queue.html#out-2) 从队列的**前**移除元素。
+
+然后还有“反向”版本，执行正常队列的相反操作。
+
+* [in_r/2](https://www.erlang.org/doc/man/queue.html#in_r-2) 将元素插入到队列的**前**。
+* [out_r/1](https://www.erlang.org/doc/man/queue.html#out_r-1) 从队列的**后**移除元素。
+
+```elixir
+q = :queue.new()
+```
+
+Erlang 的 `:queue` 模块在为空时将元素插入到**前**。这是一个小优化，因此我们在第一次从**前**列表中移除元素时不必反转**前**列表。
+
+```elixir
+q = :queue.in(1, q) |> IO.inspect()
+# 注意 1 被移动到队列的前面。
+q = :queue.in(2, q) |> IO.inspect()
+q = :queue.in(3, q) |> IO.inspect()
+q = :queue.in(4, q) |> IO.inspect()
+q = :queue.in(5, q) |> IO.inspect()
+q = :queue.in(6, q) |> IO.inspect()
+```
+
+当任一列表为空时，它同样会重新平衡列表。
+
+```elixir
+{value, q} = :queue.out(q)
+```
+
+在重新平衡后，从前面移除元素，性能为 $O(1)$。
+
+```elixir
+{value, q} = :queue.out(q)
+```
+
+```elixir
+{value, q} = :queue.out(q)
+```
+
+## 并发队列
+
+`:queue` Erlang 模块以其难以阅读的接口而闻名。以下引述直接来自 `:queue` 文档。
+
+> “Okasaki API” 的灵感来自 Chris Okasaki 的“纯函数数据结构”。它将队列视为列表。许多人认为这个 API 奇怪且可避免。例如，许多反转操作具有字面上反向的名称，有些名称更具可读性但可能不太易懂的别名。
+
+因此，有人创建了库来改进队列和 DEQ 的接口，并利用并发的力量。
+
+例如，fredwu 的 [OPQ](https://github.com/fredwu/opq) 库利用了 `:queue` 模块和 [GenStage](https://github.com/elixir-lang/gen_stage) 来使工作池能够并发处理队列中的工作。
+
+这就像一个共享的队列，多个工作者处理一条客户队列。
+
+工作者的数量决定了队列中可以并发处理的工作数量。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph Queue
+  1
+  2
+  3
+  4[4]
+end
+subgraph Worker Pool
+1 -->  W1[Worker1] 
+2 --> Worker2
+3 --> Worker3
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+当工作者完成时，它会变得可用于队列中的下一个工作。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph Queue
+  4
+end
+
+subgraph Worker Pool
+4 --> W1[Worker1] 
+Worker2
+Worker3
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+深入研究这个库超出了本材料的范围。然而，了解如何扩展队列以处理成千上万（如果不是数百万）的并发操作是有用的。例如，许多应用程序，如购票或流媒体网站，都会遇到**雷鸣般的兽群**问题，即许多交互同时发生。
+
+雷鸣般的兽群问题发生在许多计算机进程或线程等待同一事物，导致大量活动的激增，这可能会减慢甚至崩溃系统。
+
+它被称为雷鸣般的兽群问题，因为它就像一群动物对突发干扰的反应。避免这个问题需要负载均衡、缓存和排队等技术来管理请求流并防止系统过载。
+
+## 天真优先队列
+
+通常，优先队列使用树结构实现。然而，对于我们的天真解决方案，我们将使用列表。
+
+我们优先队列中的元素将是一个带有相关优先级的元组。
+
+```elixir
+priority_queue = [{"critical injury", 1}, {"moderate injury", 2}, {"minor illness", 3}]
+```
+
+使用单个列表实现优先队列有两种主要方法。
+
+1. 以无序的方式存储元素并检索优先级元素。
+2. 以有序的方式存储元素并检索第一个元素。
+
+解决方案 1 优化了存储元素，因为我们可以在列表的头部插入元素，而检索它们则更困难。
+
+解决方案 2 优化了检索元素，因为我们可以在列表的头部移除元素，而存储它们则更困难。
+
+我们将选择解决方案 2，因为我们希望优化检索元素，而不是存储它们。
+
+我们还选择将其实现为最小优先队列，其中较低的值优先。
+
+```elixir
+defmodule PriorityQueue do
+  def new do
+    []
+  end
+
+  def add([], new_element), do: [new_element]
+
+  def add(queue, new_element) do
+    # 找到第一个优先级值更大的元素的索引。
+    index =
+      Enum.find_index(queue, fn current_element ->
+        priority_of(new_element) < priority_of(current_element)
+      end)
+
+    # 如果没有索引，则插入到列表的后面。
+    List.insert_at(queue, index || -1, new_element)
+  end
+
+  def next(queue) do
+    hd(queue)
+  end
+
+  def remove(queue) do
+    tl(queue)
+  end
+
+  defp priority_of(element) do
+    elem(element, 1)
+  end
+end
+```
+
+元素将按优先级顺序添加（低 -> 高）。
+
+```elixir
+# 4231 -> 1234
+
+priority_queue =
+  PriorityQueue.new()
+  |> PriorityQueue.add({"minor illness", 4})
+  |> PriorityQueue.add({"moderate sprain", 2})
+  |> PriorityQueue.add({"severe injury", 3})
+  |> PriorityQueue.add({"critical injury", 1})
+```
+
+我们可以查看下一个要移除的元素。
+
+```elixir
+PriorityQueue.next(priority_queue)
+```
+
+然后移除该元素以返回其余的优先队列。
+
+```elixir
+PriorityQueue.remove(priority_queue)
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Chris Okasaki 的纯函数数据结构](https://www.cs.cmu.edu/~rwh/students/okasaki.pdf)
+* [雷鸣般的兽群问题](https://en.wikipedia.org/wiki/Thundering_herd_problem)
+* [erlang: queue](https://www.erlang.org/doc/man/queue.html)
+* [OPQ](https://github.com/fredwu/opq)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成队列阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Queues">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/custom_assertions.livemd">自定义断言</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/worker_pools.livemd">工作池</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

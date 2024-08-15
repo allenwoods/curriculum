@@ -1,0 +1,204 @@
+# 可滚动表达式
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rollable Expressions">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/caesar_cypher.livemd">凯撒密码</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phone_number_parsing.livemd">电话号码解析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 可滚动表达式
+
+许多游戏，如《龙与地下城》，需要掷骰子来确定玩家行动的效果。
+你将构建一个程序，使玩家能够更轻松地在线自动掷骰子。
+
+骰子表达式的形式为 `1d6`，这意味着[掷一个六面骰](https://www.google.com/search?q=roll+1d6)。
+
+在 `d` 的左侧可以有任意**数量的骰子**，在 `d` 的右侧可以有任意数量的面。
+
+例如，`20d12` 将掷二十个十二面骰。[20d12](https://www.google.com/search?q=roll+20d12)。
+
+给定一个包含骰子表达式的文本，将表达式替换为可点击的链接。
+
+在 markdown 中，可点击的链接格式为 `[链接名称](url)`。
+
+谷歌允许你通过搜索 `roll 1d6` 来掷多面骰。
+其网址为 https://www.google.com/search?q=roll+1d6。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Rollable.replace("8d6")
+"[8d6](https://www.google.com/search?q=roll+8d6)"
+```
+
+确保处理 `4`、`6`、`8`、`12` 和 `20` 面的骰子，并处理掷骰子数量在 `1` 到 `99` 之间的情况。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Rollable.replace("Fireball: deal 8d6 fire damage.")
+"Fireball: deal [8d6](https://www.google.com/search?q=roll+8d6) fire damage."
+```
+
+### 奖励
+
+实现一个 `Rollable.roll/1` 函数，该函数查找可滚动表达式并根据表达式生成随机数。例如，`1d6` 将掷一个骰子，返回结果在 `1` 到 `6` 之间。`2d12` 将生成两个在 `1` 到 `12` 之间的随机数并将它们相加。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Rollable.roll("2d12")
+"20"
+
+Rollable.roll("2d12")
+"24"
+
+Rollable.roll("2d12")
+"5"
+
+Rollable.roll("Fireball: deal 8d6 fire damage.")
+"Fireball: deal 20 fire damage."
+```
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示</summary>
+
+你可以使用 [Regex.replace/4](https://hexdocs.pm/elixir/Regex.html#replace/4) 来替换字符串中的表达式，并使用 `\d+` 来匹配一个或多个数字。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Rollable
+  def replace(string) do
+    Regex.replace(~r/(\d+)d(\d+)/, string, fn full, dice, sides ->
+      "[#{full}](https://www.google.com/search?q=roll+#{dice}d#{sides})"
+    end)
+  end
+
+  def roll(string) do
+    Regex.replace(~r/(\d+)d(\d)+/, string, fn full, dice, sides ->
+      dice_integer = String.to_integer(dice)
+      sides_integer = String.to_integer(sides)
+
+      value =
+        1..dice_integer
+        |> Enum.map(fn _ -> Enum.random(1..sides_integer) end)
+        |> Enum.sum()
+        |> Integer.to_string()
+    end)
+  end
+end
+```
+
+</details>
+
+实现 `Rollable` 模块，如下文档所示。
+
+```elixir
+defmodule Rollable do
+  @moduledoc """
+  Documentation for `Rollable`
+  """
+
+  @doc """
+  Replace dice expressions with clickable links.
+
+  ## Examples
+
+    iex> Rollable.replace("1d4")
+    "[1d4](https://www.google.com/search?q=roll+1d4)"
+
+    iex> Rollable.replace("1d6")
+    "[1d6](https://www.google.com/search?q=roll+1d6)"
+
+    iex> Rollable.replace("1d8")
+    "[1d8](https://www.google.com/search?q=roll+1d8)"
+
+    iex> Rollable.replace("1d12")
+    "[1d12](https://www.google.com/search?q=roll+1d12)"
+
+    iex> Rollable.replace("1d20")
+    "[1d20](https://www.google.com/search?q=roll+1d20)"
+
+    iex> Rollable.replace("8d6")
+    "[8d6](https://www.google.com/search?q=roll+8d6)"
+
+    iex> Rollable.replace("99d20")
+    "[99d20](https://www.google.com/search?q=roll+99d20)"
+    
+    iex> Rollable.replace("Ice Shard: deal 12d4 ice damage.")
+    "Ice Shard: deal [12d4](https://www.google.com/search?q=roll+12d4) ice damage."
+  """
+  def replace(string) do
+  end
+
+  def roll(string) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成可滚动表达式练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rollable Expressions">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/caesar_cypher.livemd">凯撒密码</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/phone_number_parsing.livemd">电话号码解析</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

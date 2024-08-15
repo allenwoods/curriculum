@@ -1,0 +1,109 @@
+# 博客：可见性迁移
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Visibility Migration">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_components.livemd">Phoenix 组件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_one_to_many_associations.livemd">一对多关联</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 博客：可见性迁移
+
+您现有的 [博客](./group_project_blog.livemd) 应用程序应该已经有带有 `title`、`subtitle` 和 `content` 的博客文章。
+
+您将对帖子表进行一些修改，以便根据可见性过滤帖子并按发布日期排序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+erDiagram
+
+Post {
+    string title
+    text content
+    date published_on
+    boolean visibility
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 要求
+
+* 迁移与模式
+  * 删除帖子上的 `subtitle` 字段
+  * 在帖子上添加一个 `published_on` `:date` 字段。
+  * 在帖子上添加一个默认值为 `true` 的 `visible` `:boolean` 字段。
+  * **（额外奖励）** 为帖子标题添加唯一约束。
+* 功能
+  * 更新所有帖子页面以考虑新添加和删除的字段。例如，您需要将 `visible` 和 `published_on` 字段添加到帖子表单中，并删除 `subtitle` 字段。
+  * 按从最新到最旧的顺序显示帖子列表。
+  * 如果 `visible` 为 `false`，则隐藏帖子。
+  * **（额外奖励）** 如果其 `published_on` 日期在未来，则隐藏帖子。
+* 测试
+  * 编写测试以确保 `visible: false` 的帖子从帖子列表中被过滤。
+  * 编写测试以确保帖子按从最新到最旧的顺序显示。
+  * 所有测试应通过。您可能需要修改旧测试和页面以确保它们继续通过。
+  * **（额外奖励）** 编写测试以确保未来发布日期的帖子从帖子列表中被过滤。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成博客：可见性迁移练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Visibility Migration">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_components.livemd">Phoenix 组件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_one_to_many_associations.livemd">一对多关联</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

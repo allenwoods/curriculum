@@ -1,0 +1,288 @@
+# 博客：帖子
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Posts">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_and_ecto.livemd">Phoenix 和 Ecto</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/testing_phoenix.livemd">测试 Phoenix</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 博客：帖子
+
+你将要在你的 [博客](./group_project_blog.livemd) 项目中创建 `Posts` 资源。
+
+博客帖子应该包含 `title`、`subtitle` 和 `content`。它还应该包含相关的 `timestamp` 信息。
+
+```mermaid
+erDiagram
+
+Post {
+    string title
+    string subtitle
+    text content
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 生成帖子资源
+
+使用 Phoenix 生成器来搭建所有必要的样板代码。
+确保在路由器中也定义帖子路由。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+生成资源。
+
+```elixir
+$ mix phx.gen.html Posts Post posts title:string subtitle:string content:text
+$ mix ecto.migrate
+```
+
+然后将资源添加到 `router.ex`。
+
+```elixir
+scope "/", BlogWeb do
+  pipe_through :browser
+
+  get "/", PageController, :index
+  resources "/posts", PostController
+end
+```
+
+或者我们可以单独定义每个路由。
+
+```elixir
+scope "/", BlogWeb do
+  pipe_through :browser
+
+  get "/", PageController, :index
+  get "/posts", PostController, :index
+  get "/posts/new", PostController, :new
+  post "/posts", PostController, :create
+  get "/posts/:id", PostController, :show
+  get "/posts/:id/edit", PostController, :edit
+  put "/posts/:id", PostController, :update
+  patch "/posts/:id", PostController, :update
+  delete "/posts/:id", PostController, :delete
+end
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 上下文函数
+
+现在你已经生成了 `Posts` 资源，启动你的项目在 IEx shell 中以编程方式与上下文交互。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ iex -S mix phx.server
+```
+
+访问 http://localhost:4000/posts 以查看你在 IEx shell 中所做的更改反映在帖子列表中。确保刷新页面以查看更新的更改。
+
+现在，使用 `Blog.Posts` 上下文模块在 IEx shell 中执行以下操作：
+
+1. 创建一个博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+iex> Blog.Posts.create_post(%{title: "title", subtitle: "subtitle", content: "content"})
+```
+
+</details>
+
+1. 通过 ID 检索博客帖子。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`1` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Blog.Posts.get_post!(1)
+```
+
+</details>
+
+1. 编辑博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`1` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Blog.Posts.get_post!(1) |> Blog.Posts.update_post(%{title: "updated title"})
+```
+
+</details>
+
+1. 列出所有博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+iex> Blog.Posts.list_posts()
+```
+
+</details>
+
+1. 删除博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`1` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Blog.Posts.get_post!(1) |> Blog.Posts.delete_post()
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Repo 函数
+
+在 IEx shell 中，直接使用 `Blog.Posts.Post` 模式和 `Blog.Repo` 模块执行以下操作：
+
+> 请注意，示例解决方案假设你对这两个模块进行了别名处理。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> alias Blog.Posts.Post
+iex> alias Blog.Repo 
+```
+
+1. 创建一个博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+iex>  changeset = Post.changeset(%Post{}, %{title: "title", subtitle: "subtitle", content: "content"})
+iex>  post = Repo.insert(changeset)
+```
+
+</details>
+
+1. 通过 ID 检索博客帖子。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`2` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Repo.get!(Post, 2)
+```
+
+</details>
+
+1. 编辑博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`2` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Repo.get!(Post, 2) |> Post.changeset(%{title: "updated title"}) |> Repo.update()
+```
+
+</details>
+
+1. 列出所有博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+iex> Repo.all(Post)
+```
+
+</details>
+
+1. 删除博客帖子
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+`1` 将是任何有效帖子的 ID。
+
+```elixir
+iex> Repo.get!(Post, 2) |> Repo.delete()
+```
+
+</details>
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成博客：帖子练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Posts">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_and_ecto.livemd">Phoenix 和 Ecto</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/testing_phoenix.livemd">测试 Phoenix</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

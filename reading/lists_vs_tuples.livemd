@@ -1,0 +1,649 @@
+<!-- livebook:{"file_entries":[{"name":"abc_tuple_garbage_collection.png","type":"attachment"},{"name":"concatinate_list.png","type":"attachment"},{"name":"copying_abc_tuple.png","type":"attachment"},{"name":"delete_list_memory.png","type":"attachment"},{"name":"delete_tuple_memory_diagram.png","type":"attachment"},{"name":"insert_linked_list_memory.png","type":"attachment"},{"name":"inserting_tuples_memory.png","type":"attachment"},{"name":"linked_list_cons_cells.png","type":"attachment"},{"name":"prepend_linked_list_memory.png","type":"attachment"},{"name":"prepending_tuples.png","type":"attachment"},{"name":"tuple_concatination.png","type":"attachment"},{"name":"tuple_storage_contiguously.png","type":"attachment"},{"name":"update_linked_list.png","type":"attachment"},{"name":"update_tuples.png","type":"attachment"}]} -->
+
+# 列表与元组
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Lists Vs Tuples">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/picchat_emails.livemd">PicChat: 邮件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/maps_mapsets_keyword_lists.livemd">映射、映射集和关键字列表</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 列表是如何存储的，这对它们的读取与更新性能有什么影响？
+* 元组是如何存储的，这对它们的读取与写入性能有什么影响？
+* 何时应该使用列表而不是元组？
+
+## 概述
+
+列表和元组的用途根本上是不同的。
+
+列表是动态大小的容器，旨在优化列表中元素的更新，而元组是固定大小的容器，优化用于读取值。
+
+在本课中，我们将讨论列表和元组在Elixir中的实现，以便您能够理解它们的优缺点，从而更有效地使用它们。
+
+我们将使用以下大型列表和大型元组来进行多个基准测试。
+
+```elixir
+large_list = Enum.to_list(1..10_000_000)
+large_tuple = List.to_tuple(large_list)
+```
+
+## 列表
+
+列表在内存中以**链表**的形式存储。这意味着列表中的每个元素实际上是成对存储的。对的第一个元素是值，第二个元素是下一个元素的位置。
+
+例如，让我们看一下列表 `[2, 3]`。
+
+请注意，列表中的每个元素在**堆**中都是成对存储的。对的第一个元素是值，第二个元素是下一个元素的位置。
+
+![](files/linked_list_cons_cells.png)
+
+实际上，`[2, 3]` 也可以写成成对的形式 `[2 | [3 | []]]`，其中每个单元格写成 `[head | tail]`。头是值，尾是对其余列表的引用。您有时会听到这些被称为 [`cons` cells](https://en.wikipedia.org/wiki/Cons)。
+
+## 元组
+
+元组在内存中是连续存储的。连续存储意味着元组中的每个元素共享一个公共边界。
+
+例如，元组 `{1, 2, 3}` 可以这样存储。
+![](files/tuple_storage_contiguously.png)
+
+## 列表与元组
+
+列表和元组服务于不同的目的。由于它们的结构，它们在某些操作上的性能表现有所不同。
+
+我们将使用内置的Erlang库的 `:timer.tc/1` 函数来比较在大型数据集上执行常见操作所需的时间（以微秒为单位）。
+
+```elixir
+:timer.tc(fn ->
+  _expensive_computation = 10000 ** 10000
+  "return value of the function"
+end)
+```
+
+计算机中的同时操作会争夺资源，我们的测量工具并不完美，因此您可能会注意到执行时间并不总是一致。
+
+## 长度
+
+元组是固定大小的容器，因此它们的长度是预先已知的。确定元组的大小所需的时间是常数 $O(1)$，无论多大。
+
+对于列表，我们只知道第一个元素的位置。因此，我们需要遍历整个列表才能找到它的长度。
+这意味着它需要 $O(n)$ 的时间，其中 $n$ 是列表中的元素数量。
+
+让我们比较确定相同大小的列表和元组的长度所需的时间。
+我们可以使用 `tuple_size` 来计算元组的长度，使用 `length` 来确定列表的长度。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> tuple_size(large_tuple) end)
+{list_time, _result} = :timer.tc(fn -> length(large_list) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+确切的结果每次都会不同，但如预期的那样，元组几乎是瞬时的，而列表则需要更长的时间。
+
+## 前置
+
+在列表中前置是快速的，因为我们只需要在内存中创建一对新的元素并指向现有列表的头。让我们以将 `1` 前置到 `[2, 3]` 为例。
+
+```elixir
+[1 | [2, 3]]
+```
+
+![](files/prepend_linked_list_memory.png)
+
+因此，向列表中前置一个元素的复杂度是 $O(1)$。
+无论列表的大小如何，这都成立，因为所做的工作保持不变。
+
+然而，元组是连续存储在内存中的，因此为了进行任何更改，整个元组必须被复制。由于我们需要遍历元组并复制每个值，因此向元组中前置一个元素的复杂度是 $O(n)$。
+
+让我们以将 `0` 前置到 `{1, 2, 3}` 为例。要前置一个值，我们可以使用 [Tuple.insert_at/3](https://hexdocs.pm/elixir/Tuple.html#insert_at/3)。
+
+```elixir
+Tuple.insert_at({1, 2, 3}, 0, 0)
+```
+
+![](files/prepending_tuples.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+让我们比较向相同大小的列表和元组前置一个元素所需的时间。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> Tuple.insert_at(large_tuple, 0, 0) end)
+{list_time, _result} = :timer.tc(fn -> List.insert_at(large_list, 0, 0) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+再次如预期所示，前置列表几乎是瞬时的，而前置元组则需要一些时间。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 函数来计时向一个包含 `50000` 个元素的 **列表** 前置一个值所需的时间。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+我们可以使用 `[head | tail]` 语法来前置一个列表
+
+```elixir
+list = Enum.to_list(1..50000)
+:timer.tc(fn -> ["my value" | list] end)
+```
+
+或者我们可以使用 [List.insert_at/3](https://hexdocs.pm/elixir/List.html#insert_at/3)。
+
+```elixir
+list = Enum.to_list(1..50000)
+:timer.tc(fn -> List.insert_at(list, 0, "my value") end)
+```
+
+通常，`[head | tail]` 更具惯用性。
+
+</details>
+
+```elixir
+
+```
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 函数来计时向一个包含 `50000` 个元素的 **元组** 前置一个值所需的时间。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+tuple = Enum.to_list(1..50000) |> List.to_tuple()
+:timer.tc(fn -> Tuple.insert_at(tuple, 0, 0) end)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 访问
+
+访问元组中的元素是常数 $O(1)$ 的复杂度，因为元组的大小是已知的。访问列表中的元素是 $O(n)$ 的复杂度，其中 n 是我们需要访问的元素的索引。
+
+```mermaid
+flowchart TB
+subgraph 访问内存
+lu["下界: O(1), 上界: O(n)"]
+direction LR
+  subgraph 内存
+    L -- location to --> I -- location to --> S -- location to --> T -- location to --> E[...]
+  end
+  subgraph 时间复杂度
+  0["O(1)"] --> L
+  1["O(2)"] --> I
+  2["O(3)"] --> S
+  3["O(4)"] --> T
+  4["O(n)"] --> E
+  end
+end
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+这意味着无论列表的大小如何，检索任何列表的头都是常数 $O(1)$ 的复杂度，而检索列表的最后一个元素是 $O(n)$ 的复杂度。
+
+让我们比较访问相同大小的元组和列表的第一个元素所需的时间。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> elem(large_tuple, 0) end)
+
+{list_time, _result} =
+  :timer.tc(fn ->
+    [head | _tail] = large_list
+    head
+  end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+如预期的那样，两者都非常快。实际上，列表甚至比元组更快。然而，当我们尝试访问列表和元组中的最后一个元素时，这种情况会发生显著变化。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> elem(large_tuple, 9_999_999) end)
+
+{list_time, _result} = :timer.tc(fn -> Enum.at(large_list, 9_999_999) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+### 你的回合
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 函数来计时访问一个包含 `5000` 个元素的列表的第一个元素和最后一个元素所需的时间。
+
+然后对元组做同样的事情。
+
+```elixir
+
+```
+
+## 连接
+
+连接一个元组需要在内存中复制两个元组，因此它的性能成本是 $O(n1 + n2)$，其中 $n1$ 是第一个元组中的元素数量，$n2$ 是第二个元组中的元素数量。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/tuple_concatination.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+然而，$O(n1 + n2)$ 只是理论上的性能成本。实际上，它更高，因为元组不支持连接，您首先需要将它们转换为列表。
+
+为什么元组不支持连接？因为它们应该用于**固定大小的容器**。 [Jose Valim](https://stackoverflow.com/a/28355536/9021210) 解释道。
+
+> 你不能连接元组。
+> 唯一的原因是你不应该将它们用作这样的用途。大多数元组的使用需要知道它们的大小，如果你可以连接它们，事情就会变得模糊。此外，连接元组需要在内存中复制两个元组，这并不高效。
+> 换句话说，如果你想连接元组，你可能使用了错误的数据结构。你有两个选择：
+> 
+> * 使用列表
+> * 组合元组：而不是写 a ++ b，只需写 {a, b}
+
+然而，对于列表，只需复制第一个列表，因此它的成本是 $O(n1)$，其中 $n1$ 是第一个列表中的元素数量。第一个复制的列表现在可以简单地指向内存中第二个列表的头。
+
+例如，
+
+```elixir
+[1, 2, 3] ++ [4, 5]
+```
+
+![](files/concatinate_list.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这意味着只要您的第一个列表很小，这就是一个相当高效的操作，即使第二个列表很大。
+然而，如果第一个列表很大，这将是昂贵的。
+
+```elixir
+{small_first_list, _result} = :timer.tc(fn -> [1] ++ large_list end)
+{large_first_list, _result} = :timer.tc(fn -> large_list ++ [1] end)
+
+%{small_first_list: small_first_list, large_first_list: large_first_list}
+```
+
+### 你的回合
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 函数来计时连接一个包含一个元素的列表和一个包含 `5000` 个元素的列表所需的时间。
+
+然后尝试将一个包含 `5000` 个元素的列表连接到一个包含一个元素的列表。注意它所需的时间更长。
+
+```elixir
+
+```
+
+## 更新（替换）
+
+在函数式编程语言中，我们不在列表或元组中改变值。相反，我们在必要时复制值。
+
+更新列表时，我们复制更新元素之前的元素，然后重用更新元素之后的元素。
+
+```elixir
+list = [1, 2, 3, 4, 5]
+List.replace_at(list, 2, 7)
+```
+
+![](files/update_linked_list.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+与访问元素类似，
+这意味着在开始时更新元素的时间复杂度是常数 $O(1)$，而在结束时访问元素的时间复杂度是 $O(n)$。
+
+然而，元组在更新时必须完全复制。我们可以使用 `put_elem/3` 来更新元组中的元素。
+
+```elixir
+tuple = {1, 2, 3, 4, 5}
+put_elem(tuple, 2, 7)
+```
+
+![](files/update_tuples.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+让我们比较更新相同大小的列表和元组的第一个元素所需的时间。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> put_elem(large_tuple, 0, 7) end)
+{list_time, _result} = :timer.tc(fn -> List.replace_at(large_list, 0, 7) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+如预期的那样，列表很快，而元组则很慢。现在让我们比较更新相同大小的列表和元组的最后一个元素所需的时间。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> put_elem(large_tuple, 9_999_999, 7) end)
+{list_time, _result} = :timer.tc(fn -> List.replace_at(large_list, 9_999_999, 7) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+现在，由于列表需要遍历整个列表，因此列表的速度要慢得多，而元组的速度与更新第一个元素的速度大致相同。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 来比较更新一个包含 `5000` 个元素的列表和元组的 **第一个** 元素。
+
+```elixir
+
+```
+
+在下面的Elixir单元中，使用 `:timer.tc/1` 来比较更新一个包含 `5000` 个元素的列表和元组的 **最后一个** 元素。
+
+```elixir
+
+```
+
+## 插入
+
+在列表中插入遵循与更新列表相同的模式。我们可以重用插入之后的元素，但必须复制插入之前的元素。
+
+```elixir
+list = [1, 2, 3, 4, 5]
+List.insert_at(list, 3, 7)
+```
+
+![](files/insert_linked_list_memory.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+在元组中插入元素需要复制整个元组。
+
+```elixir
+tuple = {1, 2, 3, 4, 5}
+Tuple.insert_at(tuple, 3, 7)
+```
+
+![](files/inserting_tuples_memory.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+基于这些知识，我们预计在元组中插入的复杂度始终是 $O(n)$，而在列表中插入的复杂度在列表的前面插入时会更快。
+
+我们已经证明了之前前置列表的时间复杂度是 $O(1)$，现在让我们证明在列表和元组的末尾插入的时间复杂度是 $O(n)$。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> Tuple.insert_at(large_tuple, 10_000_000, 7) end)
+{list_time, _result} = :timer.tc(fn -> List.insert_at(large_list, 10_000_000, 7) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+### 你的回合
+
+在下面的Elixir单元中，使用 `:timer.tc` 来插入到一个包含 `50000` 个元素的列表和元组的末尾。
+
+```elixir
+
+```
+
+## 删除
+
+在列表中删除一个元素需要复制删除之前的元素，并重用删除之后的元素。
+
+```elixir
+list = [1, 2, 3, 4, 5]
+List.delete_at(list, 3)
+```
+
+![](files/delete_list_memory.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+删除一个元组需要复制每个未删除的元素。
+
+![](files/delete_tuple_memory_diagram.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+让我们证明在元组中删除任何元素的性能成本是相似的，并且在列表中删除第一个元素的成本低于删除最后一个元素的成本。
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> Tuple.delete_at(large_tuple, 0) end)
+{list_time, _result} = :timer.tc(fn -> List.delete_at(large_list, 0) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+```elixir
+{tuple_time, _result} = :timer.tc(fn -> Tuple.delete_at(large_tuple, 9_999_999) end)
+{list_time, _result} = :timer.tc(fn -> List.delete_at(large_list, 9_999_999) end)
+
+%{tuple: tuple_time, list: list_time}
+```
+
+## 复制
+
+当我们修改一个元组时，新的元组版本将包含一个完整的元组副本，仅在修改的元素上有所不同。
+
+当您修改列表中的第 $n$ 个元素时，新的列表将包含前 $n - 1$ 个元素的副本，然后是一个修改的元素，然后是之前列表的尾部。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+subgraph 在列表中第 n 个元素的操作
+n[复制的元素] --> m[修改的元素] --> t[之前列表的尾部]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 浅复制
+
+当我们使用“复制”这个术语时，重要的是要明确我们指的是**浅复制**。
+
+您可能不需要经常关注这一点，但了解**深复制**和**浅复制**之间的区别及其性能影响是有用的。
+
+当我们进行浅复制时，我们复制对数据的引用，而不是数据本身。
+
+深复制则复制实际的底层数据。
+
+在浅复制中，原始值如 `1` 将简单地复制为 `1`。然而，包含引用的数据类型将作为引用进行复制。
+
+### 浅复制元组
+
+让我们以元组为例。
+
+```elixir
+a = {1, 2, 3}
+b = {4, 5, 6}
+c = {7, 8, 9}
+```
+
+在上面的代码中，`a`、`b` 和 `c` 存在于栈上，并且都包含指向堆上实际内存的**指针**。
+
+```mermaid
+flowchart LR
+subgraph 栈
+a
+b
+c
+end
+subgraph 堆
+a --pointer--> a1["{1, 2, 3}"]
+b --pointer--> b1["{4, 5, 6}"]
+c --pointer--> c1["{7, 8, 9}"]
+end
+
+```
+
+```elixir
+b2 = {11, 12, 13}
+
+a_tuple = {a, b, c}
+new_tuple = put_elem(a_tuple, 1, b2)
+
+new_tuple
+```
+
+在底层，当计算机复制 `a_tuple` 以创建 `new_tuple` 时，它在栈上创建了对原始变量的引用，因此它们共享堆上的内存。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+subgraph 栈
+  subgraph a_tuple
+    a1[a]
+    b1[b]
+    c1[c]
+  end
+  subgraph new_tuple
+    a2[a] --reference--> a1
+    c2[c] --reference--> c1
+    b2
+  end
+end
+subgraph 堆
+  a1 --pointer --> a3["{1, 2, 3}"]
+  b1 --pointer--> b3["{4, 5, 6}"]
+  c1 --pointer--> c4["{7, 8, 9}"]
+  b2 --pointer--> c5["{10, 11, 12}"]
+end
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+在内存中，这可能看起来如下。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/copying_abc_tuple.png)
+
+## 垃圾回收
+
+Elixir 为我们处理垃圾回收，因此我们通常不需要关注这个实现细节。
+
+每当一个变量不再被引用时，它就可以被垃圾回收。例如，如果我们有变量 `a`、`b` 和 `c`，如果我们重新绑定 `b`，我们就不再需要存储底层数据，它将被垃圾回收。
+
+```elixir
+a = {1, 2, 3}
+b = {4, 5, 6}
+c = {7, 8, 9}
+
+# {4, 5, 6} 现在可以被垃圾回收，因为它不再被任何变量引用。
+b = {10, 11, 12}
+```
+
+这使得元组 `{4, 5, 6}` 可以被垃圾回收，因为它不再可访问。
+下面我们使用 `b` 和 `b2` 来表示重新绑定 `b` 变量。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/abc_tuple_garbage_collection.png)
+
+## 结论
+
+元组和列表的操作将具有以下大O符号。
+
+<!-- livebook:{"attrs":{"source":"[\n  [operation: \"length\", tuple: \"O(1)\", list: \"O(n)\"],\n  [operation: \"prepend\", tuple: \"O(n)\", list: \"O(1)\"],\n  [operation: \"insert\", tuple: \"O(n)\", list: \"O(n*)\"],\n  [operation: \"access\", tuple: \"O(1)\", list: \"O(n*)\"],\n  [operation: \"update/replace\", tuple: \"O(n)\", list: \"O(n*)\"],\n  [operation: \"delete\", tuple: \"O(n)\", list: \"O(n*)\"],\n  [operation: \"concatenation\", tuple: \"O(n1 + n2)\", list: \"O(n1)\"]\n]\n|> Kino.DataTable.new()","title":"列表和元组"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+[
+  [operation: "length", tuple: "O(1)", list: "O(n)"],
+  [operation: "prepend", tuple: "O(n)", list: "O(1)"],
+  [operation: "insert", tuple: "O(n)", list: "O(n*)"],
+  [operation: "access", tuple: "O(1)", list: "O(n*)"],
+  [operation: "update/replace", tuple: "O(n)", list: "O(n*)"],
+  [operation: "delete", tuple: "O(n)", list: "O(n*)"],
+  [operation: "concatenation", tuple: "O(n1 + n2)", list: "O(n1)"]
+]
+|> Kino.DataTable.new()
+```
+
+> n* 将是操作的索引，而不是列表中的元素数量。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 关键要点
+
+* 元组在读取值和长度时是 $O(1)$，但在所有其他操作中需要 $O(n)$。
+* 列表操作通常是 $O(n)$ 的复杂度，其中 $n$ 是操作的索引，这意味着列表前面的操作可以非常高效，并且在可能的情况下更受欢迎。
+* 元组应用于**固定大小的容器**。
+* 列表应用于**动态大小的容器**。
+* 函数式语言不允许变异，而是依赖于**浅复制**元素以避免不必要的内存消耗。
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Elixirlang: 元组还是列表？](https://elixir-lang.org/getting-started/basic-types.html#lists-or-tuples)
+* [Exercism: 元组](https://exercism.org/tracks/elixir/concepts/tuples)
+* [Exercism: 列表](https://exercism.org/tracks/elixir/concepts/lists)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成列表与元组的阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Lists Vs Tuples">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/picchat_emails.livemd">PicChat: 邮件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/maps_mapsets_keyword_lists.livemd">映射、映射集和关键字列表</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

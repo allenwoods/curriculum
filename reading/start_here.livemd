@@ -1,0 +1,143 @@
+# 从这里开始
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Start Here">报告问题</a>
+</div>
+<div style="display: flex;">
+<i style="display: none;" class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href=""></a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/computer_hardware.livemd">计算机硬件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 欢迎
+
+欢迎来到DockYard Academy。我们自豪地提供一个完全开源的Elixir课程，任何人都可以免费访问。我们在我们的（付费）学院中使用这个课程。
+
+如果您希望被考虑加入未来的班级，您可以注册我们的[新闻通讯](https://academy.dockyard.com/)以接收更新。
+
+## DockYard Academy的方式
+
+在DockYard Academy，我们的使命是提供高质量的Elixir培训。我们努力赋予学生所需的技能和知识，使他们成为专业的Web开发人员，能够使用强大的Elixir编程语言及其相关框架构建强大且可扩展的Web应用程序。
+
+我们相信提供实践的、动手的学习体验，并致力于为学生准备应对构建Web应用程序的现实挑战。我们培养一个热爱Web开发的学习者社区，他们在职业生涯中不断学习和成长。
+
+## 学院核心价值观
+
+* **实用性**：我们重视与使用Elixir构建Web应用程序的现实挑战直接相关的动手学习体验。讲师将为材料提供更广泛的背景，并分享行业中的相关经验。
+* **参与感**：课程专注于积极、参与的学习，而不是被动的讲座。学生将在构建项目、小组讨论和协作解决问题的过程中处于中心位置。
+* **协作与社区**：DockYard Academy培养一个支持性的学习者社区，学习者可以相互学习并共同努力实现目标。我们相信团队合作的重要性，并努力为学生提供共同工作和相互学习的机会。所有社区成员彼此以善良、尊重和关心对待。
+* **卓越**：我们努力为学生提供最高质量的教育和培训，并在我们所做的一切中保持最高的卓越标准。
+* **谦逊**：我们鼓励学生以开放的心态对待他们的学习旅程，愿意从错误和同伴中学习。学生被鼓励在任何时候都感到舒适地表达困惑和缺乏理解。说“我不知道”总是可以接受的，尤其是在之后有支持和协作的学习和理解努力时。讲师和导师也将拥抱谦逊，以创造一个积极和包容的学习环境，让学生感到舒适参与、学习和提供开放反馈。
+* **以学生为中心**：学生驱动课堂的节奏。讲师和学生共同努力，确保每个学生都能实现核心学习成果，同时为表现优异的学生提供超越材料的额外机会。
+
+## 学习成果
+
+DockYard Academy旨在为学生提供实践的、动手的培训，以准备他们获得Elixir工作或开始自己的Elixir项目。毕业生应能够展示以下成果：
+
+1. 理解Elixir基础知识，以解决实际编程问题。
+2. 构建Mix项目并管理配置、依赖关系和测试。
+3. 理解OTP的原则以及如何构建容错的并发系统。
+4. 使用高级Elixir语法编写更具表现力和高效的代码。
+5. 使用Phoenix构建全栈Web应用程序，包括路由、控制器、视图和模板。
+6. 使用Ecto管理关系数据库，以建模现实世界的数据。
+7. 使用LiveView构建交互式、实时的Web应用程序，尽量减少JavaScript的使用。
+8. 理解使用Elixir开发强大且可维护的Web应用程序的最佳实践。
+9. 解决在构建Web应用程序和Elixir程序时出现的问题。
+10. 能够找到继续学习旅程所需的资源。
+
+## 讲座时间表和格式
+
+对于全日制课程，课程时间为周一至周五，上午9:30至下午3:00（太平洋时间）。学生将在上午10:30（太平洋时间）有十分钟的休息时间，并在中午12:00至下午1:00（太平洋时间）有一个小时的午餐时间。
+
+## 认识您的讲师
+
+你好，我是Brooklin Myers，我是DockYard Academy的讲师，也是本课程中课程和练习的内容创作者。我还是Elixir Newbie播客的主持人，并在Elixir Newbie网站上撰写关于Elixir的文章。自从进入Elixir以来，我专注于帮助新开发者，而DockYard Academy是继续这一使命的完美机会。
+
+作为一个训练营的毕业生，我理解没有计算机科学背景进入编程行业的困难。考虑到这一点，我希望使技术概念对初学者更易接近。此外，作为从JavaScript转向Elixir的人，我会调整课程以帮助来自面向对象背景的学生过渡到函数式编程。
+
+在我的课堂上，我希望为高压力的活动创造一个低压力的环境。学习可能很困难，但当你有一个支持的导师和同伴群体时，会更容易。
+
+## 参加课程
+
+目前，有两种方式可以参加此课程。
+
+1. **自学（免费）**：任何人都可以自行学习此课程并以自己的节奏完成。
+2. **学院学生（付费）**：学生可以加入我们的官方学院班级，与讲师一起学习，毕业后获得证书，并在毕业后获得职业支持。付费学生还可以访问课程录音和DockYard Academy Discord，在那里他们可以获得同伴和导师的支持。
+
+如果您有兴趣加入我们的下一个班级，您可以注册我们的[新闻通讯](https://academy.dockyard.com/)或发送电子邮件至brooklin.myers@dockyard.com以表达您的兴趣。
+
+该课程是作为讲师主导的课程设计和开发的。然而，初学者应该能够以自学的方式和自己的节奏学习这些概念。我们已经尽最大努力使这些材料易于接近，并且完全自包含。
+
+话虽如此，自学可能会很具挑战性。为了增加成功的机会，我们建议寻找导师或与其他自学学生组成学习小组。
+
+## 故障排除和支持
+
+在学习新概念时，发现自己被阻塞并需要帮助是很常见的。这对于自学者尤其具有挑战性。如果您需要支持或在课程中遇到任何问题，可以使用[报告问题](https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=)按钮来获得支持。
+
+此外，支付DockYard Academy班级费用的学生可以直接访问DockYard Academy Discord上的同伴和导师社区。每当您需要支持时，请在`#questions-and-answers`频道发帖。
+
+## 设置Git和GitHub
+
+如果您尚未这样做，我们建议您将此项目与Git和GitHub连接。在每节课后，我们在**提交您的进度**部分提供有关如何使用Git提交您的进度并将更改推送到GitHub的说明。
+
+例如，一旦您完成阅读，您可以按照以下说明进行操作。
+
+## 提交您的进度
+
+DockYard Academy现在建议您使用最新的[发布](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "finish Start Here reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行学习。
+
+我们还提供一个付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月班级的申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Start Here">报告问题</a>
+</div>
+<div style="display: flex;">
+<i style="display: none;" class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href=""></a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/computer_hardware.livemd">计算机硬件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

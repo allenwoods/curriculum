@@ -1,0 +1,344 @@
+<!-- livebook:{"file_entries":[{"name":"auto-save.png","type":"attachment"},{"name":"explorer_tab.png","type":"attachment"},{"name":"initiate_liveshare.png","type":"attachment"},{"name":"join_liveshare_url.png","type":"attachment"},{"name":"keyboard%20shortcuts.png","type":"attachment"},{"name":"live_share_link_copied.png","type":"attachment"},{"name":"live_share_session_running_tab.png","type":"attachment"},{"name":"live_share_tab.png","type":"attachment"},{"name":"quick_open_search.png","type":"attachment"},{"name":"recommended_extensions.png","type":"attachment"},{"name":"search.png","type":"attachment"},{"name":"show%20all%20commands.png","type":"attachment"},{"name":"source_control_stage_all_files.png","type":"attachment"},{"name":"source_control_stage_file.png","type":"attachment"},{"name":"source_control_view.png","type":"attachment"},{"name":"unstage_changes.png","type":"attachment"},{"name":"view%20toggle%20terminal.png","type":"attachment"},{"name":"workspace-trust-dialog.png","type":"attachment"}]} -->
+
+# 代码编辑器
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Code Editors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/livebook.livemd">Livebook</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/iex.livemd">IEx</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何打开你的 Visual Studio Code 编辑器？
+* 如何在 Visual Studio Code 编辑器中管理版本控制？
+* 如何开始和加入 LiveShare 会话以与其他开发者协作？
+
+## 概述
+
+### 代码编辑器
+
+代码编辑器是用于编辑代码的软件应用程序。
+
+一些代码编辑器是简约的，仅用于编辑代码。一些则配备开发工具，允许你在同一应用程序中编写、运行和测试代码。通常，我们称这些为集成开发环境或 **IDEs**。
+
+有各种各样的代码编辑器和 IDE，每种都有其优点。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Visual Studio Code
+
+Visual Studio Code (VS Code) 是由 Microsoft 开发的代码编辑器。它是一个免费的、开源的、跨平台的应用程序，可以用于编写和编辑多种编程语言的代码，包括 Elixir。
+
+VS Code 提供了许多功能，使其成为强大的代码编辑工具，例如：
+
+* **IntelliSense**：提供代码补全和建议
+* **语法高亮**：使代码更易于阅读和理解
+* **代码调试**：允许开发者逐步执行代码并查找错误
+* **Git 集成**：允许开发者轻松管理代码更改并与他人协作
+* **可扩展性**：VS Code 可以通过插件和扩展进行扩展，添加新功能和功能
+
+Visual Studio Code 是 DockYard Academy 推荐的默认代码编辑器。我们选择这个编辑器有多种原因，包括 Visual Studio Code 的 LiveShare 功能，允许多个开发者同时协作在同一代码上。
+
+请参阅 [Visual Studio Code 文档](https://code.visualstudio.com/docs/getstarted/userinterface) 以获取有关如何有效使用 Visual Studio Code 的完整说明。
+
+## 下载 Visual Studio Code
+
+请下载并安装 [Visual Studio Code](https://code.visualstudio.com/)。
+
+你可能已经有一个首选的编辑器。虽然强烈推荐，但你不必使用 Visual Studio Code。
+然而，即使它不成为你日常的代码编辑器，我们仍然建议你安装它，以便你可以与讲师和同学一起加入和分享 LiveShare 会话。
+
+## 打开 Visual Studio Code
+
+你可以手动打开 Visual Studio Code 或通过命令行打开。
+这需要一些设置，但在终端中使用 `code` 命令打开特定项目是很方便的。
+
+Windows 和 Linux 用户在安装 Visual Studio Code 后应该自动拥有 `code` 命令。
+Mac 用户可以按照 [这些说明](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line) 设置 `code` 命令。
+
+使用 `cd` 在命令行中导航到课程文件夹，然后运行 `code .` 以在当前文件夹中打开 Visual Studio Code。
+
+```
+$ cd path/to/curriculum
+$ code .
+```
+
+## 设置推荐扩展
+
+我们有一份推荐扩展的列表供本课程使用。
+
+在 Visual Studio Code 中打开课程项目，打开扩展选项卡并搜索 `@recommended` 以查看工作区推荐。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/recommended_extensions.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们建议你安装所有这些扩展。
+
+* **Phoenix Framework**：Phoenix HEEx 文件的语法高亮。
+* **Elixir Test**：用于测试 Elixir 代码的有用命令。
+* **ElixirLS**：为自动补全、语法高亮等提供一般 Elixir 支持
+* **Live Share**：实时协作开发。
+* **Code Spell Checker**：源代码的拼写检查。用于捕捉拼写错误。
+
+社区提供了许多有用的扩展。我们尽量保持简约，因此可以考虑研究更多有用的扩展，超出此列表。一个优秀的扩展可以显著提高你的生产力。
+
+## 资源管理器
+
+活动栏包含资源管理器选项卡。
+
+![](files/explorer_tab.png)
+
+打开资源管理器选项卡以查看项目中的所有文件和文件夹。
+你可以从此选项卡创建新文件和文件夹。
+
+你还可以打开文件以在编辑器中使用。请小心，不要编辑本课程的任何文件，除非有指示。
+
+## 快速打开
+
+对于大型项目，搜索文件和文件夹很快就会变得乏味。
+相反，你可以使用 **快速打开** 命令，按 <kbd>Ctrl</kbd>+<kbd>P</kbd>（Windows 和 Linux）或 <kbd>CMD</kbd>+<kbd>P</kbd>（MacOS）。在这里
+你可以搜索文件名并按 <kbd>Enter</kbd> 在编辑器中查看它。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/quick_open_search.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+熟练使用你的代码编辑器是很重要的。有许多方法可以提高你选择的代码编辑器的生产力。我们提供了一些有效使用编辑器的建议，
+但你是判断哪些策略最有效的最佳人选。
+
+话虽如此，我们建议你练习使用快速打开，而不是资源管理器。在大规模工作时，快速打开是一个更快的解决方案，
+你会希望熟练掌握它。
+
+## 命令
+
+Visual Studio Code 有许多有用的命令。此外，许多扩展还添加了额外的命令。
+
+按 <kbd>CTRL</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>（Windows 和 Linux）或 <kbd>CMD</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>（MacOS）显示所有命令。你会注意到它只是
+使用带有 `>` 符号的快速打开。你也可以打开快速打开，然后按 `>`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/show%20all%20commands.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+例如，你可能希望使用自动保存命令自动保存文件。
+
+![](files/auto-save.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+许多命令都绑定到快捷键。搜索 `Preferences: Open Keyboard Shortcuts` 命令
+以查看和编辑你的快捷键。
+
+特定的快捷键通常超出本课程的范围，但你可能希望研究更多。你也可以重新绑定任何特定的快捷键，以自定义你的开发体验。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/keyboard%20shortcuts.png)
+
+## 集成终端
+
+Visual Studio Code 配备了集成终端，这样你就不必在编辑器和命令行之间来回切换。
+
+要了解有关集成终端的更多信息，你可以阅读 [集成终端文档](https://code.visualstudio.com/docs/editor/integrated-terminal)
+
+使用 `View: Toggle Terminal` 命令打开和关闭集成终端。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/view%20toggle%20terminal.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+或者你可以使用 <kbd>CTRL</kbd>+<kbd>\`</kbd> 命令。
+
+反引号 <kbd>\`</kbd> 对于频繁使用的命令可能感觉不太人性化。你可能希望将其重新绑定为更舒适的快捷键。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 多个终端
+
+从集成终端，你可以管理多个终端窗口。
+
+多个终端在一个终端忙于执行某些持续任务（如运行应用程序）时非常有用。
+
+例如，当使用集成终端运行本课程时，该终端将忙于运行 `livebook server` 命令。因此，打开第二个终端窗口以访问命令行而不停止和启动 livebook 是很有用的。
+
+## 搜索
+
+你可以使用搜索选项卡在文件中查找内容。或者，你可以使用 <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>F</kbd>（Windows 和 Linux）或 <kbd>CMD</kbd>+<kbd>SHIFT</kbd>+<kbd>F</kbd>（MacOS）快捷键快速打开搜索。
+
+在搜索输入框中输入文本并按 <kbd>Enter</kbd> 搜索某些文本。
+
+搜索选项卡对于 **搜索和替换** 也很有用。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/search.png)
+
+## 源代码控制
+
+源代码控制选项卡允许你管理 git 源代码控制。你可以使用 UI 来暂存和取消暂存更改，而不是使用命令行。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/source_control_view.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+你可以通过悬停在文件上并按下暂存按钮 <i class="ri-add-line"></i> 来暂存文件。
+
+![](files/source_control_stage_file.png)
+
+或者通过悬停在 **更改** 上并按下暂存所有按钮 <i class="ri-add-line"></i> 来暂存所有文件。
+![](files/source_control_stage_all_files.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+同样，你可以通过按下取消暂存按钮 <i class="ri-subtract-line"></i> 来取消暂存更改或单个文件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/unstage_changes.png)
+
+## Live Share
+
+你可以通过 LiveShare 选项卡分享和加入协作开发会话。
+
+![](files/live_share_tab.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+你可以作为主机开始 LiveShare 会话，然后其他开发者加入你的会话，反之亦然。
+
+```mermaid
+flowchart
+  H[主机]
+  D1[开发者]
+  D2[开发者]
+  D3[开发者]
+  D4[开发者]
+  D5[开发者]
+  D1 --> H
+  D2 --> H
+  D3 --> H
+  D4 --> H
+  D5 --> H
+```
+
+要开始 LiveShare 会话，按下 **分享** 按钮。
+
+![](files/initiate_liveshare.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这将创建一个 LiveShare 会话并自动复制一个邀请链接，链接看起来像这样：
+`https://prod.liveshare.vsengsaas.visualstudio.com/join?20A7B9A2A82856BC29CE86120852C16E23EB`
+
+![](files/live_share_link_copied.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+将此链接发送给其他开发者以便他们加入会话。一个常见的错误是点击链接。
+相反，要加入 LiveShare 会话，你需要点击 LiveShare 选项卡中的 **加入** 按钮并输入 URL。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/join_liveshare_url.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+参与者在 LiveShare 选项卡中显示。
+
+参与者可以查看你的终端，但在没有权限的情况下无法使用它。
+你可以通过右键单击你想分享的终端，使用 **使可读/写** 按钮来授予参与者对终端的访问权限。
+
+<div style="color: white; font-weight: bold; padding: 0.5rem; background:lightcoral; margin-top: 0.5rem;">
+危险：授予对你的终端的可读/写访问权限允许其他参与者对你的计算机进行危险访问。
+</div>
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/live_share_session_running_tab.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+作为参与者，为了受益于扩展和语法高亮，你可能需要信任你加入的工作区。
+
+对话框可能看起来与此不同，但当你加入会话时，你应该看到类似的通知出现。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/workspace-trust-dialog.png)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成代码编辑器阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同学的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Code Editors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/livebook.livemd">Livebook</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/iex.livemd">IEx</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

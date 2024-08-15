@@ -1,0 +1,514 @@
+# APIs
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:finch, "~> 0.16.0"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=APIs">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/common_components.livemd">常见组件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/pokemon_api.livemd">Pokemon API</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题：
+
+* 常见的 HTTP 请求方法有哪些，它们的作用是什么？
+* 我们如何发送 cURL 请求？
+* 我们如何使用 HTTP 客户端（如 Finch）发送 HTTP 请求？
+* 什么是 JSON，我们如何将其解析为 Elixir 术语？
+* 什么是 Bearer Tokens，我们如何使用它们来验证和授权请求？
+* 为什么暴露访问令牌是有害的，我们如何防止或恢复这种情况？
+
+## 概述
+
+API 代表应用程序编程接口。广义上讲，API 是软件之间通信的一种方式。
+
+通常，API 指的是 Web API，它是在互联网上运行的程序。互联网是一个互联机器的网络，这些机器知道如何相互通信。
+
+我们不会深入探讨网络或互联网的工作原理，因为这超出了本课程的范围。然而，Crash Course Computer Science 提供了一个很好的概述。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=AEaKrq3SpW8\")","title":"The Internet: Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=AEaKrq3SpW8")
+```
+
+### 客户端-服务器模型
+
+这些 API 使用 [客户端-服务器](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) 模型。服务器提供资源，客户端请求资源。
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Client-server-model.svg/375px-Client-server-model.svg.png)
+
+每次打开浏览器（Chrome、Safari、Firefox、Edge 等）时，您都在使用 API。浏览器是客户端，它向服务器请求信息。例如，当您在 YouTube 上搜索视频时，您的浏览器与 YouTube 服务器通信以检索视频文件。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### URL（统一资源定位符）
+
+URL（统一资源定位符）是一个字符字符串，指定互联网上资源的地址。URL 由不同的部分组成，每个部分都有其特定的含义：
+
+* **协议**：协议指定客户端和服务器如何通信，例如 HTTP、HTTPS、FTP 等。
+
+* **域名**：域名是托管资源的服务器的地址。例如，在 URL "https://www.example.com" 中，"www.example.com" 是域名。
+
+* **路径**：路径指定资源在服务器上的位置。它位于域名之后，并以斜杠（"/"）开头。例如，在 URL "https://www.example.com/path/to/resource.html" 中，"/path/to/resource.html" 是路径。
+
+* **查询字符串**：查询字符串包含修改请求或向服务器提供数据的附加参数。它以问号（"?"）开头，并包括一个或多个用与号（"&"）分隔的键值对。例如，在 URL "https://www.example.com/search?name=example&sort=date" 中，"name=example" 和 "sort=date" 是查询字符串参数。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在以下 URL 中识别协议、域名、路径和查询字符串（分开为单独的查询参数及其值）：
+
+https://www.fakedomaindoesnotexist.com/fake/domain?greeting=hello&fake=true
+
+<!-- livebook:{"break_markdown":true} -->
+
+### HTTP 请求方法
+
+[HTTP（超文本传输协议）](https://developer.mozilla.org/en-US/docs/Web/HTTP) 是用于在 Web 上传输数据的协议。[HTTP 请求方法](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)，也称为动词，指示要对识别的资源执行的操作。
+
+```mermaid
+flowchart LR
+Client --HTTP Method--> Server
+```
+
+* **GET：** GET 方法请求指定资源的表示。GET 是最常用的 HTTP 方法，用于检索数据。它是一种安全的方法，这意味着它不应对服务器或资源产生任何副作用，并且应仅检索数据。
+
+* **POST：** POST 方法向指定资源提交实体，通常会导致状态变化或对服务器的副作用。它用于创建新资源或提交数据以供由 URI 识别的资源处理。
+
+* **PUT：** PUT 方法用请求有效负载替换目标资源的所有当前表示。它用于用新数据更新当前资源。
+
+* **PATCH：** PATCH 方法对资源应用部分修改。它用于仅更新当前资源的一部分，而不是像 PUT 那样替换整个资源。
+
+* **DELETE：** DELETE 方法删除指定资源。它用于删除由 URI 识别的资源。
+
+当您使用浏览器时，实际上是在后台使用 HTTP。浏览器隐藏了我们如何使用 HTTP 与这些 API 进行通信的细节。
+
+作为开发人员，我们希望直接使用 HTTP 协议与 Web API 进行交互，以请求和发送信息。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 响应代码
+
+API 使用各种响应代码来传达请求的状态。这些通常称为 [响应代码](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)，并分为五类。
+
+1. 信息性响应（100–199）
+2. 成功响应（200–299）
+3. 重定向消息（300–399）
+4. 客户端错误响应（400–499）
+5. 服务器错误响应（500–599）
+
+例如，您可能熟悉看到 `404` 未找到响应代码。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Web API
+
+我们使用 Web API 与互联网上的服务器进行通信。这些 API 提供有用的功能，否则很难自己构建。以下是一些示例 API。
+
+* [Stripe API](https://stripe.com/docs/api) 处理 Stripe 支付。
+* [OpenWeatherAPI](https://openweathermap.org/) 提供实时天气信息。
+* [JokeAPI](https://sv443.net/jokeapi/v2/#getting-started) 返回一个随机笑话。
+* [OpenAI API](https://platform.openai.com/docs/api-reference) 生成文本、图像并执行其他与 AI 相关的任务。
+
+## cURL
+
+cURL（发音为 "curl"）代表 "client for URL"。cURL 是一个用于从服务器传输数据的命令行工具。
+
+您可以通过在命令行中输入以下内容来发出简单的 cURL 请求。
+
+```
+curl https://www.example.com
+```
+
+了解 cURL 是很重要的，因为大多数 API 都包含使用 cURL 请求示例的文档。我们可以使用这些简单的 cURL 请求来测试 API 或了解如何使用我们选择的 Elixir API 客户端发送请求。
+
+在这里，我们使用 [System](https://hexdocs.pm/elixir/System.html) 模块来模拟从命令行运行 curl 请求并打印响应以作示例。请注意，它返回的是 https://www.example.com 的 HTML 文档。
+
+```elixir
+{response, _exit_status} = System.cmd("curl", ["https://www.example.com"])
+
+IO.puts(response)
+```
+
+### cURL 选项
+
+cURL 选项用于自定义和修改 curl 命令的行为。以下是一些常用的 curl 选项：
+
+* -X：指定要使用的 HTTP 方法，例如 GET、POST、PUT 或 DELETE。
+* -H：指定要在请求中包含的 HTTP 头，例如 Content-Type 或 Authorization。
+* -d：指定要包含在请求正文中的数据，例如表单数据或 JSON 数据。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在命令行中运行以下虚假 curl 请求。`\` 字符允许我们将命令分成多行。
+
+```
+curl -X POST \
+-H "Content-Type: application/json" \
+-d '{"username":"johndoe","password":"password123"}' https://www.example.com/login
+```
+
+您应该会看到类似以下内容的响应：
+
+```html
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+        <head>
+                <title>404 - Not Found</title>
+        </head>
+        <body>
+                <h1>404 - Not Found</h1>
+                <script type="text/javascript" src="//obj.ac.bcon.ecdns.net/ec_tpm_bcon.js"></script>
+        </body>
+</html>
+```
+
+## 认证
+
+API 使用不同形式的认证来检查用户是否有权访问某些资源。通常，大多数形式的认证使用某种访问令牌来识别访问资源的用户。公共 API 不需要任何形式的访问令牌，而私有 API 则需要。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Bearer Tokens
+
+Bearer Tokens 是一种访问令牌，用于验证和授权请求以访问 API 中的受保护资源。
+
+通常，API 允许您创建一个帐户并接收 API 密钥。我们使用此密钥作为 Bearer 令牌，允许我们访问 API 资源。
+
+例如，以下是一个需要 Bearer 令牌的 [Open AI API](https://platform.openai.com/docs/guides/images/usage) 请求，用于创建一只暹罗猫的图像。`$OPENAI_API_KEY` 将被实际的 Bearer 令牌替换，以发出请求。
+
+```
+curl https://api.openai.com/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "prompt": "a white siamese cat",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+首先，尝试将上面的 curl 请求复制/粘贴到命令行中。您应该会看到以下错误：
+
+```
+{
+  "error": {
+    "code": null,
+    "message": "Invalid authorization header",
+    "param": null,
+    "type": "server_error"
+  }
+}
+```
+
+然后，按照以下步骤创建 Bearer 令牌并发出经过身份验证的请求以生成 AI 图像。
+
+1. 创建一个免费的 Open AI 帐户：https://auth0.openai.com/u/signup/
+2. 查找或创建一个 API 密钥：https://platform.openai.com/account/api-keys
+3. 在命令行中发送上面的 cURL 请求。确保将 `$OPENAI_API_KEY` 替换为您创建的 API 密钥。
+
+您应该会看到类似以下内容的响应：
+
+```js
+{
+  "created": 1683498991,
+  "data": [
+    {
+      "url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-xZKFBB8qReE9rPvITFyOR6WR/user-bOWL7A3HQkffCs8ssJEx4gsI/img-nCmoC73zliZ9YuUCAxQ3043K.png?st=2023-05-07T21%3A36%3A31Z&se=2023-05-07T23%3A36%3A31Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-07T17%3A44%3A05Z&ske=2023-05-08T17%3A44%3A05Z&sks=b&skv=2021-08-06&sig=ovkn87xw2l981zy62Aio3GErj7bfRF7zUL8HJulfL5s%3D"
+    }
+  ]
+}
+```
+
+在浏览器中访问生成的图像的 URL。
+
+您将在本课后面使用此 Bearer 令牌。如果您用完免费积分或遇到其他问题，请向您的老师请求 Bearer 令牌。
+
+## Finch
+
+Finch 是众多 HTTP 客户端之一，允许我们在 Elixir 中发送 HTTP 请求。
+
+我们选择教授 [Finch](https://github.com/sneako/finch) 而不是其他流行的库，如 [HTTPoison](https://github.com/edgurgel/httpoison) 或 [Req](https://github.com/wojtekmach/req)，因为它在 Phoenix 1.7 项目中默认包含。
+
+要使用 Finch 发送请求，我们需要启动 Finch 进程。这通常在应用程序的监督树中完成，但我们在这里为了演示目的这样做。Finch 在一个命名进程下启动。我们选择了 `MyApp.Finch`，但这个名称是任意的，通常在 Phoenix 项目中为您完成。
+
+```elixir
+Finch.start_link(name: MyApp.Finch)
+```
+
+一旦 Finch 进程启动，要发出请求，我们使用 [Finch.build/5](https://hexdocs.pm/finch/0.16.0/Finch.html#build/5) 构建请求信息的 `Finch.Request` 结构。
+
+```elixir
+request = Finch.build(:get, "https://www.example.com")
+```
+
+然后我们将此结构提供给 [Finch.request/3](https://hexdocs.pm/finch/0.16.0/Finch.html#request/3) 函数，使用 Finch 进程的名称发送请求。
+
+```elixir
+Finch.request!(request, MyApp.Finch)
+```
+
+## Jason
+
+JSON 是一种流行的格式，用于以键值结构存储信息。
+
+```javascript
+{
+  "key1": "value1",
+  "key2": "value2",
+}
+```
+
+Elixir 将 JSON 表示为字符串，而不是键值结构。例如，上述内容在 Elixir 中将是：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"{\"key1\":\"value1\",\"key2\":\"value2\"}"
+```
+
+我们可以使用流行的 [Jason](https://github.com/michalmuskala/jason) 将 Elixir 术语编码为 JSON，并将 JSON 解码为 Elixir 术语，例如映射。
+
+```elixir
+Jason.decode!("{\"key1\":\"value1\",\"key2\":\"value2\"}")
+```
+
+```elixir
+Jason.encode!(%{"key1" => "value1", "key2" => "value2"})
+```
+
+API 通常返回 JSON 响应。例如，这里我们向 JokeAPI 发出请求，返回 JSON 响应。
+
+```elixir
+response =
+  Finch.build(:get, "https://v2.jokeapi.dev/joke/Any?safe-mode&type=single&format=json")
+  |> Finch.request!(MyApp.Finch)
+```
+
+响应体是一个 JSON 字符串，我们需要将其解码。我们可以从响应中提取主体，然后使用 Jason 将其解码为映射。
+
+```elixir
+decoded_body = Jason.decode!(response.body)
+```
+
+现在我们可以像处理任何 Elixir 映射一样处理解码后的主体。例如，我们可以访问 "joke" 字段。
+
+```elixir
+decoded_body["joke"]
+```
+
+## 构建 Finch 请求
+
+我们可以使用 [Finch.build/5](https://hexdocs.pm/finch/Finch.html#build/5) 构建更复杂的请求。阅读 cURL 文档并将其转换为使用 HTTP 客户端的 HTTP 请求是一项重要技能。为了示例，我们将把之前的 Open AI API 请求转换为 Finch 请求。
+
+从 Open AI 文档中获取以下 cURL 请求。
+
+```
+curl https://api.openai.com/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_TOKEN" \
+  -d '{
+    "prompt": "a white siamese cat",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
+
+我们可以从此请求中获取一些关键细节。
+
+* **方法**：请求的 HTTP 方法。通常是 GET、POST、PATCH、PUT 或 DELETE。
+* **头部**：HTTP 头部提供有关请求或响应的附加信息，例如内容类型或认证，并以键值对的形式传输。
+  * **Content-Type**：指定请求正文中发送的数据的格式。
+  * **Authorization**：在请求中包含认证信息，证明客户端已通过认证并有权访问资源。
+* **数据（正文）**：包含要在请求正文中发送的 JSON 数据。
+
+我们需要从 cURL 请求中提取信息，并将其提供给 [Finch.build/5](https://hexdocs.pm/finch/Finch.html#build/5)。以下是我们需要提供的 [Finch.build/5](https://hexdocs.pm/finch/Finch.html#build/5) 的完整规范。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Finch.build(method, url, headers \\ [], body \\ nil, opts \\ [])
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 将我们的 cURL 请求转换为 Elixir 术语
+
+以下是将 cURL 请求分解为 Finch 所需格式的有效 Elixir 术语。
+
+如果您愿意，可以将 `$OPENAI_API_TOKEN` 替换为有效令牌以查看实际 API 响应。然而，您**绝不**应暴露您的 API 令牌，这会在您将此 Livebook 存储在 GitHub 上时发生。
+
+为避免暴露您的令牌，请确保创建一个新令牌并撤销您在本课程中使用的令牌：https://platform.openai.com/account/api-keys
+
+```elixir
+method = :post
+
+url = "https://api.openai.com/v1/images/generations"
+
+# 用您的令牌替换 $OPEN_API_TOKEN。
+# 确保稍后撤销该令牌，以避免公开暴露。
+
+headers = [
+  {"Content-Type", "application/json"},
+  {"Authorization", "Bearer $OPENAI_API_TOKEN"}
+]
+
+body =
+  Jason.encode!(%{
+    prompt: "a white siamese cat",
+    n: 1,
+    size: "1024x1024"
+  })
+```
+
+### 我们如何知道这是一个 POST 请求？
+
+大部分信息直接来自 cURL 请求。然而，**方法**可以假定为 POST 请求，即使没有明确指定。这是因为 cURL 请求包含 `-d` 选项，GET 请求不能带数据，因此 cURL 推断这是一个 POST 请求。Open AI API 参考文档中也说明了这一点：[Open AI API Reference](https://platform.openai.com/docs/api-reference/images) 用于图像生成。
+
+如果我们想让这个 cURL 请求更明确，可以使用 `-X` 选项，但这不是必需的，也不是许多 API 文档的写法。
+
+```
+curl https://api.openai.com/v1/images/generations \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_TOKEN" \
+  -d '{
+    "prompt": "a white siamese cat",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 请求
+
+将所有这些结合在一起，我们得到以下 Finch 请求，我们可以使用 Jason 解码。
+
+```elixir
+request = Finch.build(method, url, headers, body) |> Finch.request!(MyApp.Finch)
+
+Jason.decode!(request.body)
+```
+
+### 你的回合
+
+为以下来自 [Open AI API Reference](https://platform.openai.com/docs/api-reference/chat/create) 的 curl 请求发出 Finch 请求。
+
+```
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-3.5-turbo",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'
+```
+
+使用 Jason 解码响应，并使用 `IO.puts/2` 打印 Chat API 的响应字符串。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+我们使用虚假令牌 `sk-1WHDb0NwRkq3mfyRVparT3BlbkFJ500axJFd8pZ2RKxGJ0x` 来演示如何用您的 Bearer 令牌替换 `$OPENAI_API_TOKEN`。
+
+```elixir
+request =
+  Finch.build(
+    :post,
+    "https://api.openai.com/v1/chat/completions",
+    [
+      {"Content-Type", "application/json"},
+      {"Authorization", "Bearer sk-1WHDb0NwRkq3mfyRVparT3BlbkFJ500axJFd8pZ2RKxGJ0x"}
+    ],
+    Jason.encode!(%{
+      model: "gpt-3.5-turbo",
+      messages: [%{role: "user", content: "Hello!"}]
+    })
+  )
+  |> Finch.request!(MyApp.Finch)
+
+decoded_body = Jason.decode!(request.body)
+
+[%{"message" => %{"content" => message}}] = decoded_body["choices"]
+
+IO.puts(message)
+```
+</details>
+
+```elixir
+
+```
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 APIs 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费提供。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=APIs">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/common_components.livemd">常见组件</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/pokemon_api.livemd">Pokemon API</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,177 @@
+# 猜字游戏
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Guessing Games">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mad_libs.livemd">疯狂填词</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/atoms.livemd">原子</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 猜单词
+
+创建一个单词猜测游戏。手动绑定一个 `guess` 和一个 `answer`。如果猜测等于答案，则返回 `"正确"`，否则返回 `"不正确"`。
+
+确保你的解决方案能够处理玩家的正确和错误猜测。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  ```elixir
+  guess = "hello"
+  answer = "hello"
+
+  guess == answer && "Correct!" || "Incorrect."
+  ```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 奖励：猜随机单词
+
+我们可以使用 [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 从列表中选择一个随机值。
+
+```elixir
+Enum.random(["hello", "hi", "howdy"])
+```
+
+掌握了这个知识后，你将创建一个单词猜测游戏。
+
+* 将变量 `guess` 绑定为玩家的猜测字符串。
+* 将变量 `answer` 绑定为一个随机单词（你可以创建一个随机单词的列表供选择）。
+* 如果 `guess` 与答案匹配，返回 `"Correct!"`，否则返回 `"Incorrect."`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  ```elixir
+  guess = "hello"
+  answer = Enum.random(["hello", "hi", "howdy"])
+
+  guess == answer && "Correct!" || "Incorrect."
+  ```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 奖励：猜数字
+
+我们可以通过向 [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 提供一个范围来生成两个值之间的随机整数。
+
+```elixir
+Enum.random(1..10)
+```
+
+现在让我们构建一个数字猜测游戏。
+
+* 将变量 `answer` 绑定为 `1` 和 `10` 之间的随机整数。
+* 将变量 `guess` 绑定为玩家的猜测。
+* 如果 `guess` 等于 `answer`，返回 `"Correct!"`。
+* 如果 `guess` 小于答案，返回 `"Too low!"`。
+* 如果 `guess` 大于答案，返回 `"Too high!"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  `cond` 允许我们处理几种不同的条件。
+
+  ```elixir
+  guess = Enum.random(1..10)
+  answer = 7
+
+  cond do
+    guess == answer -> "Correct!"
+    guess < answer -> "Too low!"
+    guess > answer -> "Too high!"
+  end
+  ```
+
+  然而，我们也可以仅使用布尔运算符来解决这个问题。
+
+  ```elixir
+  guess = Enum.random(1..10)
+  answer = 7
+
+  guess == answer && "Correct" || guess < answer && "Too low!" || guess > answer && "Too high!"
+  ```
+
+  我们可以选择通过省略最后一个条件来简化解决方案。然而，这可能会导致未处理的错误。
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成猜字游戏练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Guessing Games">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/mad_libs.livemd">疯狂填词</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/atoms.livemd">原子</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,669 @@
+# PicChat: 认证
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Authentication">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_messages.livemd">PicChat: 消息</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/pic_chat_image_upload.livemd">PicChat: 图片上传</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在 LiveView 中获取当前用户？
+* 如何使用 [live_session/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Router.html#live_session/3) 保护一组实时路由？
+
+## PicChat: 消息
+
+在接下来的几节课中，我们将构建一个 `PicChat` 应用程序，用户可以创建带有上传图片的消息。本课将重点添加消息的认证和授权。
+
+使用 [mix phx.gen.auth](https://hexdocs.pm/phoenix/1.6.15/Mix.Tasks.Phx.Gen.Auth.html) 生成管理 `Messages` 资源所需的所有 LiveView 样板代码。
+确保选择 LiveView 选项进行认证。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ mix phx.gen.auth Accounts User users
+可以通过两种不同的方式创建认证系统：
+- 使用 Phoenix.LiveView（默认）
+- 仅使用 Phoenix.Controller
+您想创建基于 LiveView 的认证系统吗？ [Yn] Y
+```
+
+迁移数据库并安装依赖。
+
+```
+$ mix deps.get
+$ mix ecto.migrate
+```
+
+## 关联消息和用户
+
+创建一个新的迁移，将 `user_id` 外键添加到消息中。使其为必填项。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+mix ecto.gen.migration add_user_id_to_messages
+```
+
+将以下内容添加到迁移中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Repo.Migrations.AddUserIdToMessages do
+  use Ecto.Migration
+
+  def change do
+    alter table(:messages) do
+      add :user_id, references(:users, on_delete: :delete_all), null: false
+    end
+  end
+end
+```
+
+重置数据库。
+
+```
+$ mix ecto.reset
+```
+
+在 `Message` 模式中添加关联。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.Chat.Message do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "messages" do
+    field :content, :string
+    belongs_to :user, PicChat.Accounts.User
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(message, attrs) do
+    message
+    |> cast(attrs, [:content, :user_id])
+    |> validate_required([:content])
+  end
+end
+```
+
+在使用消息表单创建消息时发送 `user_id`。您需要将当前用户提供给 `form_component`。`@current_user` 已由 `fetch_current_user/2` 插件分配。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.html.heex
+<.live_component
+  module={PicChatWeb.MessageLive.FormComponent}
+  id={@message.id || :new}
+  title={@page_title}
+  action={@live_action}
+  message={@message}
+  patch={~p"/messages"}
+  current_user={@current_user}
+/>
+```
+
+更新消息时也做同样的操作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Show.html.heex
+<.live_component
+  module={PicChatWeb.MessageLive.FormComponent}
+  id={@message.id}
+  title={@page_title}
+  action={@live_action}
+  message={@message}
+  patch={~p"/messages/#{@message}"}
+  current_user={@current_user}
+/>
+```
+
+然后在表单中提供 `user_id` 作为隐藏输入。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Form_component.ex
+<.simple_form
+  for={@form}
+  id="message-form"
+  phx-target={@myself}
+  phx-change="validate"
+  phx-submit="save"
+>
+  <.input field={@form[:content]} type="text" label="内容" />
+  <!-- 添加隐藏的 user_id 字段 -->
+  <.input field={@form[:user_id]} type="hidden" value={@current_user.id} />
+  <:actions>
+    <.button phx-disable-with="保存中...">保存消息</.button>
+  </:actions>
+</.simple_form>
+```
+
+## 保护路由
+
+### 认证
+
+LiveViews 不能使用通常的 `pipe_through [:browser, :require_authenticated_user]` 宏进行保护，因为如果我们使用 WebSocket 连接，我们不会发送新的 HTTP 请求，也不会通过路由器中定义的 `require_authenticated_user` 插件。
+
+相反，我们可以使用 [live_session/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Router.html#live_session/3) 保护路由，以将路由分组在一起，并在每次 LiveView 挂载时运行一个公共的 `on_mount/4` 回调函数。
+
+生成的 `UserAuth` 模块已经定义了一些有用的 `on_mount/4` 回调：
+
+* `:ensure_authenticated`。
+* `:mount_current_user`。
+* `:redirect_if_user_is_authenticated`
+
+我们还将创建自己的回调：`:require_user_owns_message`。
+
+用以下内容替换您的 `messages` 路由：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  scope "/", PicChatWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :protected_messages,
+      on_mount: [
+        {PicChatWeb.UserAuth, :ensure_authenticated},
+        {PicChatWeb.UserAuth, :require_user_owns_message}
+      ] do
+      live "/messages/new", MessageLive.Index, :new
+      live "/messages/:id/edit", MessageLive.Index, :edit
+      live "/messages/:id/show/edit", MessageLive.Show, :edit
+    end
+  end
+
+  scope "/", PicChatWeb do
+    pipe_through :browser
+
+    get "/", PageController, :home
+
+    # 我们挂载当前用户，因为稍后需要根据条件显示元素。
+    live_session :messages, on_mount: [{PicChatWeb.UserAuth, :mount_current_user}] do
+      live "/messages", MessageLive.Index, :index
+      live "/messages/:id", MessageLive.Show, :show
+    end
+  end
+```
+
+这引入了一个安全风险，如果我们触发 `patch` 导航事件，因为它绕过了 LiveView 的挂载，因此我们需要确保使用 `navigate`。
+
+将 **所有** 需要认证用户的页面的 `patch` 事件更改为 `navigate`。
+
+例如：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.link navigate={~p"/messages/new"}>
+  <.button>新消息</.button>
+</.link>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 授权
+
+目前任何用户都可以访问任何用户的消息并删除或更新它们。为了解决这个问题，我们可以创建一个自定义的 `on_mount` 回调函数，以限制某些页面仅限于拥有它们的用户。
+
+首先，在 `UserAuth` 中为 `on_mount/4` 定义一个 `:require_user_owns_message` 函数子句。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def on_mount(:require_user_owns_message, %{"id" => message_id}, _session, socket) do
+  message = PicChat.Chat.get_message!(message_id)
+  if socket.assigns.current_user.id == message.user_id do
+    {:cont, socket}
+  else
+    socket =
+      socket
+      |> Phoenix.LiveView.put_flash(:error, "您必须拥有此资源才能访问此页面。")
+      |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
+
+    {:halt, socket}
+  end
+end
+
+# 对于不针对特定消息的路由自动继续。
+def on_mount(:require_user_owns_message, _params, _session, socket), do: {:cont, socket}
+```
+
+然后保护现有 `:messages` 的 `live_session/3` 中的路由。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+scope "/", PicChatWeb do
+  pipe_through [:browser, :require_authenticated_user]
+
+  live_session :messages,
+    on_mount: [
+      {PicChatWeb.UserAuth, :ensure_authenticated},
+      # 将 :require_user_owns_message 添加到 `router.ex` 中的 `on_mount` 回调
+      {PicChatWeb.UserAuth, :require_user_owns_message}
+    ] do
+    live "/messages/new", MessageLive.Index, :new
+    live "/messages/:id/edit", MessageLive.Index, :edit
+    live "/messages/:id/show/edit", MessageLive.Show, :edit
+  end
+end
+```
+
+## 受保护的事件处理程序和元素
+
+LiveView 事件处理程序也是一个安全问题，因为已经挂载 LiveView 的用户可能能够触发他们没有权限使用的事件处理程序。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 删除按钮
+
+例如，我们目前有一个问题。用户可以通过触发 `MessageLive.Index` LiveView 中的 `"delete"` 事件来删除任何其他用户的消息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@impl true
+def handle_event("delete", %{"id" => id}, socket) do
+  message = Chat.get_message!(id)
+  {:ok, _} = Chat.delete_message(message)
+
+  {:noreply, stream_delete(socket, :messages, message)}
+end
+```
+
+现在，我们将实现一个非常简单的解决方案。如果消息不属于用户，则隐藏删除按钮。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.html.heex
+<%= if assigns[:current_user] && @current_user.id == message.user_id do %>
+  <.link
+    phx-click={JS.push("delete", value: %{id: message.id}) |> hide("##{id}")}
+    data-confirm="您确定吗？"
+  >
+    删除
+  </.link>
+<% end %>
+```
+
+这不是理想的解决方案，因为如果用户找到一种方法向服务器发送事件，事件处理程序仍然是暴露和不受保护的。
+
+这是一个非常轻量级的解决方案，用于保护事件处理程序，以便您了解如何实现授权。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.ex
+@impl true
+def handle_event("delete", %{"id" => id}, socket) do
+  message = Chat.get_message!(id)
+
+  if message.user_id == socket.assigns.current_user.id do
+    {:ok, _} = Chat.delete_message(message)
+    {:noreply, stream_delete(socket, :messages, message)}
+  else
+    {:noreply, Phoenix.LiveView.put_flash(socket, :error, "您没有权限删除此消息。")}
+  end
+end
+```
+
+一些系统将实现一个单独的授权系统，以确定某个操作是否有效。
+
+有关更多信息，请参阅 DockYard 博客文章 [Authorization For Phoenix Contexts](https://dockyard.com/blog/2017/08/01/authorization-for-phoenix-contexts)，作者为 Chris McChord。他讨论了使用控制器进行授权，但相同的概念可以应用于 LiveView。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 编辑按钮
+
+我们还有一个暴露的编辑按钮。幸运的是，我们已经保护了编辑路由，因此这不是一个安全问题，但可能是一个 UI 问题，因为用户无法与按钮交互。
+
+以下是我们可以通过检查用户是否拥有消息来隐藏该按钮的方法。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.html.heex
+<%= if assigns[:current_user] && @current_user.id == message.user_id do %>
+  <.link navigate={~p"/messages/#{message}/edit"}>编辑</.link>
+<% end %>
+```
+
+在 `MessageLive.Show` 页面上我们也有同样的问题。我们可以用同样的方法解决它。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<%= if assigns[:current_user] && @current_user.id == @message.user_id do %>
+  <.link navigate={~p"/messages/#{@message}/show/edit"} phx-click={JS.push_focus()}>
+    <.button>编辑消息</.button>
+  </.link>
+<% end %>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 新按钮
+
+对于未登录的用户，隐藏新按钮。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.heex.html
+<%= if assigns[:current_user] do %>
+  <.link navigate={~p"/messages/new"}>
+    <.button>新消息</.button>
+  </.link>
+<% end %>
+```
+
+## 修复测试
+
+### 上下文测试
+
+通过在创建消息时添加 `user_id` 字段来修复 `chat_test.ex` 中的上下文测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChat.ChatTest do
+  use PicChat.DataCase
+
+  alias PicChat.Chat
+
+  describe "messages" do
+    alias PicChat.Chat.Message
+
+    import PicChat.ChatFixtures
+    import PicChat.AccountsFixtures
+
+    @invalid_attrs %{content: nil}
+
+    test "list_messages/0 返回所有消息" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      assert Chat.list_messages() == [message]
+    end
+
+    test "get_message!/1 返回给定 id 的消息" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      assert Chat.get_message!(message.id) == message
+    end
+
+    test "create_message/1 使用有效数据创建消息" do
+      user = user_fixture()
+      valid_attrs = %{content: "一些内容", user_id: user.id}
+
+      assert {:ok, %Message{} = message} = Chat.create_message(valid_attrs)
+      assert message.content == "一些内容"
+      assert message.user_id == user.id
+    end
+
+    test "create_message/1 使用无效数据返回错误更改集" do
+      assert {:error, %Ecto.Changeset{}} = Chat.create_message(@invalid_attrs)
+    end
+
+    test "update_message/2 使用有效数据更新消息" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      update_attrs = %{content: "一些更新的内容"}
+
+      assert {:ok, %Message{} = message} = Chat.update_message(message, update_attrs)
+      assert message.content == "一些更新的内容"
+    end
+
+    test "update_message/2 使用无效数据返回错误更改集" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      assert {:error, %Ecto.Changeset{}} = Chat.update_message(message, @invalid_attrs)
+      assert message == Chat.get_message!(message.id)
+    end
+
+    test "delete_message/1 删除消息" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      assert {:ok, %Message{}} = Chat.delete_message(message)
+      assert_raise Ecto.NoResultsError, fn -> Chat.get_message!(message.id) end
+    end
+
+    test "change_message/1 返回消息更改集" do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      assert %Ecto.Changeset{} = Chat.change_message(message)
+    end
+  end
+end
+
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 控制器测试
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们的控制器测试需要在几个方面进行修改：
+
+* 在必要时使用 `UserAuth.log_in_user/3` 在挂载 LiveView 之前登录用户。
+* 替换我们从 `patch` 更改为 `navigate` 的链接中的 [assert_patch/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#assert_patch/3)。
+* 在创建消息时添加 `user_id` 字段。
+
+以下是完整的修复测试套件。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule PicChatWeb.MessageLiveTest do
+  use PicChatWeb.ConnCase
+
+  import Phoenix.LiveViewTest
+  import PicChat.ChatFixtures
+  import PicChat.AccountsFixtures
+
+  @create_attrs %{content: "一些内容"}
+  @update_attrs %{content: "一些更新的内容"}
+  @invalid_attrs %{content: nil}
+
+  describe "索引" do
+    test "列出所有消息", %{conn: conn} do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      {:ok, _index_live, html} = live(conn, ~p"/messages")
+
+      assert html =~ "列出消息"
+      assert html =~ message.content
+    end
+
+    test "保存新消息", %{conn: conn} do
+      user = user_fixture()
+      conn = conn |> log_in_user(user)
+      {:ok, index_live, _html} = live(conn, ~p"/messages")
+
+      {:ok, new_live, html} = index_live |> element("a", "新消息") |> render_click() |> follow_redirect(conn)
+
+      assert_redirected(index_live, ~p"/messages/new")
+      assert html =~ "新消息"
+
+      assert new_live
+             |> form("#message-form", message: @invalid_attrs)
+             |> render_change() =~ "不能为空"
+
+      assert new_live
+             |> form("#message-form", message: @create_attrs)
+             |> render_submit()
+
+      assert_patch(new_live, ~p"/messages")
+
+      html = render(new_live)
+      assert html =~ "消息创建成功"
+      assert html =~ "一些内容"
+    end
+
+    test "更新列表中的消息", %{conn: conn} do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      conn = log_in_user(conn, user)
+      {:ok, index_live, _html} = live(conn, ~p"/messages")
+
+      {:ok, edit_live, html} = index_live |> element("#messages-#{message.id} a", "编辑") |> render_click() |> follow_redirect(conn)
+      assert html =~ "编辑消息"
+      assert_redirect(index_live, ~p"/messages/#{message}/edit")
+
+      assert edit_live
+             |> form("#message-form", message: @invalid_attrs)
+             |> render_change() =~ "不能为空"
+
+      assert edit_live
+             |> form("#message-form", message: @update_attrs)
+             |> render_submit()
+
+      assert_patch(edit_live, ~p"/messages")
+
+      html = render(edit_live)
+      assert html =~ "消息更新成功"
+      assert html =~ "一些更新的内容"
+    end
+
+    test "删除列表中的消息", %{conn: conn} do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      conn = log_in_user(conn, user)
+      {:ok, index_live, _html} = live(conn, ~p"/messages")
+
+      assert index_live |> element("#messages-#{message.id} a", "删除") |> render_click()
+      refute has_element?(index_live, "#messages-#{message.id}")
+    end
+  end
+
+  describe "显示" do
+    test "显示消息", %{conn: conn} do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+
+      {:ok, _show_live, html} = live(conn, ~p"/messages/#{message}")
+
+      assert html =~ "显示消息"
+      assert html =~ message.content
+    end
+
+    test "在模态中更新消息", %{conn: conn} do
+      user = user_fixture()
+      message = message_fixture(user_id: user.id)
+      conn = log_in_user(conn, user)
+
+      {:ok, show_live, _html} = live(conn, ~p"/messages/#{message}")
+
+      {:ok, edit_live, html} = show_live |> element("a", "编辑") |> render_click() |> follow_redirect(conn)
+
+      assert html =~ "编辑消息"
+      assert_redirected(show_live, ~p"/messages/#{message}/show/edit")
+
+      assert edit_live
+             |> form("#message-form", message: @invalid_attrs)
+             |> render_change() =~ "不能为空"
+
+      assert edit_live
+             |> form("#message-form", message: @update_attrs)
+             |> render_submit()
+
+      assert_patch(edit_live, ~p"/messages/#{message}")
+
+      html = render(edit_live)
+      assert html =~ "消息更新成功"
+      assert html =~ "一些更新的内容"
+    end
+  end
+end
+```
+
+## 你的任务：用户名
+
+向 `users` 表添加一个 `username` 字符串字段。在每条聊天消息中显示用户名。
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Chris McChord: Authorization For Phoenix Contexts](https://dockyard.com/blog/2017/08/01/authorization-for-phoenix-contexts)
+* [Sophie DeBenedetto: Securing Your Phoenix LiveView Apps](https://blog.appsignal.com/2022/01/25/securing-your-phoenix-liveview-apps.html)
+* [HexDocs: LiveView 安全模型](https://hexdocs.pm/phoenix_live_view/security-model.html)
+* [HexDocs: mix phx.gen.auth](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Auth.html)
+* [HexDocs: LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html)
+
+## 提交您的进展
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进展。
+
+```
+$ git add .
+$ git commit -m "完成 PicChat: 认证阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Authentication">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_messages.livemd">PicChat: 消息</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/pic_chat_image_upload.livemd">PicChat: 图片上传</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

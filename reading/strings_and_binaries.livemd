@@ -1,0 +1,460 @@
+<!-- livebook:{"file_entries":[{"name":"base2_vs_base10.png","type":"attachment"},{"name":"byte.png","type":"attachment"},{"name":"byte_base2.png","type":"attachment"},{"name":"hex_counting.png","type":"attachment"},{"name":"letter_h_binary.png","type":"attachment"}]} -->
+
+# 字符串与二进制
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Strings And Binaries">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/timeline.livemd">时间线</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/regex.livemd">正则表达式</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 解释代码点、字符串、二进制和字符列表。
+* 为什么在Elixir中，列表有时会打印出意外的值，如何解决这个问题？
+
+## 字符串与二进制
+
+字符串是大多数编程语言中常见的数据类型。
+
+要检查一个值是否是字符串，我们使用 `is_binary/1` 函数。这是因为
+Elixir中的字符串在内部表示为二进制。
+
+```elixir
+is_binary("hello")
+```
+
+二进制是字节的序列。字节是八位的组合。
+
+位是表示为 `0` 或 `1` 的单个值。`0` 和 `1` 对应于电信号的开和关。
+
+这里我们看到内存中一个字节的可视化表示。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/byte.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+字节可以表示使用基数为2的计数系统的整数，其中每个位表示下一个占位符。
+
+![](files/byte_base2.png)
+
+这意味着单个字节可以表示的最大整数是 `255`。
+
+```elixir
+128 + 64 + 32 + 16 + 8 + 4 + 2 + 1
+```
+
+通过计算每个字节中的占位符，我们可以确定字节的值。这些是二进制数字。
+
+整数使用基数为10的计数系统表示，而二进制数字使用基数为2的计数系统。随着右侧占位符的值增长，当它在基数为10中达到 `10` 或在基数为2中达到 `2` 时，它会向左移动。
+
+![](files/base2_vs_base10.png)
+
+这是一个二进制数字及其对应整数值的表格。
+
+<!-- livebook:{"attrs":{"source":"Enum.map(1..300, fn integer ->\n  binary = Integer.digits(integer, 2) |> Enum.join() |> String.to_integer()\n  %{base10: integer, base2: binary}\nend) |> Kino.DataTable.new()","title":"基数2转换表"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Enum.map(1..300, fn integer ->
+  binary = Integer.digits(integer, 2) |> Enum.join() |> String.to_integer()
+  %{base10: integer, base2: binary}
+end)
+|> Kino.DataTable.new()
+```
+
+每个字节在二进制中存储一个介于 `1` 和 `255` 之间的整数。这些整数用于表示字符。例如，数字 `65` 表示字符 `"A"`。这个数字被称为 **代码点**。我们可以使用 `?` 符号找到任何字符的代码点。
+
+```elixir
+?A
+```
+
+我们还可以看到，字符串实际上是一系列表示代码点的二进制字节，使用 [IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2) 和 `binaries: :as_binaries` 选项。
+
+```elixir
+IO.inspect("ABCDEFG", binaries: :as_binaries)
+```
+
+## Unicode 代码点
+
+为了表示字符串，每个字符都被赋予一个唯一的数字索引，称为代码点。
+[Unicode标准](https://unicode.org/standard/standard.html) 包含所有可能字符及其数字索引的完整注册。
+
+我们已经看到可以使用 `?` 在Elixir中找到字符的代码点。例如，字符 `h` 的代码点是 `104`。
+
+```elixir
+?h
+```
+
+这里我们可以看到一个字母字符及其代码点的表格。注意大写字母和小写字母的代码点不同。
+
+<!-- livebook:{"attrs":{"source":"\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\"\n|> String.codepoints()\n|> Enum.map(fn char ->\n  <<code_point::utf8>> = char\n  %{character: char, code_point: code_point}\nend) |> Kino.DataTable.new()","title":"代码点"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+|> String.codepoints()
+|> Enum.map(fn char ->
+  <<code_point::utf8>> = char
+  %{character: char, code_point: code_point}
+end)
+|> Kino.DataTable.new()
+```
+
+为了将字符串表示为二进制，二进制中的每个字节表示一个代码点。
+
+例如，字符 `h` 的代码点是 `104` 或 `01101000` 在一个字节中。
+
+![](files/letter_h_binary.png)
+
+```elixir
+64 + 32 + 8
+```
+
+使用 `byte_size/1` 和 `bit_size/1` 我们可以看到（通常）字符串中的每个字符是一个字节或八位。
+
+```elixir
+byte_size("h")
+```
+
+```elixir
+bit_size("h")
+```
+
+因此，一个包含五个字符的字符串将有五个字节或四十位。
+
+```elixir
+bit_size("hello")
+```
+
+```elixir
+byte_size("hello")
+```
+
+我们可以使用 [IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2) 和 `:as_binaries` 选项来显示一个值的二进制表示。
+
+注意这些是每个字符的代码点。
+
+```elixir
+IO.inspect("hello", binaries: :as_binaries)
+
+?h = 104
+?e = 101
+?l = 108
+?l = 108
+?o = 111
+```
+
+使用这些字符的代码点，我们可以创建一个字符列表，以查看字符列表和二进制之间的关系。
+
+```elixir
+[104, 101, 108, 108, 111]
+```
+
+我们还可以使用 `<<>>` 创建一个二进制。不要担心使用这种语法。这在大多数实际应用中并不常见。
+
+```elixir
+<<104, 101, 108, 108, 111>>
+```
+
+### UTF-8
+
+[Unicode版本14.0](https://www.unicode.org/versions/Unicode14.0.0/) 总共有144,697个字符和代码点。由于单个字节只能存储一个最大为 `255` 的整数，因此某些字符必须使用多个字节。
+
+Elixir使用UTF-8来编码其字符串，这意味着每个代码点被编码为一系列8位字节。
+
+UTF-8使用一到四个字节来存储每个代码点。例如，字符 `é` 使用两个字节。
+
+```elixir
+byte_size("é")
+```
+
+UTF-8还使用字形。字形可能由多个被视为一个的字符组成。
+
+我们可以使用 [String.codepoints/1](https://hexdocs.pm/elixir/String.html#codepoints/1) 查看字形的底层字符。
+
+例如，字符可以表示为“带重音的e”代码点，或作为字母“e”后跟一个“组合重音符”。
+
+你可以看到，虽然两者的外观相同，但它们的代码点不同。
+
+```elixir
+String.codepoints("é")
+```
+
+```elixir
+String.codepoints("é")
+```
+
+在将字符串拆分为字符以进行枚举时，了解你想要枚举的是字形还是代码点是很重要的。
+
+如果你想枚举每个字形，而不是底层代码点，那么你可以使用 [String.graphemes/1](https://hexdocs.pm/elixir/String.html#graphemes/1)。
+
+```elixir
+String.graphemes("é")
+```
+
+### 你的回合
+
+使用 [String.graphemes/1](https://hexdocs.pm/elixir/String.html#graphemes/1) 将 [女性消防员](https://emojipedia.org/woman-firefighter/) emoji 👩‍🚒 转换为字形列表。
+
+```elixir
+
+```
+
+使用 [String.codepoints/1](https://hexdocs.pm/elixir/String.html#codepoints/1) 将 emoji 👩‍🚒 转换为代码点列表。你会注意到它实际上是 👩 和 🚒 emoji 的组合。
+
+```elixir
+
+```
+
+## 十六进制
+
+由于二进制在表示大数字时比较繁琐，我们使用十六进制来更人性化地表示二进制值。
+
+十六进制是基数为16的计数系统。
+
+如果基数为10使用十个符号（0-9），基数为2使用两个符号（0, 1），那么十六进制使用十六个符号（0-9 a-f）。
+
+十六进制使用从 `1` 到 `9` 的十进制符号。然后切换到使用字母 `a` 到 `f`，如下表所示。
+
+<!-- livebook:{"attrs":{"source":"\"0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f\"\n|> String.split(\",\")\n|> Enum.with_index()\n|> Enum.map(fn {symbol, index} -> %{integer: \"#{index}\", hexadecimal: symbol} end)\n|> Enum.take(-10)\n|> Kino.DataTable.new()","title":"十六进制"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+"0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f"
+|> String.split(",")
+|> Enum.with_index()
+|> Enum.map(fn {symbol, index} -> %{integer: "#{index}", hexadecimal: symbol} end)
+|> Enum.take(-10)
+|> Kino.DataTable.new()
+```
+
+```elixir
+
+```
+
+随着右侧占位符的增长，当它达到 `16` 时，它会向左移动。
+![](files/hex_counting.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+你可能已经熟悉十六进制的颜色代码。例如，白色的颜色代码是 `ffffff`。
+这实际上是 `16777215` 的十六进制代码。你可以添加占位符值来找到十六进制值，如下所示：
+
+```elixir
+1_048_576 * 15 + 65536 * 15 + 4096 * 15 + 256 * 15 + 16 * 15 + 15
+```
+
+在Elixir中，我们可以使用 `0x` 语法表示十六进制整数。它们等同于其整数对应值。
+
+```elixir
+15 = 0xF
+255 = 0xFF
+4090 = 0xFFA
+```
+
+我们还可以使用十六进制表示字符串的代码点，使用 `\u` 语法。
+
+例如，`"\u0065"` 是字符 `"e"`
+
+```elixir
+"\u0065"
+```
+
+字符 `e` 的代码点是 `101`
+
+```elixir
+?e
+```
+
+而十六进制值 `0x65` 表示 `101`。因此，`\u0065` 对应于字符 `"e"` 的代码点。
+
+```elixir
+0x65 = ?e
+```
+
+这就是为什么 `"\u0065"` 是字符 `"e"`。
+
+```elixir
+"\u0065" = "e"
+```
+
+### 你的回合
+
+使用十六进制 `0x` 语法表示数字 `15`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+0xf
+```
+
+</details>
+
+```elixir
+
+```
+
+## 位字符串
+
+字符的代码点是通过一系列UTF-8编码的字节表示的。这些字节存储在位字符串中。
+
+位字符串是内存中连续的位序列。二进制是位字符串，其中位数可以被8整除。
+
+`<<>>` 语法定义了一个新的位字符串。
+
+Elixir中的字符串实际上是位字符串。例如，当我们创建一个与 `"hello"` 匹配的代码点的位字符串时，我们创建了 `"hello"` 字符串。
+
+```elixir
+# H E L L O
+<<104, 101, 108, 108, 111>>
+```
+
+在大多数应用中，你很少需要直接处理位字符串。如果你想了解更多，可以参考 [Elixir文档](https://hexdocs.pm/elixir/Kernel.SpecialForms.html#%3C%3C%3E%3E/1)。
+
+## 字符列表
+
+你可能注意到，Elixir中的整数列表有时会显示意外的字符。
+
+```elixir
+[97, 98, 99]
+```
+
+这是因为它们被解释为字符列表。字符列表是一个整数列表，所有整数都是有效的代码点。如果列表中的任何整数不是有效的代码点，则该列表将不会被解释为字符列表。
+
+```elixir
+# A B C 无效
+[97, 98, 99, 1]
+```
+
+你可以使用单引号 `''` 定义一个字符列表。
+
+```elixir
+'hello'
+```
+
+这个字符列表等同于字符串的代码点列表。
+
+```elixir
+[?h, ?e, ?l, ?l, ?o]
+```
+
+字符列表是整数列表，因此可以进行枚举，并将返回一个新的字符列表。以下是我们如何将每个字符的代码点上移一个。
+
+```elixir
+Enum.map('abcde', fn each -> each + 1 end)
+```
+
+你可以使用 [List.to_string/1](https://hexdocs.pm/elixir/List.html#to_string/1) 将字符列表转换回字符串。
+
+```elixir
+List.to_string('hello')
+```
+
+或者使用 [String.to_charlist/1](https://hexdocs.pm/elixir/String.html#to_charlist/1) 将字符串转换为字符列表。
+
+```elixir
+String.to_charlist("hello")
+```
+
+与位字符串一样，你可能不需要频繁使用字符列表，但它们在某些字符串操作或与某些库一起使用时可能会很有用。
+
+如果我们想检查一个包含代码点的列表，可以使用 [IO.inspect/2](https://hexdocs.pm/elixir/IO.html#inspect/2) 和 `charlists: :as_lists` 选项。
+
+```elixir
+IO.inspect([65, 66, 67])
+```
+
+```elixir
+IO.inspect([65, 66, 67], charlists: :as_lists)
+```
+
+### 你的回合
+
+将字母表 `"abcdefghijklmnopqrstuvwxyz"` 转换为字符列表，然后检查它以查看每个字母的代码点。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+"abcdefghijklmnopqrstuvwxyz"
+|> String.to_charlist()
+|> IO.inspect(charlists: :as_lists)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir-lang: 二进制、字符串和字符列表](https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成字符串与二进制的阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Strings And Binaries">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/timeline.livemd">时间线</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/regex.livemd">正则表达式</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

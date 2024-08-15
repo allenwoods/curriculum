@@ -1,0 +1,324 @@
+# GenServer 练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=GenServer Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/genservers.livemd">GenServers</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/score_tracker.livemd">分数追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 练习
+
+练习帮助你通过重复的练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是针对 [GenServers](../reading/genservers.livemd)。
+
+> GenServer 是一个像其他 Elixir 进程一样的进程，可以用来保持状态、异步执行代码等。使用此模块实现的通用服务器进程（GenServer）的优点在于，它将具有一组标准的接口函数，并包含跟踪和错误报告的功能。它还将适合于监督树中。
+> 
+> * [HexDocs: GenServer](https://hexdocs.pm/elixir/GenServer.html)
+
+## GenServer
+
+创建一个 `Zero` `Genserver`，它除了在其状态中存储整数 `0` 之外不做其他事情。使用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 启动 `Zero` 进程。使用 `:sys.get_state/1` 查看你的 `Zero` 进程的状态。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Zero do
+  use GenServer
+
+  @impl true
+  def init(_opts) do
+    {:ok, 0}
+  end
+end
+
+{:ok, pid} = GenServer.start_link(Zero, "init_arg")
+:sys.get_state(pid)
+```
+
+</details>
+
+```elixir
+
+```
+
+使用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 将你的 `Zero` [GenServer](https://hexdocs.pm/elixir/GenServer.html) 作为命名进程启动。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+GenServer.start_link(Zero, "init_arg", [name: :my_name])
+```
+
+</details>
+
+```elixir
+
+```
+
+创建一个 `SimpleCounter` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，其状态初始为 `0`。实现一个 [GenServer.handle_call/3](https://hexdocs.pm/elixir/GenServer.html#handle_call/3) 回调函数，该函数接受 `:increment` 消息并将状态增加 `1`，并返回 `:ok`。
+
+使用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 和 [GenServer.call/3](https://hexdocs.pm/elixir/GenServer.html#call/3) 来生成一个 `SimpleCounter` 进程并发送 `:increment` 消息。
+
+使用 `:sys.get_state/1` 查看计数器的状态是否已增加。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule SimpleCounter do
+  use GenServer
+  
+  def init(_opts) do
+    {:ok, 0}
+  end
+  
+  def handle_call(:increment, _from, state) do
+    {:reply, :ok, state + 1}
+  end
+end
+
+{:ok, pid} = GenServer.start_link(SimpleCounter, [])
+GenServer.call(pid, :increment)
+:sys.get_state(pid)
+```
+
+</details>
+
+```elixir
+
+```
+
+创建一个 `InitialState` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，其初始状态可以配置。调用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 来生成一个具有初始状态的 `State` GenServer。使用 `:sys.get_state/1` 确认状态与配置的状态匹配。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule InitialState do
+  use GenServer
+
+  @impl true
+  def init(state) do
+    {:ok, state}
+  end
+end
+
+{:ok, pid} = GenServer.start_link(InitialState, "my initial state")
+
+:sys.get_state(pid)
+```
+
+</details>
+
+```elixir
+
+```
+
+创建一个 `State` 模块。
+
+它应该：
+
+* 定义一个 `State.get/1` 函数，使用 [GenServer.call/3](https://hexdocs.pm/elixir/GenServer.html#call/3) 和一个 [GenServer.handle_call/3](https://hexdocs.pm/elixir/GenServer.html#handle_call/3) 回调函数来检索状态。
+* 定义一个 `State.set/2` 函数，使用 [GenServer.cast/2](https://hexdocs.pm/elixir/GenServer.html#cast/2) 和一个 [GenServer.handle_cast/2](https://hexdocs.pm/elixir/GenServer.html#handle_cast/2) 回调函数来更新状态。
+* 定义一个 `State.start_link/1` 函数，带有一个 [GenServer.init/1](https://hexdocs.pm/elixir/GenServer.html#c:init/1) 回调函数，以使用可配置的状态初始化 [GenServer](https://hexdocs.pm/elixir/GenServer.html)。
+
+手动测试每个函数（`State.set/2`、`State.get/1` 和 `State.start_link/1`）以确认它们按预期工作。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+
+defmodule State do
+  use GenServer
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state)
+  end
+
+  def set(pid, new_state) do
+    GenServer.cast(pid, {:set, new_state})
+  end
+
+  def get(pid) do
+    GenServer.call(pid, :get)
+  end
+
+  @impl true
+  def init(state) do
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_cast({:set, new_state}, state) do
+    {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_call(:get, _from, state) do
+    # response is not specified
+    {:reply, state, state}
+  end
+end
+
+{:ok, pid} = State.start_link("initial state")
+"initial state" = State.get(pid)
+State.set(pid, "updated state")
+"updated state" = State.get(pid)
+```
+
+</details>
+
+```elixir
+
+```
+
+创建一个最小的 `Named` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，可以使用 `Named.start_link/1` 启动并配置为命名进程。启动一个 `Named` 进程，并使用 [GenServer.whereis/1](https://hexdocs.pm/elixir/GenServer.html#whereis/1) 和/或 [Process.whereis/1](https://hexdocs.pm/elixir/Process.html#whereis/1) 找到命名进程的 pid。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Named do
+  use GenServer
+
+  def start_link(opts) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, [], name: name)
+  end
+
+  def init(_opts) do
+    {:ok, "any state!"}
+  end
+end
+
+Named.start_link([name: :my_configured_name])
+Process.whereis(:my_configured_name)
+```
+
+</details>
+
+```elixir
+
+```
+
+创建一个最小的 `NamedState` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，可以使用 `NamedState.start_link` 启动并配置为具有可配置状态的命名进程。使用 `:sys.get_state/1` 确认初始状态是否如预期，并使用 [GenServer.whereis/1](https://hexdocs.pm/elixir/GenServer.html#whereis/1) 和/或 [Process.whereis/1](https://hexdocs.pm/elixir/Process.html#whereis/1) 找到命名进程的 pid。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+有多种方法可以配置 `NamedState.start_link/1`
+
+使用多个参数：
+
+```elixir
+defmodule NamedState do
+  use GenServer
+
+  def start_link(state, opts \\ []) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, state, name: name)
+  end
+
+  def init(state) do
+    {:ok, state}
+  end
+end
+
+NamedState.start_link("initial state", name: :multi_arg_example)
+
+Process.whereis(:multi_arg_example)
+```
+
+使用带有不同键的关键字列表：
+
+```elixir
+defmodule NamedState do
+  use GenServer
+
+  def start_link(opts) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    state = Keyword.get(opts, :state)
+    GenServer.start_link(__MODULE__, state, name: name)
+  end
+
+  def init(state) do
+    {:ok, state}
+  end
+end
+
+NamedState.start_link(state: "initial state", name: :keyword_list_example)
+Process.whereis(:keyword_list_example)
+```
+
+</details>
+
+```elixir
+
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成 GenServer 练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=GenServer Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/genservers.livemd">GenServers</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/score_tracker.livemd">分数追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

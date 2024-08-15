@@ -1,0 +1,333 @@
+# Guards
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## Navigation
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Guards">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/metric_conversion.livemd">公制转换</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/with.livemd">与</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何使用guards来防止无效的函数输入？
+* 如何使用guards来触发多态行为？
+
+## Guards
+
+Guards允许你限制函数只接受某些输入。
+
+```mermaid
+flowchart LR
+Input --> Guard --> Function
+Guard --> f[无效输入] --> fc[FunctionClauseError]
+```
+
+这可以防止函数被误用，并提供更清晰的反馈。
+
+Guards以`when`关键字开头，后面跟着一个布尔表达式。例如，
+
+```elixir
+defmodule IntegerGuardExample do
+  def double(int) when is_integer(int) do
+    int * 2
+  end
+end
+
+IntegerGuardExample.double(2)
+```
+
+上面的`IntegerGuardExample`模块只会接受整数，因此如果我们提供一个浮点数，它将崩溃并抛出[FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
+
+```elixir
+IntegerGuardExample.double(1.5)
+```
+
+你可以在同一个函数头中使用多个guards。例如，我们可以在同一个`double/1`函数中使用`is_integer/1`和`is_float/1`。
+
+```elixir
+defmodule MultipleGuardExample do
+  def double(value) when is_integer(value) or is_float(value) do
+    value * 2
+  end
+end
+
+MultipleGuardExample.double(1.3)
+```
+
+虽然这对于演示很有用，但我们实际上应该使用`is_number/1` guard。
+
+```elixir
+defmodule NumberGuardExample do
+  def double(value) when is_number(value) do
+    value * 2
+  end
+end
+
+NumberGuardExample.double(1.3)
+```
+
+Guards必须返回`true`或`false`值，并且是纯输入和输出。
+
+你可以参考[Guard Documentation](https://hexdocs.pm/elixir/master/patterns-and-guards.html#guards)获取完整列表。
+
+* [比较运算符](comparison_operators.livemd) (`==`, `!=`, `===`, `!==`, `<`, `<=`, `>`, `>=`)
+* [布尔运算符](booleans.livemd) (`and`, `or`, `not`)。
+* [算术运算符](arithmetic.livemd) (`+`, `-`, `*`, `/`)
+* 成员运算符`in`。
+* "类型检查"函数 (`is_list/1`, `is_number/1`, `is_map/1`, `is_binary/1`, `is_integer/1`等)
+* 适用于内置数据类型的函数 (`hd/1`, `tail/1`, `length/1`等)
+
+## Defguard
+
+你可以使用`defguard`定义自己的自定义guard。例如，假设我们正在构建一个石头剪刀布游戏，只应接受`:rock`、`:paper`和`:scissors`作为有效猜测。
+
+我们可以创建一个`is_guess/1` guard来检查猜测是否有效。
+
+```elixir
+defmodule RockPaperScissors do
+  defguard is_guess(guess) when guess in [:rock, :paper, :scissors]
+
+  def winner(guess) when is_guess(guess) do
+    case guess do
+      :rock -> :paper
+      :scissors -> :rock
+      :paper -> :rock
+    end
+  end
+end
+
+RockPaperScissors.winner(:rock)
+```
+
+无效的猜测现在将引发[FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
+
+```elixir
+RockPaperScissors.winner("无效猜测")
+```
+
+## 使用Guards的多态函数
+
+你还可以将guards与多子句函数结合使用，以实现多态性。
+
+例如，假设我们希望`double`函数处理字符串。因此，调用`double`时传入`"hello"`将返回`"hellohello"`。
+
+```mermaid
+flowchart LR
+  2 --> a[double] --> 4
+  hello --> b[double] --> hellohello
+```
+
+我们可以使用内置的`is_binary` guard来检查变量是否为字符串。这是因为在Elixir中，字符串内部表示为二进制。
+
+```elixir
+defmodule PolymorphicGuardExample do
+  def double(num) when is_number(num) do
+    num * 2
+  end
+
+  def double(string) when is_binary(string) do
+    string <> string
+  end
+end
+
+PolymorphicGuardExample.double("example")
+```
+
+Elixir中有许多可用的guards。如果你需要特定的guard，可以参考[Guards](https://hexdocs.pm/elixir/Kernel.html#guards)文档。
+
+**函数的顺序很重要**。
+
+第一个guard返回true的函数将执行。
+
+例如，如果你移除`is_number/1` guard。现在第一个函数期望任何类型的输入，因此它将始终执行，而不是`is_binary/1`版本。
+
+```elixir
+defmodule OrderingIssueExample do
+  def double(num) do
+    num * 2
+  end
+
+  def double(string) when is_binary(string) do
+    string <> string
+  end
+end
+
+OrderingIssueExample.double("example")
+```
+
+你会注意到我们的程序崩溃并出现错误。
+Elixir还提供了一个方便的警告，让我们知道第一个函数子句总是匹配，因此第二个将永远不会执行。
+
+> **这个double/1的子句无法匹配，因为第2行的前一个子句总是匹配**。
+
+如果你将更通用的函数移到下面，那么字符串将首先匹配`is_binary/1`版本，我们的`Multiplier.double/1`函数将按预期工作。
+
+```elixir
+defmodule OrderFixedExample do
+  def double(string) when is_binary(string) do
+    string <> string
+  end
+
+  def double(num) do
+    num * 2
+  end
+end
+
+OrderFixedExample.double("example")
+```
+
+```elixir
+OrderFixedExample.double(1)
+```
+
+```elixir
+OrderFixedExample.double(2.5)
+```
+
+### 你的回合
+
+创建一个`Say.hello/1`函数，只接受字符串作为输入。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Say.hello("Stephen")
+"Hello, Stephen!"
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Say do
+  def hello(name) when is_bitstring(name) do
+    "Hello, #{name}!"
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule Say do
+  def hello(name) do
+  end
+end
+```
+
+### 你的回合
+
+创建一个`Percent.display/1`函数，接受一个数字并返回一个带有百分号的字符串。
+使用guards确保百分比在0（不包括）和100（包括）之间。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Percent.display(0.1)
+"0.1%"
+
+Percent.display(100)
+"100%"
+
+Percent.display(0)
+** (FunctionClauseError) no function clause matching in Percent.display/1
+
+
+Percent.display(101)
+** (FunctionClauseError) no function clause matching in Percent.display/1
+```
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Percent do
+  def display(percent) when 0 <= percent and percent <= 100 do
+    "#{percent}%"
+  end
+end
+```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+defmodule Percent do
+  def display(percent) do
+  end
+end
+```
+
+## 深入阅读
+
+考虑以下资源，以加深你对该主题的理解。
+
+* [HexDocs: Guards](https://hexdocs.pm/elixir/patterns-and-guards.html#guards)
+* [HexDocs: 使用Guards的地方](https://hexdocs.pm/elixir/patterns-and-guards.html#where-patterns-and-guards-can-be-used)
+* [Elixir Schools: Guards](https://elixirschool.com/en/lessons/basics/functions/#guards-6)
+* [Exercism.io: Guards](https://exercism.org/tracks/elixir/concepts/guards)
+
+## 提交你的进度
+
+DockYard Academy现在建议你使用最新的[Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成Guards阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一门付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## Navigation
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Guards">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/metric_conversion.livemd">公制转换</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/with.livemd">与</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,1250 @@
+<!-- livebook:{"file_entries":[{"name":"box-model-example.png","type":"attachment"},{"name":"box-model-inline-block-example.png","type":"attachment"},{"name":"box-model-inline-example.png","type":"attachment"},{"name":"css_breakdown.png","type":"attachment"},{"name":"hello_world_html.png","type":"attachment"},{"name":"hello_world_html_green_text.png","type":"attachment"},{"name":"html_element_diagram_breakdown.png","type":"attachment"},{"name":"inspector-elements-example.png","type":"attachment"},{"name":"inspector-right-click.png","type":"attachment"}]} -->
+
+# HTML & CSS
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=HTML & CSS">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/concurrent_word_count.livemd">并发字数统计</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/common_components.livemd">常见组件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* HTML 元素的组成部分是什么？
+* CSS 规则的组成部分是什么？
+* 我们如何选择元素以应用 CSS 规则？
+
+## 概述
+
+### HTML
+
+超文本标记语言（HTML）用于构建网页及其内容。
+
+HTML 定义了许多 HTML 元素。例如，以下是一个 [HTML 段落元素](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)。
+
+```html
+<p>hello world</p>
+```
+
+一个 HTML 元素通常包括一个开始标签、内容和结束标签。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/html_element_diagram_breakdown.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这里是 Fireship 提供的 HTML 简要概述。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=ok-plXXHlWw\")","title":"Hidden Cell"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=ok-plXXHlWw")
+```
+
+### CSS
+
+层叠样式表（CSS）是用于样式化 HTML 网页的语言。
+
+CSS 规则按定义的顺序应用（因此称为层叠）。每个 CSS 规则都有一个 **选择器** 用于定位 HTML 元素，以及用分号分隔的 **声明** 用于应用样式。
+
+例如，以下是一个 CSS 规则，它将应用于所有段落标签，使其变为绿色和加粗。
+
+```css
+p {
+  color: green;
+  font-weight: bold;
+}
+```
+
+上述 CSS 将样式化段落标签如下所示。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<hr />
+
+<p style="color: green; font-weight: bold;">
+Hello, world!
+</p>
+
+<hr />
+
+<!-- livebook:{"break_markdown":true} -->
+
+这是我们 CSS 规则的分解。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/css_breakdown.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+这是 Fireship 提供的另一个精彩概述视频。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=OEV8gMkCHXQ")
+```
+
+## HTML 文件
+
+我们可以创建 `.html` 文件并在浏览器中打开它们。例如，创建一个名为 `hello.html` 的文件，内容如下。
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hello!</title>
+  </head>
+  <body>
+    <p>Hello World!</p>
+  </body>
+</html>
+```
+
+在浏览器中打开此文件，您将看到以下网页。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/hello_world_html.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+HTML 文档是嵌套的一系列 HTML 元素。请参阅 [HTML 文档的结构](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics#anatomy_of_an_html_document) 以获取完整的分解。
+
+`<head>` 元素包含有关文档的元数据，例如 CSS 样式。我们可以在 `<head>` 元素内添加一个 `<style>` 元素来编写文档的 CSS。`<body>` 元素包含网页的内容。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+用以下内容替换 `hello.html` 文件。
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hello!</title>
+    <style>
+      p {
+        color: green;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Hello World!</p>
+  </body>
+</html>
+```
+
+现在，当我们重新加载浏览器时，我们应该看到相同的网页，但文本为加粗的绿色。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/hello_world_html_green_text.png)
+
+## CSS 文件
+
+我们可以使用 `<link>` 标签使用外部 `.css` 样式表文件，而不是在 `<style>` 标签中定义样式。
+
+```html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hello!</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <p>Hello World!</p>
+  </body>
+</html>
+```
+
+与 `hello.html` 在同一文件夹中的 `styles.css` 文件包含 CSS。
+
+```css
+p {
+  color: green;
+  font-weight: bold;
+}
+```
+
+`.css` 文件可以使用 `@import` 导入另一个 `.css` 文件。导入文件有助于在较大的项目中组织 CSS 文件。
+
+```css
+/* 在 styles.css 中 */
+@import 'otherstyles.css';
+```
+
+`otherstyles.css` 将是与 `styles.css` 在同一文件夹中的另一个样式表。
+
+## CSS 选择器
+
+CSS 选择器描述要应用 CSS 规则的 HTML 元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 类型
+
+我们已经看到可以使用元素标签名称选择所有匹配的元素。
+
+```css
+p {
+  color: green;
+}
+```
+
+类型选择器将样式应用于所有具有匹配节点名称的元素，因此 `p` 匹配所有 `<p>` 标签。
+
+```html
+<p>所有段落标签将是绿色的</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 类
+
+到目前为止，最常用的选择器是类。我们通过 `.` 后跟类名来定义 CSS 类选择。
+
+```css
+.green-text {
+  color: green;
+}
+```
+
+`.green-text` 类将应用于所有具有 `green-text` 类属性的元素。属性是包含有关元素的附加信息的键值对。
+
+```html
+<p class="green-text">这段文本将是绿色的。</p>
+<p class="green-text">这段文本也将是绿色的。</p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### ID
+
+ID 的工作方式与类类似，但是 `id` 属性对于每个元素应该是唯一的。
+我们通过 `#` 后跟 ID 名称来定义 CSS ID。
+
+```css
+#first-paragraph {
+  color: green
+}
+```
+
+`#first-paragraph` ID 将应用于具有 `first-paragraph` ID 属性的元素。
+
+```html
+<p id="first-paragraph">这段文本将是绿色和加粗的。</p>
+```
+
+请记住，浏览器并不强制执行唯一 ID。然而，使用唯一 ID 是常规做法，并且强烈建议这样做。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 子元素
+
+我们使用选择器之间的 `>` 符号选择元素的所有直接子元素。
+
+```css
+.parent > .child {
+  color: green;
+}
+```
+
+`>` 选择所有具有 `.child` 类的元素，这些元素是 `.parent` 类的直接子元素。
+
+```html
+<div class="parent">
+  <p class="child">这段文本将是绿色的。</p>
+  <p>这段文本将不会是绿色的。</p>
+</div>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 后代
+
+我们可以使用选择器之间的空格选择元素的所有后代。
+
+```css
+.parent .descendant {
+  color: green;
+}
+```
+
+空格选择所有在 `.parent` 类元素内的 `.child` 类的元素。
+
+```html
+<div class="parent">
+  <section>
+    <p class="descendant">这段文本将是绿色的。</p>
+  <section>
+</div>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 通用
+
+`*` 符号允许我们选择所有元素。
+
+```css
+
+* {
+  color: green
+}
+```
+
+所有元素，无论类型如何，都会被选中。
+
+```html
+<p>这段文本将是绿色的。</p>
+<h1>这段文本也将是绿色的。</h1>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 进一步的选择器
+
+请参阅 [MDN CSS 选择器](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors) 文档以获取 CSS 选择器的完整指南。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+有一个有趣的网站 [CSS Diner](https://flukeout.github.io/)，您可以在其中练习使用 CSS 选择器。
+
+玩 CSS Diner 游戏以熟悉选择器，直到您对自己的能力感到满意。我们建议您玩到前十一个级别。
+
+## HTML 元素
+
+HTML 元素数量庞大。我们推荐 [MDN HTML 元素参考](https://developer.mozilla.org/en-US/docs/Web/HTML/Element) 以获取完整列表。
+
+HTML 和 CSS 是深奥的主题，作为一个以 Elixir 为重点的课程，我们旨在涵盖最常用的 HTML 元素和 CSS 规则。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 标题和段落
+
+标题元素表示六个级别的章节标题。通常，您将使用降序标题来创建标题和子标题。
+
+```html
+<h1>标题 1</h1>
+<h2>标题 2</h2>
+<h3>标题 3</h3>
+<h4>标题 4</h4>
+<h5>标题 5</h5>
+<h6>标题 6</h6>
+```
+
+我们已经看到用于段落内容的 `<p>` 标签。每个段落标签自动在新行上。
+
+```html
+<p>段落</p>
+```
+
+我们还可以使用 `<span>` 标签对内部文本内容进行分组（可能用于样式），而不创建新行文本。
+
+```html
+
+<p>外部内容。 <span>内部内容</span></p>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 列表
+
+有序列表 `<ol>` 和列表项 `<li>` 标签创建编号列表。
+
+```html
+<ol>
+  <li>a</li>
+  <li>b</li>
+  <li>c</li>
+</ol>
+```
+
+上述 HTML 显示如下。
+
+<ol>
+  <li>a</li>
+  <li>b</li>
+  <li>c</li>
+</ol>
+
+如果我们想使用带有破折号的非编号列表，我们可以使用无序列表 `<ul>` 标签。
+
+```html
+<ul>
+  <li>a</li>
+  <li>b</li>
+  <li>c</li>
+</ul>
+```
+
+上述 HTML 显示如下。
+
+<ul>
+  <li>a</li>
+  <li>b</li>
+  <li>c</li>
+</ul>
+
+要创建嵌套列表，我们可以将有序和无序列表嵌套在一起。
+
+```html
+<ul>
+  <li>a</li>
+  <ol>
+    <li>b</li>
+    <ul>
+      <li>c</li>
+    </ul>
+  </ol>
+</ul>
+```
+
+上述 HTML 显示如下。
+
+<ul>
+  <li>1</li>
+  <ol>
+    <li>1.1</li>
+    <ul>
+      <li>1.1.1</li>
+    </ul>
+  </ol>
+</ul>
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 图片
+
+`<img>` 标签将图像内容嵌入网页中。
+
+图像必须包含 `src` 属性，用于嵌入的本地文件或图像的 URL。
+
+图像可以包含 `alt` 属性。`alt` 属性是图像的文本描述，用作图像未加载时的后备，并供屏幕阅读器使用。
+
+以下是两个 `<img>` 标签示例。
+
+```html
+<img src="https://picsum.photos/200" alt="一张随机的 lorem ipsum 图片"></img>
+<img src="broken url" alt="故意未加载的图像"></img>
+```
+
+第一个 `<img>` 标签从 https://picsum.photos/200 加载图像。
+
+<img src="https://picsum.photos/200" alt="一张随机的 lorem ipsum 图片" />
+
+第二个在加载失败时显示 `alt` 文本。
+
+<img src="broken url" alt="故意未加载的图像" />
+
+图像可以使用自闭合标签 `<img/>`，因此它们不需要开闭标签。`<img></img>`。
+
+```html
+<img src="https://picsum.photos/200" alt="一张随机的 lorem ipsum 图片" />
+<img src="broken url" alt="故意未加载的图像" />
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 锚点
+
+`<a>` 锚点标签使用 `href` 属性创建指向另一个资源的链接，作为资源的 URL。
+
+```html
+<a href="https://www.google.com/search?q=cat+pictures">猫咪图片链接</a>
+```
+
+上述锚点标签显示如下。
+
+<a href="https://www.google.com/search?q=cat+pictures">
+猫咪图片链接
+</a>
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 表格
+
+我们可以使用表格将信息组织成行和列。每个表格以表格标签 `<table>` 开始。表格行 `<tr>` 和表格数据 `<td>` 标签可以创建表格中的每一行数据。
+
+```html
+<table>
+  <tr>
+    <td>列 1</td>
+    <td>列 2</td>
+    <td>列 3</td>
+  </tr>
+    <tr>
+    <td>单元格 1</td>
+    <td>单元格 2</td>
+    <td>单元格 3</td>
+  </tr>
+</table>
+```
+
+我们可以使用表头 `<thead>`、表体 `<tbody>` 和表脚 `<tfooter>` 组件来定义表格的头部、主体和底部部分。表头 `<th>` 元素定义了一个样式化的头部单元格，而不是默认的表格数据 `<td>` 单元格。
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th>头部 1</th>
+      <th>头部 2</th>
+      <th>头部 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>单元格 1</td>
+      <td>单元格 2</td>
+      <td>单元格 3</td>
+    </tr>
+  </tbody>
+  <tfooter>
+    <tr>
+      <td>底部 1</td>
+      <td>底部 2</td>
+      <td>底部 3</td>
+    </tr>
+  </tfooter>
+</table>
+```
+
+`colspan` 属性允许每个单元格占用指定数量的列。
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th colspan="3">完整头部</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>单元格 1</td>
+      <td>单元格 2</td>
+      <td>单元格 3</td>
+   </tr>
+  </tbody>
+</table>
+```
+
+有关 HTML 表格的完整指南，请参阅 [MDN 表格](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table) 文档。
+
+## 分区
+
+当我们需要对内容进行分组时，可以使用 `<div>` 标签。
+
+```html
+<div>
+  <p>段落 1</p>
+  <p>段落 2</p>
+</div>
+```
+
+分区标签非常通用且简约。它不传达有关内容的任何含义，通常用于将内容分组以进行样式设置。
+
+过度使用 div 标签是一个常见问题。理想情况下，我们应该在可能的情况下使用语义标签，而不是 div。
+
+## 语义标签
+
+HTML 包含几个语义标签，用于分组内容并描述其含义。
+
+我们推荐 The Net Ninja 提供的这篇关于语义标签的教程。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=kGW8Al_cga4")
+```
+
+## CSS 层叠
+
+**层叠**样式表按定义的顺序应用规则。因此，多个 CSS 规则可以应用于同一元素，并且一个规则中的声明可以覆盖另一个规则。
+
+在下面的示例中，第二个规则覆盖第一个。
+
+```css
+p {
+  color: red;
+}
+
+p {
+  color: blue;
+}
+```
+
+因此所有段落标签将是蓝色，而不是红色。
+
+```html
+<p>这段文本将是蓝色，而不是红色。</p>
+```
+
+多个不冲突的规则仍然可以应用于同一元素。在下面的示例中，段落标签将是加粗和绿色的。
+
+```css
+p {
+  color: green;
+}
+
+p {
+  font-weight: bold;
+}
+```
+
+## CSS 特异性
+
+CSS 优先考虑不同选择器之间的关系。我们将这种优先级称为特异性。特异性越高，规则的优先级越高。
+
+例如，类选择器将始终覆盖类型选择器，并忽略层叠顺序。
+
+```css
+.my-class {
+  color: blue
+}
+
+<!-- 此规则将不适用 -->
+p {
+  color: red;
+}
+```
+
+因此，以下段落标签将是蓝色，而不是红色。
+
+```html
+<p class="my-class">这段文本将是蓝色。</p>
+```
+
+有关如何确定特异性的更多信息，请参阅 [特异性](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) 文档。
+
+对于更实用的指南，我们推荐这段来自 whatsdev 的视频。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=ndM8b-hnSwM")
+```
+
+我们还可以使用 `!important` 标志来优先考虑 CSS 声明。使用此标志时应谨慎，因为它可能使我们的 CSS 难以理解。
+
+```css
+.my-class {
+  color: red
+}
+
+p {
+  color: blue !important;
+}
+```
+
+## 检查器
+
+许多浏览器允许您检查网页中的 HTML 和 CSS。检查器对于理解项目的底层工作原理非常有用。
+
+我们将使用 Google Chrome 作为示例，但在 Firefox 和其他浏览器中也有类似的功能。
+
+考虑 [下载 Google Chrome](https://www.google.com/intl/en_ca/chrome/) 以跟随检查器示例。
+
+我们可以通过右键单击网页中的任何元素并选择 **检查** 来打开检查器。我们可以查看构成网页的 **元素** 和这些元素的 **样式**。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+用以下内容替换 `hello.html`。
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello!</title>
+        <style>
+            p {
+                color: green;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <p>Hello World!</p>
+    </body>
+</html>
+```
+
+在浏览器中打开 `hello.html`，右键单击段落标签并选择 **检查**。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/inspector-right-click.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+**元素** 标签包含网页的 HTML。如果 `<body>` 标签尚未打开，请单击箭头以展开它。
+
+选择段落标签并查看 **样式** 标签。从这里，您可以看到应用于该元素的样式。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/inspector-elements-example.png)
+
+## CSS 盒模型
+
+CSS 盒模型是一个包裹每个 HTML 元素的盒子，我们用它来进行定位和布局。
+
+每个 HTML 元素都有 **内容**，包含文本或子元素，内部 **填充**，**边框** 和外部 **边距**。
+
+```mermaid
+flowchart
+subgraph Margin
+  subgraph Border
+    subgraph Padding
+      Content
+    end
+  end
+end
+```
+
+我们通常使用 `px`（像素）或百分比 `%` 作为 CSS 测量单位。有关 CSS 单位的完整列表，请参阅 [MDN CSS 值和单位](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#lengths) 文档。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 填充和边距
+
+我们可以设置填充和边距属性的大小。单个单位设置顶部、右侧、底部和左侧的边距值。
+
+```css
+p {
+  padding: 10px;
+  margin: 10px;
+}
+```
+
+或者，我们可以按顶部、右侧、底部和左侧的顺序添加最多四个单位。
+
+```css
+p {
+  /*顶部 右侧 底部 左侧*/
+  padding: 10px 20px 30px 40px;
+}
+```
+
+缺失的单位将镜像相对值。下面，顶部和底部的填充为 `10px`，右侧和左侧的填充为 `5px`。
+
+```css
+p {
+  padding: 10px 5px;
+}
+```
+
+我们还可以单独设置顶部、右侧、底部和左侧的边距或填充。
+
+```css
+p {
+  padding-top: 10px;
+  padding-right: 20px;
+  padding-bottom: 30px;
+  padding-left: 40px;
+
+  margin-top: 10px;
+  margin-right: 20px;
+  margin-bottom: 30px;
+  margin-left: 40px;
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 边框
+
+边框具有 `border-width`、`border-color` 和 `border-style` 值。
+
+```css
+p {
+  border-style: solid;
+  border-width: 5px;
+  border-color: black;
+}
+```
+
+或者，我们可以使用 `border` 属性一次性设置所有三个。
+
+```css
+p {
+  border: 5px solid black;
+}
+```
+
+有关进一步自定义的信息，请参阅 [MDN 边框](https://developer.mozilla.org/en-US/docs/Web/CSS/border) 文档。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 高度和宽度
+
+我们可以设置内容的 `height` 和 `width` 属性。
+
+```css
+p {
+  height: 100px;
+  width: 100px;
+}
+```
+
+元素的总高度和宽度将是边距、填充、边框和内容的总和。例如，以下类的高度和宽度将是 `140px`，因为 `(10 * 2) + (10 * 2) + 100 = 140`。
+
+```css
+.class {
+  height: 100px;
+  width: 100px;
+  padding: 10px;
+  border: 10px solid black;
+}
+```
+
+或者，我们可以将 `box-sizing` 属性设置为 `border-box`，以将边框和填充包含在元素的总高度和宽度中。内容的高度和宽度将自动计算。
+
+现在，元素的总高度和宽度，包括填充和边框，将是 `100px`。
+
+```css
+.class {
+  box-sizing: border-box;
+  height: 100px;
+  width: 100px;
+  padding: 10px;
+  border: 10px solid black;
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+用以下内容替换 `hello.html`。
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Hello!</title>
+    <style>
+        .box-model-example {
+            width: 100px;
+            height: 100px;
+            padding: 10px;
+            margin: 10px;
+            border: solid black 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <p class="box-model-example">内容</p>
+</body>
+
+</html>
+```
+
+我们可以使用检查器查看任何 HTML 元素的盒模型。例如，检查 `<p>` 并转到 **计算** 部分以查看计算的盒模型。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/box-model-example.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+将光标悬停在 **元素** 部分的 `<p>` 标签上，以查看页面上突出显示的盒模型。
+
+您还可以将光标悬停在 **计算** 部分的盒模型上，以单独突出显示内容、填充、边框和边距。
+
+请注意，虽然我们将边距设置为 `10px`，但水平边距占据了整个页面。这是因为默认情况下，`<div>` 元素是块元素，我们将在下一节中讨论。
+
+## CSS 显示
+
+**display** 属性决定如何在页面上显示元素。元素具有不同的默认显示属性。
+
+例如，`<div>` 是一个 **块** 元素。块元素在新行上开始，并占据整行的整个宽度。
+
+相反，`<span>` 是一个 **内联** 元素。内联元素与前一个元素在同一行上存在。
+
+**内联** 元素忽略高度和宽度值。我们可以使用 **inline-block** 值在同一行上显示元素，但应用宽度和高度值。
+
+通常，您可以使用块、内联和内联块元素来实现最常见的 CSS 行为。然而，还有一个庞大的替代显示属性列表。请参阅 [MDN 显示](https://developer.mozilla.org/en-US/docs/Web/CSS/display) 文档以获取完整的显示值列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+将 `.box-model-example` 类更改为使用内联 div 元素，而不是块 div 元素。
+
+`...` 代表 `.box-model-example` 中的其余 CSS 样式。
+
+```css
+.box-model-example {
+  display: inline;
+  ...
+}
+```
+
+使用检查器查看计算的盒模型。注意高度和宽度不适用于内联元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/box-model-inline-example.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+再次更改显示属性以使用 inline-block 值。
+
+```css
+.box-model-example {
+  display: inline-block;
+  ...
+}
+```
+
+使用检查器查看计算的盒模型。注意边距不再占据整行宽度。
+
+<!-- livebook:{"break_markdown":true} -->
+
+![](files/box-model-inline-block-example.png)
+
+## CSS 位置
+
+**position** 属性定义元素在页面上的定位方式。
+
+默认情况下，HTML 元素具有 **static** 位置属性，它们在页面上正常流动。
+
+```css
+p {
+  position: static;
+}
+```
+
+还有其他有用的定位属性，如 **relative**、**absolute**、**fixed** 和 **sticky**。我们推荐 [MDN 位置](https://developer.mozilla.org/en-US/docs/Web/CSS/position) 文档以获取完整指南。
+
+我们还推荐这段来自 Web Dev Simplified 的视频。
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=jx5jmI0UlXU")
+```
+
+## CSS 布局
+
+CSS 提供了许多工具来布局元素。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 居中对齐元素
+
+我们可以使用 `margin: auto;` 将块元素水平居中对齐到其容器内。该元素的宽度必须小于其父容器，因为这会根据父容器中剩余的空间自动添加左右边距。
+
+```css
+.center {
+  margin: auto;
+  width: 100px;
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 右对齐和左对齐元素
+
+我们可以使用 `position: absolute;` 将元素右对齐或左对齐到其父容器。
+
+```css
+.right {
+  position: absolute;
+  right: 0;
+}
+
+.left {
+  position: absolute;
+  left: 0;
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 对齐文本
+
+我们可以使用 `text-align` 属性左对齐、右对齐和居中对齐文本。
+
+```css
+.right {
+  text-align: right;
+}
+
+.center {
+  text-align: center;
+}
+
+.left {
+  text-align: left;
+}
+```
+
+## CSS 颜色
+
+某些 CSS 声明接受颜色名称作为值。例如，我们使用 `color` 属性设置一些文本内容的颜色。
+
+```css
+p {
+  color: red;
+}
+```
+
+我们还可以设置元素的背景颜色。
+
+```css
+p {
+  background-color: red;
+}
+```
+
+有关有效颜色名称的完整列表，请参阅 [MDN 颜色关键字](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color_keywords) 文档。
+
+我们还可以使用 RGB（红、绿、蓝）、RGBA（红、绿、蓝、透明度）、HEX（十六进制值）或 HSL（色相、亮度、饱和度）表示法来表示颜色。
+
+以下是黄色的多种格式。
+
+```css
+<!-- 颜色关键字 -->
+p {
+  color: yellow;
+}
+
+<!-- RGB -->
+p {
+  color: rgb(255, 255, 0);
+}
+
+<!-- RGBA -->
+p {
+  color: rgba(255, 255, 0, 1);
+}
+
+<!-- HEX 代码 -->
+p {
+  color: #FFFF00;
+}
+
+<!-- HSL -->
+p {
+  color: hsl(60, 100%, 50%);
+}
+```
+
+我们建议使用浏览器扩展程序来查找网页上颜色的颜色代码，例如 [Color Zilla](https://www.colorzilla.com/)。
+
+使用颜色选择器（例如 [Chrome 颜色选择器](https://www.google.com/search?q=google+chrome+color+selector)）来选择颜色并获取其代码表示也是很方便的。
+
+## 字体
+
+### 字体粗细
+
+我们已经使用了 `font-weight` 属性，可以使用数字或命名权重设置字体粗细。
+
+```css
+/* 关键字值 */
+font-weight: normal;
+font-weight: bold;
+
+/* 相对于父级的关键字值 */
+font-weight: lighter;
+font-weight: bolder;
+
+/* 数字关键字值 */
+font-weight: 100;
+font-weight: 200;
+font-weight: 300;
+font-weight: 400;// normal
+font-weight: 500;
+font-weight: 600;
+font-weight: 700;// bold
+font-weight: 800;
+font-weight: 900;
+
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#syntax */
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 字体大小
+
+我们还可以设置 `font-size`。我们可以使用 `px` 设置字体大小。然而，像素是一个静态值，这可能会根据屏幕大小造成问题。
+
+```css
+p {
+  font-size: 20px;
+}
+```
+
+相反，我们建议使用相对单位，例如 `em`。`1em` 等于当前字体大小。浏览器的默认字体大小为 `16px`，用户可以根据需要更改其字体大小。
+
+```css
+p {
+  font-size: 1.875em;
+}
+
+h1 {
+  font-size: 3em;
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 字体系列
+
+我们可以更改元素的字体系列。
+
+有许多通用字体系列，例如 `serif`、`sans-serif`、`monospace` 和 `cursive`。
+
+```css
+p {
+  font-family: serif
+}
+```
+
+我们还可以使用用户计算机上安装的任何字体。如果字体不存在，它将使用任何以逗号分隔的后备字体。
+
+```css
+p {
+  font-family: Verdana, Arial, sans-serif;
+}
+```
+
+某些字体（如 Arial 和 Verdana）是网络安全的，因为大多数用户应该已安装它们。然而，我们通常希望使用自定义字体。
+
+我们可以使用 [Google Fonts](https://fonts.google.com/) 或其他类似服务安装自定义字体。
+
+例如，我们可以使用来自 Google Fonts 的 [League Gothic](https://fonts.google.com/specimen/League+Gothic) 字体。Google Fonts 包含在 HTML 文档中安装字体的 `<link>` 标签说明。
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hello!</title>
+    <!-- 以下安装 League Gothic 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap" rel="stylesheet">
+    <style>
+        p {
+            font-family: 'League Gothic', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <p>Hello World!</p>
+</body>
+
+</html>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在您的 `hello.html` 文件中安装并使用来自 [Google Fonts](https://fonts.google.com/) 的自定义字体。您可以选择任何可自由使用的字体。
+
+## Flex 和 Grid
+
+Flex 和 Grid 是使用 CSS 创建响应式布局的两种非常强大的方式。由于我们专注于 Elixir 开发，因此它们超出了本课程的范围。然而，如果您想创建适用于多种设备尺寸的布局，它们将非常重要。
+
+要了解有关 Flexbox 的更多信息，我们建议您从 Fireship 提供的这两个快速入门开始。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=K74l26pE4YA&ab_channel=Fireship\")","title":"Flexbox"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=K74l26pE4YA&ab_channel=Fireship")
+```
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=uuOXPWCh-6o&ab_channel=Fireship\")","title":"Grid"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=uuOXPWCh-6o&ab_channel=Fireship")
+```
+
+## 进一步阅读
+
+掌握 HTML 和 CSS 的基础知识后，我们准备构建功能齐全且外观出色的网站。然而，HTML 和 CSS 都是庞大的主题，还有很多内容需要学习。
+
+在您继续学习 HTML 和 CSS 的旅程中，请考虑以下资源。
+
+* [MDN CSS](https://developer.mozilla.org/en-US/docs/Web/CSS)
+* [MDN HTML](https://developer.mozilla.org/en-US/docs/Web/HTML)
+
+对于实验 HTML 和 CSS，我们推荐像 [CodePen](https://codepen.io/) 这样的网站，它们使快速原型设计 HTML 和 CSS 设计变得容易。
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 HTML & CSS 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=HTML & CSS">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/concurrent_word_count.livemd">并发字数统计</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/common_components.livemd">常见组件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

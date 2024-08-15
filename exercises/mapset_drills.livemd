@@ -1,0 +1,227 @@
+# MapSet 练习
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=MapSet Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/maps_mapsets_keyword_lists.livemd">映射、映射集和关键字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fibonacci_challenge.livemd">斐波那契数列</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## MapSet 练习
+
+练习帮助你通过重复练习来熟悉和记忆语法。与通常的问题不同，练习并不旨在培养解决问题的能力，它们纯粹是为了提高舒适度和速度。
+
+这一组练习是关于 [MapSets](../reading/maps_mapsets_keyword_lists.livemd)，请按照每个练习的说明尽快完成它们。
+
+## MapSet.new/2
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含整数 `1`、`2` 和 `3` 的映射集。
+
+```elixir
+
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个空的映射集。
+
+```elixir
+
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含整数 `1` 到 `10` 的映射集。
+
+```elixir
+
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含整数 `1` 到 `1000` 的映射集。
+
+```elixir
+
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个与下面列表相同元素的映射集。
+
+```elixir
+list = [%{}, 2, "3"]
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含元素 `%{key: "value"}`、`[one: 1]` 和 `{1, 2, 3}` 的映射集。
+
+```elixir
+
+```
+
+## MapSet.put/2
+
+使用 [MapSet.put/2](https://hexdocs.pm/elixir/MapSet.html#put/2) 将元素 `"a"` 放入现有的映射集中。
+
+```elixir
+mapset = MapSet.new(["b", "c"])
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 和 [MapSet.put/2](https://hexdocs.pm/elixir/MapSet.html#put/2) 将 `1` 放入一个包含元素 `2` 和 `3` 的 [MapSet](https://hexdocs.pm/elixir/MapSet.html)。
+
+```elixir
+
+```
+
+使用 [MapSet.put/2](https://hexdocs.pm/elixir/MapSet.html#put/2) 两次将元素 `1` 放入一个空的映射集中，以演示 MapSet 仅包含唯一值。
+
+```elixir
+
+```
+
+## MapSet.delete/2
+
+使用 [MapSet.delete/2](https://hexdocs.pm/elixir/MapSet.html#delete/2) 从以下映射集中删除 `1` 元素。
+
+```elixir
+mapset = MapSet.new([1])
+```
+
+使用 [MapSet.delete/2](https://hexdocs.pm/elixir/MapSet.html#delete/2) 和 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含元素从 `1` 到 `6` 的映射集，然后删除 `6` 元素。
+
+## MapSet.member?/2
+
+使用 [MapSet.member?/2](https://hexdocs.pm/elixir/MapSet.html#member?/2) 检查 `1` 是否在以下映射集中。
+
+```elixir
+mapset = MapSet.new([1, 2, 3])
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个包含元素从 `1` 到 `10` 的映射集。然后使用 [MapSet.member?/2](https://hexdocs.pm/elixir/MapSet.html#member?/2) 检查 `11` 是否在该映射集中。
+
+```elixir
+
+```
+
+使用 [MapSet.member?/2](https://hexdocs.pm/elixir/MapSet.html#member?/2) 检查 `%{key: "value"}` 是否在以下映射集中。
+
+```elixir
+mapset = MapSet.new([%{key: "value"}])
+```
+
+## MapSet.filter/2
+
+使用 [MapSet.filter/2](https://hexdocs.pm/elixir/MapSet.html#filter/2) 过滤以下映射集，仅保留整数。
+
+```elixir
+mapset = MapSet.new(["a", "b", "c", 1, 2, 3])
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 和 [MapSet.filter/2](https://hexdocs.pm/elixir/MapSet.html#filter/2) 创建一个包含从 `1` 到 `10` 的整数的映射集，然后过滤它以仅保留偶数。
+
+```elixir
+
+```
+
+使用 [MapSet.filter/2](https://hexdocs.pm/elixir/MapSet.html#filter/2) 过滤以下映射集，仅包含包含字母 `"a"` 的字符串。
+
+```elixir
+MapSet.new(["apple", "orange", "pear", "banana", "cherry", "fruit"])
+```
+
+## MapSet.equal?/2
+
+使用 [MapSet.equal?/2](https://hexdocs.pm/elixir/MapSet.html#equal?/2) 检查以下映射集是否等于 `MapSet.new([1])`。
+
+```elixir
+mapset = MapSet.new([1])
+```
+
+使用 [MapSet.equal?/2](https://hexdocs.pm/elixir/MapSet.html#equal?/2) 检查 `MapSet.new([1, 2, 3, 4, 5])` 是否等于 `MapSet.new(1..5)`。
+
+```elixir
+
+```
+
+使用 [MapSet.new/2](https://hexdocs.pm/elixir/MapSet.html#new/2) 创建一个空的映射集，然后使用 [MapSet.put/2](https://hexdocs.pm/elixir/MapSet.html#put/2) 将 `1` 添加到映射集中。
+然后使用 [MapSet.equal?/2](https://hexdocs.pm/elixir/MapSet.html#equal?/2) 检查结果映射集是否等于 `MapSet.new([1])`。
+
+```elixir
+
+```
+
+## MapSet.subset?/2
+
+使用 [MapSet.subset?/2](https://hexdocs.pm/elixir/MapSet.html#subset?/2) 检查 `MapSet.new([2, 3])` 是否是 `MapSet.new([1, 2, 3, 4])` 的子集。结果应为 `true`。
+
+```elixir
+
+```
+
+使用 [MapSet.subset?/2](https://hexdocs.pm/elixir/MapSet.html#subset?/2) 检查 `MapSet.new(["a"])` 是否是 `MapSet.new(["a", "b"])` 的子集。
+
+```elixir
+
+```
+
+## MapSet.to_list/1
+
+使用 [MapSet.to_list/1](https://hexdocs.pm/elixir/MapSet.html#to_list/1) 将以下映射集转换为列表。
+
+```elixir
+mapset = MapSet.new([1, 2, 3])
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成 MapSet 练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=MapSet Drills">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/maps_mapsets_keyword_lists.livemd">映射、映射集和关键字列表</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/fibonacci_challenge.livemd">斐波那契数列</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

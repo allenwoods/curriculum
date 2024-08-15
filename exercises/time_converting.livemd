@@ -1,0 +1,156 @@
+# 时间转换
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Time Converting">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/datetime.livemd">日期和时间</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/itinerary.livemd">行程</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 时间转换
+
+我们经常需要转换秒、分钟、小时和天。你将创建一个 `TimeConverter` 模块来处理这些转换。
+
+我们将使用原子 `:days`、`:hours`、`:minutes` 或 `:seconds` 来表示天、小时、分钟和秒。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TimeConverter do
+  def to_seconds(amount, unit) do
+    case unit do
+      :seconds -> amount
+      :minutes -> amount * 60
+      :hours -> amount * 60 * 60
+      :days -> amount * 60 * 60 * 24
+    end
+  end
+
+  def from_seconds(amount, unit) do
+    case unit do
+      :seconds -> amount * 1.0
+      :minutes -> amount / 60
+      :hours -> amount / 60 / 60
+      :days -> amount / 60 / 60 / 24
+    end
+  end
+end
+```
+
+</details>
+
+实现 `TimeConverter.to_seconds/2` 和 `TimeConverter.from_seconds/2` 函数，如文档所述。
+
+```elixir
+defmodule TimeConverter do
+  @moduledoc """
+  `TimeConverter` 的文档
+  """
+
+  @doc """
+  将时间单位转换为秒数。
+
+  ## 示例
+
+    iex> TimeConverter.to_seconds(1, :seconds)
+    1
+
+    iex> TimeConverter.to_seconds(1, :minutes)
+    60
+    
+    iex> TimeConverter.to_seconds(1, :hours)
+    3600
+
+    iex> TimeConverter.to_seconds(1, :days)
+    86400
+
+  """
+  def to_seconds(amount, unit) do
+  end
+
+  @doc """
+  将秒数转换为时间单位。
+  返回一个浮点数，因为这些值需要使用 `/` 进行除法运算。
+
+  ## 示例
+
+    iex> TimeConverter.from_seconds(1, :seconds)
+    1.0
+
+    iex> TimeConverter.from_seconds(60, :minutes)
+    1.0
+    
+    iex> TimeConverter.from_seconds(3600, :hours)
+    1.0
+
+    iex> TimeConverter.from_seconds(86400, :days)
+    1.0
+
+  """
+  def from_seconds(amount, unit) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成时间转换练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Time Converting">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/datetime.livemd">日期和时间</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/itinerary.livemd">行程</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

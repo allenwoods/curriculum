@@ -1,0 +1,277 @@
+# 非可枚举类型
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Non-Enumerables">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/tic-tac-toe.livemd">井字棋</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">理解</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 非可枚举与可枚举数据结构的一些例子是什么？
+* 如何对非可枚举数据结构进行枚举？
+* 如何将非可枚举数据结构转换为可枚举数据结构？
+
+## 概述
+
+### 非可枚举类型
+
+非可枚举数据类型是指任何未实现[Enumerable](https://hexdocs.pm/elixir/Enumerable.html)协议的数据类型。例如，整数、浮点数、字符串、原子和元组都不是可枚举的。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 使用非可枚举类型进行枚举
+
+要对非可枚举数据类型进行枚举，我们需要将数据转换为可枚举数据类型。
+
+例如，如果我们想对每个字符进行枚举，可以将字符串 `"abc"` 转换为字符列表 `["a", "b", "c"]`。
+
+## 将非可枚举类型转换为可枚举类型
+
+虽然我们无法对非可枚举数据类型进行枚举，但 Elixir 提供了许多函数，可以将非可枚举数据类型转换为可枚举数据类型。
+
+## 整数
+
+我们可以使用[Integer.digits/1](https://hexdocs.pm/elixir/Integer.html#digits/1)函数将整数转换为数字列表。
+
+```elixir
+Integer.digits(123)
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，将整数 `4389` 转换为数字列表。
+
+```elixir
+
+```
+
+### 反数字
+
+我们可以使用[Integer.undigits/2](https://hexdocs.pm/elixir/Integer.html#undigits/2)将数字列表转换回单个整数。
+
+```elixir
+Integer.undigits([1, 2, 3])
+```
+
+## 元组
+
+尽管元组与列表非常相似，但元组不被视为可枚举的。这主要是因为它们被设计为固定大小的容器，任何需要枚举的情况通常更适合使用列表。
+
+如果需要，可以使用[Tuple.to_list/1](https://hexdocs.pm/elixir/Tuple.html#to_list/1)将元组转换为列表。
+
+但是，如果你发现自己经常这样做，可能更好的选择是从列表开始，而不是元组。
+
+```elixir
+Tuple.to_list({1, 2, 3})
+```
+
+然后，我们可以使用[List.to_tuple/1](https://hexdocs.pm/elixir/List.html#to_tuple/1)将列表转换回元组。
+
+```elixir
+List.to_tuple([1, 2, 3])
+```
+
+## 字符串
+
+字符串是不可枚举的。
+
+```elixir
+Enum.map("abc", fn char -> char end)
+```
+
+### [String.split/3](https://hexdocs.pm/elixir/String.html#split/3)
+
+<!-- livebook:{"break_markdown":true} -->
+
+然而，字符串可以使用[String.split/3](https://hexdocs.pm/elixir/String.html#split/3)转换为列表。
+
+[String.split/3](https://hexdocs.pm/elixir/String.html#split/3)根据某个值拆分字符串。
+
+例如，我们可以按每个逗号拆分字符串，如下所示：
+
+```elixir
+String.split("a,b,c,d", ",")
+```
+
+我们可以通过在每个空格 `""` 上拆分字符串，将其拆分为字符列表。这确实会在列表的开始和结束创建一个空字符串。
+
+```elixir
+String.split("abcde", "")
+```
+
+你可以使用`[trim: true]`选项来修剪空格。
+
+```elixir
+String.split("abcde", "", trim: true)
+```
+
+默认情况下，[String.split/1](https://hexdocs.pm/elixir/String.html#split/1)将在每个空格上拆分字符串。
+
+```elixir
+String.split("hello world")
+```
+
+现在你的字符串是一个可枚举的字符列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的 Elixir 单元中，将字符串 `"Hello, world!"` 转换为单个字符的列表。
+
+```elixir
+
+```
+
+### 连接字符串
+
+一旦你对字符串字符列表应用了转换，你可以使用[Enum.join/2](https://hexdocs.pm/elixir/Enum.html#join/2)重新连接它们。
+
+```elixir
+Enum.join(["a", "b", "c"], "")
+```
+
+默认的连接符是一个字符串，因此你可以省略第二个参数。
+
+```elixir
+Enum.join(["a", "b", "c"])
+```
+
+或者，我们可以通过某个连接字符连接字符串。
+
+```elixir
+Enum.join(["a", "b", "c"], "_")
+```
+
+我们可以结合使用[String.split/3](https://hexdocs.pm/elixir/String.html#split/3)和[Enum.join/2](https://hexdocs.pm/elixir/Enum.html#join/2)来拆分字符串，对其进行枚举并应用某些转换，然后重新连接它们。
+
+以下是一个简单的示例，用于将所有非空格字符替换为 `"X"`。
+
+```elixir
+split_string = String.split("secret information", "")
+
+transformed_list =
+  Enum.map(split_string, fn char ->
+    case char do
+      " " -> " "
+      _ -> "X"
+    end
+  end)
+
+joined_string = Enum.join(transformed_list)
+```
+
+### 你的回合
+
+创建一个 `CharacterCount` 模块，可以计算字符串中的字符数量。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule CharacterCount do
+  def count(string) do
+    string
+    |> String.split("", trim: true)
+    |> Enum.count()
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule CharacterCount do
+  @moduledoc """
+  字符计数
+  """
+
+  @doc """
+  计算字符串中的字符数量
+
+  ## 示例
+
+      iex> CharacterCount.count("abc")
+      3
+
+      iex> CharacterCount.count("abcd")
+      4
+  """
+  def count(string) do
+  end
+end
+```
+
+## 进一步阅读
+
+考虑以下资源，以加深你对该主题的理解。
+
+* [DockYard Academy: Enum](./enum.livemd)
+* [Elixir Schools: Enum](https://elixirschool.com/en/lessons/basics/enum)
+* [Elixir-lang: Enumerables](https://elixir-lang.org/getting-started/enumerables-and-streams.html#enumerables)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的[Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成非可枚举类型阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Non-Enumerables">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/tic-tac-toe.livemd">井字棋</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">理解</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

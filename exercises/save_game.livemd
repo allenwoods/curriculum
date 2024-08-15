@@ -1,0 +1,126 @@
+# 保存游戏
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Save Game">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/file_drills.livemd">文件练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/file_system_todo_app.livemd">文件系统待办事项</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 保存游戏
+
+许多游戏都有保存功能，允许玩家保存游戏的当前状态。
+在某些情况下，保存的游戏存储在保存文件中。
+
+你将实现一个 `Game` 模块，该模块模拟使用文件系统保存视频游戏的状态。你应该能够在给定的文件中存储一些任意的 Elixir 术语，并检索它。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Game do
+  def save(game_state, filename) do
+    File.write!(filename, :erlang.term_to_binary(game_state))
+  end
+
+  def load(filename) do
+    File.read!(filename) |> :erlang.binary_to_term()
+  end
+end
+```
+
+</details>
+
+按照下面的文档实现 `Game` 模块。
+
+```elixir
+defmodule Game do
+  @moduledoc """
+  `Game` 的文档
+
+  ## 示例
+
+      game_state = %{name: "Peter Parker", level: 10, location: "New York"}
+      
+      Game.save(game_state, "save_file1")
+      :ok
+      
+      Game.load("save_file1")
+      %{name: "Peter Parker", level: 10, location: "New York"}
+  """
+
+  @doc """
+  将一个 elixir 术语保存到给定的文件名中。
+  """
+  def save(data, filename) do
+  end
+
+  @doc """
+  从给定的文件名中检索一个 elixir 术语。
+  """
+  def load(filename) do
+  end
+end
+```
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成保存游戏练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Save Game">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/file_drills.livemd">文件练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/file_system_todo_app.livemd">文件系统待办事项</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,104 @@
+# 测试堆栈
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tested Stack">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/testing_genservers.livemd">测试 GenServers</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/traffic_light_server.livemd">交通信号灯服务器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 测试堆栈
+
+你将创建一个与之前创建的 [Stack](../exercises/stack.livemd) 模块类似的 `Stack` mix 项目。
+
+```
+$ mix new stack
+```
+
+### 需求
+
+为 `Stack` 模块编写完整的测试套件并实现其功能。至少包括以下测试用例。
+
+* `start_link/1 - 默认状态`
+* `start_link/1 - 默认配置`
+* `pop/1 - 从堆栈中移除一个元素`
+* `pop/1 - 从堆栈中移除多个元素`
+* `pop/1 - 从空堆栈中移除元素`
+* `push/2 - 向空堆栈中添加元素`
+* `push/2 - 向包含多个元素的堆栈中添加元素`
+
+除了上述内容外，为 `push/2` 和 `pop/1` 函数添加文档和至少一个 doctest。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 配对测试
+
+这将是一个 **配对测试** 练习，使用 TDD（测试驱动开发）。我们建议使用 Visual Studio Code LiveShare 进行协作。
+
+1. 一名学生（**测试者**）将编写一个单一的测试
+2. 另一名学生（**实现者**）将仅实现使测试通过所需的代码。
+3. **在每个测试后交换角色。**
+
+作为 **实现者**，如果测试允许，你可以 *伪造* 你的解决方案（在合理范围内）。这将鼓励你的 **测试者** 编写更好的测试。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成测试堆栈练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tested Stack">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/testing_genservers.livemd">测试 GenServers</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/traffic_light_server.livemd">交通信号灯服务器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

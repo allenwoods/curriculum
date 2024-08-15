@@ -1,0 +1,509 @@
+# 一对多关联
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=One-To-Many Associations">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_migration.livemd">博客：可见性迁移</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_comments.livemd">博客：评论</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在迁移中创建外键引用？
+* 如何在模式中关联两个记录？
+* 如何为关联记录编写测试？
+* 如何预加载关联数据？
+
+## 概述
+
+这是[博客：评论](../exercises/blog_comments.livemd)练习的配套阅读。本课概述了如何在Phoenix应用程序中处理一对多关联。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 一对多关联
+
+在一对多关系中，一个表中的单个记录与另一个表中的多个记录相关联。例如，一个`Post`可能有多个与之关联的`Comments`。
+
+```mermaid
+erDiagram
+
+Post {
+}
+
+Comment {
+    text content
+    id blog_id
+}
+
+Post ||--o{ Comment : "has many"
+```
+
+在这种关系中，我们会说父级（帖子）**有多个**子级（评论），而子级**属于**父级。
+
+关系中的子级存储一个**外键id**，将其与父级关联。
+
+## 生成器
+
+我们可以使用Phoenix生成器为关联资源生成脚手架。
+
+通常，关联资源不需要自己的控制器，而只需要生成上下文。例如：
+
+```
+mix phx.gen.context Comments Comment comments content:text post_id:references:posts
+```
+
+`post_id:references:posts`字段创建了一个引用`posts`表的`post_id`外键id字段。
+
+然后，如果需要创建控制器操作，可以重用父资源的控制器。
+
+或者，您可以正常生成资源，使用`mix phx.gen.html`并选择性地包含您期望使用的控制器操作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+resources "/comments", CommentController, only: [:create, :update, :delete]
+```
+
+## 迁移
+
+这是一个示例迁移，创建一个引用另一个表的外键字段`post_id`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.CreateComments do
+  use Ecto.Migration
+
+  def change do
+    create table(:comments) do
+      add :content, :text
+      add :post_id, references(:posts, on_delete: :nothing)
+
+      timestamps()
+    end
+
+    create index(:comments, [:post_id])
+  end
+end
+```
+
+[index/3](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#index/3)宏创建一个数据库，提供快速有效的方式来查找数据库中的记录。虽然不是必需的，但如果没有索引，数据库管理系统将需要扫描表中的每条记录以找到所需的信息。
+
+`on_delete`行为描述了如果我们删除父级，子级应该发生什么。例如，我们可以使用`:delete_all`行为在删除帖子时删除所有评论。有关类似选项的完整列表，请参见[references/2 options](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#references/2-options)。
+
+我们还可以使用`null: false`选项强制评论具有关联的帖子。有关类似选项的完整列表，请参见[add/3 options](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#add/3-options)。
+
+以下是将其结合在一起的示例：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.CreateComments do
+  use Ecto.Migration
+
+  def change do
+    create table(:comments) do
+      add :content, :text
+      add :post_id, references(:posts, on_delete: :delete_all), null: false
+
+      timestamps()
+    end
+
+    create index(:comments, [:post_id])
+  end
+end
+```
+
+## 模式
+
+模式就像定义数据如何存储在数据库中的蓝图。它们有一个用于关联记录的`id`字段，但它们对记录之间如何相互关联一无所知。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Comments.Comment do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "comments" do
+    field :content, :string
+    field :post_id, :id
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(comment, attrs) do
+    comment
+    |> cast(attrs, [:content])
+    |> validate_required([:content])
+  end
+end
+```
+
+然而，使用[belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3)和[has_many/3](https://hexdocs.pm/ecto/Ecto.Schema.html#has_many/3)宏描述模式的关联通常是有用的。
+
+例如，我们可能希望在检索`Post`时加载关联的评论。
+
+以下是我们可能如何修改`Comment`以包含关联。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Comments.Comment do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "comments" do
+    field :content, :string
+    belongs_to :post, Blog.Posts.Post
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(comment, attrs) do
+    comment
+    |> cast(attrs, [:content, :post_id])
+    |> validate_required([:content, :post_id])
+    |> foreign_key_constraint(:post_id)
+  end
+end
+```
+
+我们还使用[foreign_key_constraint/3](https://hexdocs.pm/ecto/Ecto.Changeset.html#foreign_key_constraint/3)确保提供的`:post_id`是数据库中实际的帖子id。
+
+以下是我们可能如何修改`Post`以包含关联。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Posts.Post do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "posts" do
+    field :content, :string
+    field :subtitle, :string
+    field :title, :string
+    has_many :comments, Blog.Comments.Comment
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(post, attrs) do
+    post
+    |> cast(attrs, [:title, :subtitle, :content])
+    |> validate_required([:title, :subtitle, :content])
+  end
+end
+```
+
+## 预加载
+
+一旦我们使用[belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3)或[has_many/3](https://hexdocs.pm/ecto/Ecto.Schema.html#has_many/3)定义了关联，我们可以在查询数据库时预加载关联的数据结构。
+
+例如，我们可以在从数据库检索数据之前使用[Ecto.Query.preload/3](https://hexdocs.pm/ecto/Ecto.Query.html#preload/3)预加载数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+from(p in Post, preload: [:comments]) |> Repo.get!(1)
+```
+
+或者，我们可以使用[Ecto.Repo.preload/3](https://hexdocs.pm/ecto/Ecto.Repo.html#c:preload/3)在给定结构上预加载数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Repo.preload(post, :comments)
+```
+
+## 在测试中添加关联
+
+默认情况下，当Phoenix生成测试时，它们不会测试关联的数据结构，因此我们必须编写自己的测试或修改现有测试。
+
+例如，在评论和帖子情况下，我们必须修改所有测试以创建一个帖子并在创建评论时提供帖子id。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 导入 PostsFixtures 模块以使用 `post_fixture` 函数。
+import Blog.PostsFixtures
+# 在创建评论时使用帖子夹具以提供 `post_id`。
+post = post_fixture()
+comment = comment_fixture(post_id: post.id)
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试预加载关联
+
+以下是测试我们预加载关联的示例。如果我们想显示特定帖子的所有评论，这将很有用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "get_post!/1 returns the post with given id and associated comments" do
+  post = post_fixture()
+  comment = comment_fixture(post_id: post.id)
+  assert Posts.get_post!(post.id).comments == [comment]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建关联数据
+
+以下是测试创建带有关联数据结构的记录是否按预期工作的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "create_comment/1 with valid data creates a comment" do
+  post = post_fixture()
+  valid_attrs = %{content: "some content", post_id: post.id}
+
+  assert {:ok, %Comment{} = comment} = Comments.create_comment(valid_attrs)
+  assert comment.content == "some content"
+  assert comment.post_id == post.id
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 由于未加载的关联修复测试
+
+某些测试可能由于未在断言中使用预加载的关联而失败。可以使用[Repo.preload/3](https://hexdocs.pm/ecto/Ecto.Repo.html#c:preload/3)修复这些测试。例如：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "get_post!/1 returns the post with given id" do
+  post = post_fixture()
+  assert Posts.get_post!(post.id) == Repo.preload(post, :comments)
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 控制器测试
+
+我们通常需要修复或编写自己的测试以处理关联数据的创建和控制器测试的重定向行为。
+
+以下是创建评论的示例测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+  describe "create comment" do
+    test "redirects to show when data is valid", %{conn: conn} do
+      post = post_fixture()
+      create_attrs = %{content: "some content", post_id: post.id}
+      conn = post(conn, ~p"/comments", comment: create_attrs)
+
+      assert %{id: id} = redirected_params(conn)
+      # 重定向到帖子显示页面
+      assert redirected_to(conn) == ~p"/posts/#{post.id}"
+
+      conn = get(conn, ~p"/posts/#{post.id}")
+      assert html_response(conn, 200) =~ "some content"
+    end
+
+    test "renders errors when data is invalid", %{conn: conn} do
+      post = post_fixture()
+      invalid_attrs = %{content: nil, post_id: post.id}
+      conn = post(conn, ~p"/comments", comment: invalid_attrs)
+      # 在HTML中，撇号被渲染为&#39;。
+      assert html_response(conn, 200) =~ "can&#39;t be blank"
+    end
+  end
+```
+
+如果生成控制器或控制器测试，最好删除任何未使用的测试和功能。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 删除行为
+
+如果我们更改某些资源的删除行为，我们可能想验证它是否按预期工作。以下是一个确保在删除帖子时删除评论的示例测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "delete_post/1 deletes the post and associated comments" do
+  post = post_fixture()
+  comment = comment_fixture(post_id: post.id)
+  assert {:ok, %Post{}} = Posts.delete_post(post)
+
+  assert_raise Ecto.NoResultsError, fn -> Posts.get_post!(post.id) end
+  assert_raise Ecto.NoResultsError, fn -> Comments.get_comment!(comment.id) end
+end
+```
+
+## 关联表单
+
+关联数据需要在HTTP请求中发送。有几种主要方式可以包含这些数据：
+
+* 表单中的主体参数
+* URL参数
+* 查询参数
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 主体参数
+
+以下是一个示例表单，使用`@post`和`@comment_changeset`，这些将在控制器中由`conn.assigns`定义。该表单使用隐藏输入在发出请求时包含帖子id。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.simple_form :let={f} for={@comment_changeset} action={~p"/comments"}>
+  <.input type="hidden" field={f[:post_id]} value={@post.id} />
+  <.input field={f[:content]} type="text" label="内容" />
+  <:actions>
+    <.button>评论</.button>
+  </:actions>
+</.simple_form>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### URL参数或查询参数
+
+要使用URL参数或查询参数，请更改表单中的`action`以在URL中包含关联数据，然后省略上面的隐藏输入。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# URL参数
+action={~p"/comments/#{@post.id}"}
+# 查询参数
+action={~p"/comments/?post_id=#{@post.id}"}
+```
+
+## 在控制器中处理关联数据
+
+需要定义相应的控制器操作来处理表单发送的包含关联数据的HTTP请求。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 主体参数
+
+以下是一个示例控制器操作，假设评论的`post_id`包含在表单的主体参数中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def create(conn, %{"comment" => comment_params}) do
+  case Comments.create_comment(comment_params) do
+    {:ok, comment} ->
+      conn
+      |> put_flash(:info, "评论创建成功。")
+      # 重定向到显示评论表单的帖子页面
+      |> redirect(to: ~p"/posts/#{comment.post_id}")
+
+    {:error, %Ecto.Changeset{} = comment_changeset} ->
+      post = Posts.get_post!(comment_params["post_id"])
+      # 重新渲染帖子显示页面，带有用于显示错误的评论更改集。
+      render(conn, :show, post: post, comment_changeset: comment_changeset)
+  end
+end
+```
+
+<!-- livebook:{"force_markdown":true} -->
+
+### URL或查询参数
+
+如果请求是使用URL参数或查询参数发送的，则帖子id将单独处理，如下所示：
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def create(conn, %{"comment" => comment_params, "post_id" => post_id}) do
+  case Comments.create_comment(Map.put(comment_params, "post_id", post_id)) do
+    {:ok, comment} ->
+      conn
+      |> put_flash(:info, "评论创建成功。")
+      |> redirect(to: ~p"/posts/#{post_id}")
+
+    {:error, %Ecto.Changeset{} = comment_changeset} ->
+      post = Posts.get_post!(post_id)
+      render(conn, :show, post: post, comment_changeset: comment_changeset)
+  end
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [Ecto.Query](https://hexdocs.pm/ecto/Ecto.Query.html)
+* [Elixir学校：关联](https://elixirschool.com/en/lessons/ecto/associations)
+* [Elixir学校：查询#预加载](https://elixirschool.com/en/lessons/ecto/querying_basics#preloading-9)
+* [Elixir论坛：build_assoc vs put_assoc vs cast_assoc](https://elixirforum.com/t/confussed-with-build-assoc-vs-put-assoc-vs-cast-assoc/29116)
+
+## 提交您的进度
+
+DockYard Academy现在建议您使用最新的[发布](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行`git status`以确保没有不必要的更改。
+然后在`curriculum`文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成一对多关联阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=One-To-Many Associations">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_migration.livemd">博客：可见性迁移</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_comments.livemd">博客：评论</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

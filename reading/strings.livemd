@@ -1,0 +1,253 @@
+# 字符串
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Strings">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/arithmetic.livemd">算术</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/io.livemd">输入输出</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是字符串，它们适合存储什么类型的信息？
+* 我们如何使用字符串连接将两个字符串相加？
+* 我们如何使用字符串插值在字符串中解释 Elixir 代码？
+
+## 字符串
+
+字符串是包含在两个双引号 `""` 之间的任何字符序列。
+字符可以是任何单个数字、字母或符号。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"T" # 字母
+"t" # 字母
+"1" # 数字
+"1.2" # 数字
+"&" # 符号
+"_" # 符号
+```
+
+你可以将字符串视为由字符连接在一起的字符串。
+字符串可以是单个字符、没有字符或多个字符！
+
+```mermaid
+flowchart LR
+  S --- T --- R --- I --- N --- G
+```
+
+字符串可以包含单引号和其他符号，例如 `!@#$%^&*()_+-=';:` 等等。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+"!@#$%^&*()_+-=';:"
+```
+
+它们对于以文本形式表示各种信息非常有用。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的 Elixir 单元中，创建一个字符串 `"Hello, world!"`。这是每个程序员的入门仪式。
+
+```elixir
+
+```
+
+## 多行字符串
+
+有时我们想用多行表示一个字符串。换行符 `\n` 表示字符串中的新行。
+
+```elixir
+string = "line 1\nline 2\nline 3"
+
+IO.puts(string)
+```
+
+为了更方便地定义多行字符串，Elixir 允许我们使用三个引号 `"""` 来定义多行字符串。
+
+```elixir
+string = """
+line 1
+line 1
+line 1
+"""
+
+IO.puts(string)
+```
+
+## 字符串运算符
+
+字符串运算符允许我们操作字符串。
+
+`<>` 运算符将两个字符串连接在一起。将字符串连接在一起称为 **字符串连接**。
+
+```elixir
+"hello, " <> "world."
+```
+
+只有字符串可以使用 `<>` 运算符连接在一起。你会注意到连接 `1` 会导致错误 `expected binary argument in <> operator but got 1`
+这个错误发生是因为我们要求计算机将字符串与整数连接在一起。
+
+```elixir
+"hello" <> 1
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用字符串连接将 `"Hi "` 和你的一位同学的名字连接在一起。
+
+所以 `"Peter"` 将变成 `"Hi Peter."`。
+
+将 `nil` 替换为你的答案。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+"Hi " <> "Peter."
+```
+
+</details>
+
+```elixir
+
+```
+
+### 字符串插值
+
+<!-- livebook:{"break_markdown":true} -->
+
+使用 `#{}`，我们还可以在字符串中 **插值** 值。本质上，这意味着我们可以在字符串中评估代码。你想在字符串中插值的代码放在大括号 `{}` 之间。
+
+所以我们可以在字符串中评估 `4 + 4`，结果是 `8`。
+
+```elixir
+"I have #{4 + 4} apples."
+```
+
+当你的字符串有许多计算值或复杂的标点符号时，字符串插值通常很有用。
+否则，很容易出错。
+
+注意下面的语法错误，在使用字符串连接时很容易被忽视。
+
+```elixir
+"I have" <> "8" <> "apples"
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，使用 **字符串插值** 说 `I have #{X - 1} classmates.`。其中 X 是你所在小组的人数，包括你自己。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+"I have #{1 - 1} classmates."
+```
+
+</details>
+
+```elixir
+answer = nil
+```
+
+## 转义字符
+
+Elixir 允许你使用 [转义字符](https://hexdocs.pm/elixir/main/String.html#module-escape-characters) 在字符串中表示特殊值。我们已经看到 `\n` 转义字符用于换行。
+
+例如，我们可以使用 `\` 符号在字符串中转义特殊字符。当你想在字符串中包含具有其他含义的字符时，这很方便。例如，如果你想在字符串中包含双引号，你可以转义双引号 `\"`。
+
+```elixir
+string = "They said \"so this is how you include double quotes in a string!\""
+
+IO.puts(string)
+```
+
+还有其他特殊字符，例如反斜杠 `\`，或者你可能想要转义的插值语法。
+
+```elixir
+string = "Use \#{} to interpolate a value in a string"
+
+IO.puts(string)
+```
+
+```elixir
+string = "If you don't escape using backslash \\, then #{} doesn't appear"
+
+IO.puts(string)
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Joy of Elixir: 字符串](https://joyofelixir.com/book#chapter-8)
+* [Elixir-lang: 二进制、字符串和字符列表](https://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "finish Strings reading"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，你可以在同伴小组中向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月小组的申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Strings">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/arithmetic.livemd">算术</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/io.livemd">输入输出</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

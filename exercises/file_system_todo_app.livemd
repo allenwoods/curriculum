@@ -1,0 +1,149 @@
+# 文件系统待办事项
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File System Todo">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/save_game.livemd">保存游戏</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/document_tools.livemd">文档工具</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 概述
+
+你将创建一个具有持久性的待办事项应用程序，使用文件系统。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule TodoList do
+  @storage "todolist"
+
+  def list do
+    case File.read(@storage) do
+      {:ok, list} -> :erlang.binary_to_term(list)
+      # other operations will create the storage if it does not yet exist.
+      _ -> []
+    end
+  end
+
+  def add(item) do
+    new_list = [item | list()]
+    File.write(@storage, :erlang.term_to_binary(new_list))
+  end
+
+  def complete(item) do
+    new_list = list() -- [item]
+    File.write(@storage, :erlang.term_to_binary(new_list))
+  end
+end
+```
+
+</details>
+
+实现文档中记录的 `TodoList` 模块。你可以选择任何文件作为你的持久性机制。
+
+```elixir
+defmodule TodoList do
+  @moduledoc """
+  Documentation for `TodoList`
+  """
+  @doc """
+  Retrieve the todo list.
+
+  ## Examples
+
+      iex> TodoList.list()
+      []
+  """
+  def list do
+  end
+
+  @doc """
+  Add an item to the todo list.
+
+  ## Examples
+
+      TodoList.add("task 1")
+      TodoList.add("task 2")
+      TodoList.list()
+      ["task 2", "task 1"]
+  """
+  def add(item) do
+  end
+
+  @doc """
+  Complete (remove) an item from the todo list.
+
+  ## Examples
+
+      TodoList.add("finish homework")
+      TodoList.complete("finish homework")
+      TodoList.list()
+      ["task 2", "task 1"]
+  """
+  def complete(item) do
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成文件系统待办事项练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的班级申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=File System Todo">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/save_game.livemd">保存游戏</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/document_tools.livemd">文档工具</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

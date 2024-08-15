@@ -1,0 +1,162 @@
+# 石头剪刀布
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rock Paper Scissors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/naming_numbers.livemd">命名数字</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/modules.livemd">模块</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 创建完美的AI
+
+你将创建一个完美的石头剪刀布AI，它将总是获胜。
+
+```mermaid
+flowchart LR
+scissors --beats--> paper --beats--> rock --beats--> scissors
+```
+
+生成一个随机的玩家选择 `:rock` ,`:paper`, 或 `:scissors`，或者手动输入 `:rock`, `:paper`, 和 `:scissors` 来确定你的程序是否正常工作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+player_choice = Enum.random([:rock, :paper, :scissors])
+```
+
+然后，返回击败玩家选择的获胜选择 `:rock`, `:paper`, 或 `:scissors`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  ```elixir
+  player_choice = :scissors
+  
+  case player_choice do
+    :rock -> :paper
+    :paper -> :scissors
+    :scissors -> :rock
+  end
+  ```
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 创建双人石头剪刀布
+
+现在你知道如何创建一个石头剪刀布AI，你将创建一个双人石头剪刀布游戏。
+
+将 `player1_choice` 和 `player2_choice` 变量绑定到 `:rock`, `:paper`, 或 `:scissors`。
+
+* 如果 `player1_choice` 击败 `player2_choice`，返回 `"玩家 1 胜利！"`。
+* 如果 `player2_choice` 击败 `player1_choice`，返回 `"玩家 2 胜利！"`。
+* 如果两个玩家选择相同，则返回 `"平局"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+  <summary>示例解决方案</summary>
+
+  ```elixir
+  player1 = :rock
+  player2 = :scissors
+
+  case {player1, player2} do
+    {:rock, :scissors} -> "玩家 1 胜利！"
+    {:paper, :rock} -> "玩家 1 胜利！"
+    {:scissors, :paper} -> "玩家 1 胜利！"
+    {:rock, :paper} -> "玩家 2 胜利！"
+    {:paper, :scissors} -> "玩家 2 胜利！"
+    {:scissors, :rock} -> "玩家 2 胜利！"
+    {_same, _same} -> "平局"
+  end
+  ```
+
+  你还可以使用函数和 `in` 关键字来减少代码重复，以检查值是否存在于列表中。
+
+  ```elixir
+  player1 = :rock
+  player2 = :scissors
+
+  beats? = fn choice1, choice2 ->
+    {choice1, choice2} in [{:rock, :scissors}, {:paper, :rock}, {:scissors, :paper}]
+  end
+
+  cond do
+    beats?.(player1, player2) -> "玩家 1"
+    beats?.(player2, player1) -> "玩家 2"
+    player1 == player2 -> "平局"
+  end
+  ```
+
+</details>
+
+在下面输入你的解决方案。
+
+```elixir
+
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成石头剪刀布练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Rock Paper Scissors">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/naming_numbers.livemd">命名数字</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/modules.livemd">模块</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

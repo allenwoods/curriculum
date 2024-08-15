@@ -1,0 +1,98 @@
+# 博客：评论
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Comments">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_one_to_many_associations.livemd">一对多关联</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_authentication.livemd">Phoenix 认证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 博客：评论
+
+你将为现有的 [博客](./group_project_blog.livemd) 项目创建一个 `comments`。
+
+```mermaid
+erDiagram
+
+Comment {
+  text content
+  id post_id
+}
+```
+
+### 需求
+
+* 迁移与模式
+  * 创建一个包含 `content` 字段（类型为 `:text`）的评论表。
+  * 帖子应该 **有多个** 评论（一个对多），评论应该 **属于** 一个帖子。
+* 功能
+  * 在每个帖子上显示评论
+  * 通过帖子展示页面上的表单为帖子创建评论。
+  * （额外）：删除评论
+  * （额外）：编辑评论
+* 测试
+  * 编写上下文和控制器测试，以确保帖子页面显示评论。
+  * 编写上下文和控制器测试，以确保可以为给定帖子创建评论。
+  * 所有测试应通过。你可能需要修改旧测试以确保它们继续通过。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成博客：评论练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Blog: Comments">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/phoenix_one_to_many_associations.livemd">一对多关联</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/phoenix_authentication.livemd">Phoenix 认证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

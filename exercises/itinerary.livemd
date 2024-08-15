@@ -1,0 +1,118 @@
+# 行程
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Itinerary">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/time_converting.livemd">时间转换</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/timeline.livemd">时间线</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 行程
+
+您正在构建一个日程规划应用程序。用户将提供完成某项活动所需的时间（以分钟为单位），您将确定在两个 [DateTime](https://hexdocs.pm/elixir/DateTime.html) 之间是否有足够的时间来进行该活动。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Itinerary do
+  def has_time?(start, finish, minutes) do
+    DateTime.diff(finish, start) >= minutes * 60
+  end
+end
+```
+
+</details>
+
+实现文档中所述的 `Itinerary` 模块。
+
+```elixir
+defmodule Itinerary do
+  @doc """
+  给定分钟数，确定在两个 `DateTimes` 之间是否有足够的时间
+  来进行持续一定分钟数的活动。
+
+  ## 示例
+
+    iex> Itinerary.has_time?(~U[2020-01-01 12:00:00Z], ~U[2020-01-01 12:01:00Z], 1)
+    true
+    
+    iex> Itinerary.has_time?(~U[2020-01-01 12:00:00Z], ~U[2020-01-01 12:10:00Z], 10)
+    true
+
+    iex> Itinerary.has_time?(~U[2020-01-01 07:00:00Z], ~U[2020-01-01 08:00:00Z], 60)
+    true
+
+    iex> Itinerary.has_time?(~U[2020-01-01 12:00:00Z], ~U[2020-01-01 12:30:00Z], 31)
+    false
+
+    iex> Itinerary.has_time?(~U[2020-01-01 07:00:00Z], ~U[2020-01-01 08:00:00Z], 61)
+    false
+    
+  """
+  def has_time?(start, finish, minutes) do
+  end
+end
+```
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成行程练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Itinerary">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/time_converting.livemd">时间转换</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/timeline.livemd">时间线</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

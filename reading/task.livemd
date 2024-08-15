@@ -1,0 +1,299 @@
+# 任务
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_supervised_score_tracker.livemd">游戏：监督分数追踪器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/task_supervisor.livemd">任务监督器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何使用任务来利用并发？
+* 我们如何使用任务来发送一次性火忘作业？
+
+## 任务
+
+我们已经看到我们可以使用 [Kernel.spawn/1](https://hexdocs.pm/elixir/Kernel.html#spawn/1) 或 `Kernal.spawn_link/1` 来生成一个执行某些工作的进程，然后结束。
+
+```elixir
+spawn_pid =
+  spawn(fn ->
+    IO.puts("作业开始")
+    # 模拟耗时过程
+    Process.sleep(1000)
+    IO.puts("作业结束")
+  end)
+```
+
+当我们想在一个进程中执行一些代码时，我们不应该直接使用 [Kernel.spawn/1](https://hexdocs.pm/elixir/Kernel.html#spawn/1) 或 [Kernel.spawn_link/1](https://hexdocs.pm/elixir/Kernel.html#spawn_link/1)。相反，我们应该依赖于 [Task](https://hexdocs.pm/elixir/Task.html) 模块。 [Task](https://hexdocs.pm/elixir/Task.html) 模块允许我们生成一个进程，在该进程中执行一些工作，然后在我们的工作完成时结束该进程。
+
+[Task](https://hexdocs.pm/elixir/Task.html) 也是符合 OTP 的，这意味着它遵循某些 OTP 约定，这些约定改善了错误处理，并允许它们在监督者下启动。
+
+## 火忘
+
+我们可以使用 [Task.start/1](https://hexdocs.pm/elixir/Task.html#start/1) 创建一个新的短暂进程，该进程在其函数执行时结束。这是一个 **火忘** 进程，不会阻塞调用进程或返回响应。
+
+```elixir
+{:ok, task_pid} = Task.start(fn -> IO.puts("任务运行！") end)
+
+IO.puts("父进程继续运行")
+Process.sleep(100)
+Process.alive?(task_pid) || IO.puts("任务已结束")
+```
+
+## 等待任务响应
+
+使用 [Task](https://hexdocs.pm/elixir/Task.html)，我们可以使用 `async/1` 和 `await/1` 来生成一个进程，执行一些计算，并在完成时检索值。
+
+```elixir
+task =
+  Task.async(fn ->
+    # 模拟耗时计算
+    Process.sleep(1000)
+    "响应！"
+  end)
+
+Task.await(task)
+```
+
+我们可以通过将两个计算分开到两个不同的 [Task](https://hexdocs.pm/elixir/Task.html) 进程中并发运行它们。
+在这里，我们模拟一个时钟每秒滴答一次，在两个独立的进程中演示并行运行。
+
+```elixir
+task1 =
+  Task.async(fn ->
+    IO.inspect("滴答", label: "任务 1")
+    Process.sleep(2000)
+    IO.inspect("滴答", label: "任务 1")
+    Process.sleep(1000)
+    "滴答"
+  end)
+
+task2 =
+  Task.async(fn ->
+    Process.sleep(1000)
+    IO.inspect("嘀嗒", label: "任务 2")
+    Process.sleep(2000)
+    IO.inspect("嘀嗒", label: "任务 2")
+    "嘀嗒"
+  end)
+
+Task.await(task1) |> IO.inspect(label: "任务 1 响应")
+Task.await(task2) |> IO.inspect(label: "任务 2 响应")
+```
+
+配备多核处理器的计算机可以并行执行这些并发计算，这可能使我们的程序更快。实际上，这比这要复杂一些，但这是一个合理的心理模型，以理解为什么并发对提高性能是有用的。
+
+在这里，我们使用 **par** 框来演示并行发生的操作。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+  par 
+    ParentProcess ->> Task1: spawns
+    ParentProcess ->> Task2: spawns
+  end
+  par
+    Task1 ->> Task1: performs work
+    Task2 ->> Task2: performs work
+  end
+  Task1 ->> ParentProcess: return awaited result
+  Task2 ->> ParentProcess: return awaited result
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+[Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 返回一个 [Task](https://hexdocs.pm/elixir/Task.html) 结构，而不是 pid。 [Task](https://hexdocs.pm/elixir/Task.html) 结构包含有关父进程（`:owner`）、任务的 pid（`:pid`）和用于监控任务崩溃的引用（`:ref`）的信息。
+
+```elixir
+Task.async(fn -> nil end)
+```
+
+为了演示并发的性能价值，假设我们有两个计算，每个计算需要 `1` 秒，通常需要 `2` 秒来同步运行这些任务。
+
+```elixir
+computation1 = fn -> Process.sleep(1000) end
+computation2 = fn -> Process.sleep(1000) end
+
+{microseconds, _result} =
+  :timer.tc(fn ->
+    computation1.()
+    computation2.()
+  end)
+
+# 预计约为 ~2 秒
+microseconds / 1000 / 1000
+```
+
+通过并行运行这些计算，我们理论上可以将这个时间减少到 `1` 秒，而不是 `2`。
+
+> 注意，如果你的计算机没有多个核心，那么它仍然会花费 `2` 秒，而不是预期的 `1` 秒。
+
+```elixir
+computation1 = fn -> Process.sleep(1000) end
+computation2 = fn -> Process.sleep(1000) end
+
+{microseconds, _result} =
+  :timer.tc(fn ->
+    task1 = Task.async(fn -> computation1.() end)
+    task2 = Task.async(fn -> computation2.() end)
+
+    Task.await(task1)
+    Task.await(task2)
+  end)
+
+# 预计约为 ~1 秒
+microseconds / 1000 / 1000
+```
+
+### 你的回合
+
+使用 [Task.async/1](https://hexdocs.pm/elixir/Task.html#async/1) 和 [Task.await/1](https://hexdocs.pm/elixir/Task.html#await/1) 来演示同步执行和并行执行之间的性能优势。
+
+你可以考虑使用 [Process.sleep/1](https://hexdocs.pm/elixir/Process.html#sleep/1) 来模拟耗时计算。
+
+```elixir
+
+```
+
+## 等待多个任务
+
+在处理多个并行任务时，我们可以使用枚举来生成多个任务。
+
+```elixir
+tasks =
+  Enum.map(1..5, fn each ->
+    Task.async(fn ->
+      Process.sleep(1000)
+      each * 2
+    end)
+  end)
+```
+
+然后我们也可以使用枚举来 `await/1` 每个任务。
+
+```elixir
+Enum.map(tasks, fn task -> Task.await(task) end)
+```
+
+或者，你可以使用方便的 `Task.await_many/1` 函数。
+
+```elixir
+tasks =
+  Enum.map(1..5, fn each ->
+    Task.async(fn ->
+      Process.sleep(1000)
+      each * 2
+    end)
+  end)
+
+Task.await_many(tasks)
+```
+
+## 超时
+
+[Task.await/1](https://hexdocs.pm/elixir/Task.html#await/1) 暂停当前执行以等待任务完成。然而，它不会永远等待。默认情况下，[Task.await/1](https://hexdocs.pm/elixir/Task.html#await/1) 和 [Task.await_many/1](https://hexdocs.pm/elixir/Task.html#await_many/1) 将等待五秒钟以完成任务。如果任务没有完成，它将引发错误。
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.await(task)
+```
+
+如果我们想等待更多或更少的时间，我们可以覆盖默认值。`await/2` 和 `await_many/2` 接受作为函数第二个参数的超时值。
+
+```elixir
+task = Task.async(fn -> Process.sleep(6000) end)
+
+Task.await(task, 7000)
+```
+
+```elixir
+task1 = Task.async(fn -> Process.sleep(6000) end)
+task2 = Task.async(fn -> Process.sleep(6000) end)
+
+Task.await_many([task1, task2], 7000)
+```
+
+### 你的回合
+
+在下面的 Elixir 单元中，生成一个需要一秒钟完成的任务。
+`await/2` 该任务并将超时值更改为一秒。等待任务应该崩溃。
+
+```elixir
+
+```
+
+## 深入阅读
+
+考虑以下资源以加深对该主题的理解。
+
+* [HexDocs: Task](https://hexdocs.pm/elixir/Task.html)
+* [ElixirSchools: Task](https://elixirschool.com/en/lessons/intermediate/concurrency#tasks-5)
+* [Exercism: Task](https://exercism.org/tracks/elixir/concepts/tasks)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成任务阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Task">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/games_supervised_score_tracker.livemd">游戏：监督分数追踪器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/task_supervisor.livemd">任务监督器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

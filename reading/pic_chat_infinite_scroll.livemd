@@ -1,0 +1,626 @@
+# PicChat: 分页
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Pagination">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_pub_sub.livemd">PicChat: PubSub</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/picchat_emails.livemd">PicChat: 邮件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何以及为什么在Phoenix应用程序中对大量数据进行分页？
+* 如何使用Phoenix Hooks实现客户端与服务器的通信。
+* 如何使用[Phoenix.LiveView.push_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_event/3)实现服务器到客户端的通信。
+
+## 概述
+
+### JavaScript 互操作性
+
+JavaScript 互操作性是指从Elixir代码调用JavaScript函数的能力，反之亦然。在带有LiveView的Phoenix应用程序中，我们可以从服务器向客户端推送事件，也可以从客户端向服务器推送事件。
+
+* **客户端到服务器的通信：** 客户端的 `pushEvent` 函数向服务器发送消息，由LiveView的 `handle_event/3` 回调函数处理。
+* **服务器到客户端的通信：** LiveView在 `socket` 上调用[Phoenix.LiveView.push_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_event/3)函数，然后由 `handleEvent` JS事件监听器处理。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### JavaScript 事件
+
+JavaScript使用 `listeners` 来监听某个目标（如元素或 `window`）上触发的事件。每当指定事件传递到目标时，监听器会触发回调函数。
+
+使用[addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)将监听器添加到目标。
+
+```javascript
+element.addEventListener("click", function(event) {
+  console.log("element was clicked")
+})
+```
+
+请参阅[MDN: 事件列表](https://developer.mozilla.org/en-US/docs/Web/Events#event_listing)以获取完整的事件列表，如果您想了解更多。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Window](https://developer.mozilla.org/en-US/docs/Web/API/Window)
+
+在网页浏览器中，`window` 对象表示当前正在显示的网页。它是浏览器对象模型中的顶级对象，提供对浏览器功能和网页内容的访问。`window` 包含指向在该窗口中加载的HTML文档对象模型（DOM）的 `document`。
+
+Phoenix LiveView将多个以 `phx:` 为前缀的事件分发到 `window`。`window` 可以监听这些事件并适当地处理它们。例如，任何Phoenix应用程序中的每个 `app.js` 文件都通过显示和隐藏顶部栏来处理 `phx:page-loading-start` 和 `phx:page-loading-stop` 事件。
+
+```javascript
+import topbar from "topbar"
+window.addEventListener("phx:page-loading-start", info => topbar.show())
+window.addEventListener("phx:page-loading-stop", info => topbar.hide())
+```
+
+`window` 还可以处理通过[Phoenix.LiveView.push_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_event/3)发送的任何服务器发起的事件。
+
+首先，一些事件处理程序将调用 `push_event/3`。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def handle_info(_some_message, socket) do
+  params = %{} # some Elixir term
+  {:noreply, push_event(socket, "my_event", params)}}
+end
+```
+
+然后，`window` 可以通过事件监听器处理推送的事件。事件参数将存储在 `event` 对象的 `detail` 属性中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+window.addEventListener(`phx:my_event`, (event) => {
+  let params = event.detail
+  # js code to handle the event
+})
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [Document (DOM)](https://developer.mozilla.org/en-US/docs/Glossary/DOM)
+
+文档对象模型（DOM）是HTML文档的编程接口。它将文档的结构表示为一个对象树，每个对象表示文档的一部分（例如元素或属性）。例如，考虑以下HTML文档：
+
+```html
+<html>
+  <head>
+    <title>我的页面</title>
+  </head>
+  <body>
+    <h1>欢迎来到我的页面</h1>
+    <p>这是一段文本</p>
+  </body>
+</html>
+```
+
+在DOM中，该文档将表示为如下对象树：
+
+```
+- html
+    - head
+      - title
+        - #text 我的页面
+    - body
+      - h1 
+        - #text 欢迎来到我的页面
+      - p 
+        - #text 这是一段文本
+```
+
+DOM允许程序访问和操作文档的内容、结构和样式。
+
+通常，我们将在JavaScript `.js` 文件中使用 `document` 对象来选择HTML元素。
+
+```javascript
+dragndrop = document.getElementById("element-1")
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [客户端 Hooks](https://hexdocs.pm/phoenix_live_view/js-interop.html#client-hooks-via-phx-hook)
+
+客户端钩子是JavaScript函数，在元素的渲染和生命周期的特定时刻执行。我们可以钩住以下元素生命周期回调。
+
+* `mounted`: 元素已添加到DOM，并且其服务器LiveView已完成挂载
+* `beforeUpdate`: 元素即将更新到DOM中
+* `updated`: 元素已由服务器更新到DOM中
+* `destroyed`: 元素已从页面中移除
+* `disconnected`: 元素的父LiveView已与服务器断开连接
+* `reconnected`: 元素的父LiveView已重新连接到服务器
+
+例如，我们使用 `phx-hook` 连接一个元素。
+
+```html
+<div phx-hook="MyHook" />
+```
+
+然后通过向socket提供匹配的 `Hooks` 回调对象来触发JavaScript。
+该对象指定要运行的JS，以及在何时触发JS的生命周期事件。
+
+```javascript
+// app.js
+
+let Hooks = {
+  MyHook: {
+    mounted() {
+      // 在HTML元素挂载时运行以下JS。
+      // `this` 引用一个包含与当前元素相关的属性的对象。
+      // 有关 `this` 的更多信息，请参见 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this。
+      this.el.addEventListener("click", event => {
+        // 当在HTML元素上触发“click”事件时运行以下JS。
+        console.log("clicked") 
+      })
+    }
+  }
+}
+
+// 修改现有的 liveSocket
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
+```
+
+## PicChat: 分页
+
+在接下来的几节课中，我们将构建一个 `PicChat` 应用程序，用户可以创建带有上传图片的消息。本课将重点添加分页和无限滚动，以使我们的系统在处理大量数据时更具性能。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 分页：限制和偏移
+
+[Ecto.Query.limit/3](https://hexdocs.pm/ecto/Ecto.Query.html#limit/3) 和 [Ecto.Query.offset/3](https://hexdocs.pm/ecto/Ecto.Query.html#offset/3) 允许我们对数据进行分页。
+
+假设我们有15条记录。如果我们将查询的 `limit` 设置为 `5`，那么每页将有五个元素。要检索一页，我们将使用以 `5` 为倍数的 `offset`。
+
+* 第1页
+  * 偏移量: `0`
+  * 限制: `5`
+* 第2页
+  * 偏移量: `5`
+  * 限制: `5`
+* 第3页
+  * 偏移量: `10`
+  * 限制: `5`
+
+以下是一个图形，帮助可视化这些数据页面。
+
+```mermaid
+flowchart TB
+subgraph 第3页
+  direction RL
+  11[记录 11]
+  12[记录 12]
+  13[记录 13]
+  14[记录 14]
+  15[记录 15]
+end
+
+subgraph 第2页
+  direction RL
+  6[记录 6]
+  7[记录 7]
+  8[记录 8]
+  9[记录 9]
+  10[记录 10]
+end
+
+subgraph 第1页
+  direction RL
+  1[记录 1]
+  2[记录 2]
+  3[记录 3]
+  4[记录 4]
+  5[记录 5]
+end
+```
+
+将 `Chat.list_messages/0` 函数修改为以下内容，以允许其可选地对数据进行分页。这不会破坏现有接口，因此所有测试仍应通过。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def list_messages(opts \\ []) do
+  limit = Keyword.get(opts, :limit)
+  offset = Keyword.get(opts, :offset, 0)
+
+  Message
+  |> from(order_by: [desc: :inserted_at])
+  |> limit(^limit)
+  |> offset(^offset)
+  |> Repo.all()
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 在挂载时加载分页数据
+
+修改 `mount/3` 函数以检索第一页数据。我们还将把 `page` 信息存储在LiveView中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.ex
+@limit 10
+
+@impl true
+def mount(_params, _session, socket) do
+if connected?(socket) do
+  PicChatWeb.Endpoint.subscribe("messages")
+end
+
+{:ok,
+  socket
+  |> assign(:page, 1)
+  |> stream(:messages, Chat.list_messages(limit: @limit))}
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 加载更多分页数据
+
+定义一个事件处理程序，以加载更多数据并将其插入消息流中。
+
+> 在撰写本文时，没有函数可以将多个项目插入流，因此我们编写了一个自定义的 `stream_insert_many/3` 辅助函数。然而，[streams](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#stream/4) 对于LiveView来说是非常新的，因此可能会有所变化。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.ex
+@impl true
+def handle_event("load-more", _params, socket) do
+  offset =  socket.assigns.page * @limit
+  messages = Chat.list_messages(offset: offset, limit: @limit)
+
+  {:noreply,
+    socket
+    |> assign(:page, socket.assigns.page + 1)
+    |> stream_insert_many(:messages, messages)}
+end
+
+defp stream_insert_many(socket, ref, messages) do
+  Enum.reduce(messages, socket, fn message, socket ->
+    stream_insert(socket, ref, message)
+  end)
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 数据填充
+
+数据填充使得测试手动重现的情况变得更容易。例如，您可以将以下内容添加到 `seeds.exs` 中，而不是手动创建消息以测试分页。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Seeds.ex
+{:ok, user} =
+  PicChat.Accounts.register_user(%{
+    email: "test@test.test",
+    password: "testtesttest"
+  })
+
+
+for n <- 1..100 do
+  PicChat.Chat.create_message(%{user_id: user.id, content: "message #{n}"})
+end
+```
+
+然后重置数据库以填充数据。
+
+```
+$ mix ecto.reset
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 加载更多按钮
+
+这是一个简单的按钮，用于触发加载更多消息。在消息表格下方添加此按钮，以验证加载更多消息是否按预期工作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Index.ex
+<.button phx-click="load-more">加载更多</.button>
+```
+
+## PicChat: 无限滚动
+
+无限滚动是一种常见行为，您经常会在社交媒体网站或其他具有数据流的网页上看到，当用户滚动到页面的某个点时，自动加载更多数据。
+
+要实现 **无限滚动**，我们需要处理[JavaScript滚动事件](https://developer.mozilla.org/en-US/docs/Web/API/Document/scroll_event)。
+
+然而，没有 `phx-scroll` 绑定，因为这会向服务器发送过多消息。在这种情况下，我们可以依赖[JavaScript互操作性](https://hexdocs.pm/phoenix_live_view/js-interop.html#content)，特别是在我们的案例中是[客户端Hooks](https://hexdocs.pm/phoenix_live_view/js-interop.html#client-hooks-via-phx-hook)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 客户端 Hooks
+
+Hooks在 `app.js` 中以JavaScript对象的形式定义，并提供给 `live_socket`。
+
+将以下内容添加到 `app.js` 中以创建一个InfiniteScroll钩子。此代码片段由[Chris McChord](https://elixirforum.com/t/how-can-i-implement-an-infinite-scroll-in-liveview/30457/2)创建。它检查滚动位置是否大于 `90%`，并且我们当前没有加载更多数据，然后使用 `pushEvent` 将 `"load-more"` 消息发送到服务器。
+
+```javascript
+let Hooks = {}
+
+let scrollAt = () => {
+    let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+    let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+    let clientHeight = document.documentElement.clientHeight
+
+    return scrollTop / (scrollHeight - clientHeight) * 100
+}
+
+Hooks.InfiniteScroll = {
+    page() { return this.el.dataset.page },
+    mounted() {
+        this.pending = this.page()
+        window.addEventListener("scroll", e => {
+            if (this.pending == this.page() && scrollAt() > 90) {
+                this.pending = this.page() + 1
+                this.pushEvent("load-more", {})
+            }
+        })
+    },
+    reconnected() { this.pending = this.page() },
+    updated() { this.pending = this.page() }
+}
+
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### `phx-hook` 绑定
+
+在撰写本文时，`table` 核心组件不支持 `phx-hook` 属性，因此我们无法简单地将 `phx-hook="InfiniteScroll"` 添加到连接我们的组件和我们创建的 `InfiniteScroll` 钩子。
+
+由于 `core_components` 是新的，这在未来可能会有所变化。
+
+解决此问题的主要解决方案有两个：
+
+1. 修改核心组件
+2. 将表格包装在一个元素中。
+
+我们将修改核心组件。核心组件可能感觉特殊，但它们是我们应用程序的一部分。我们可以随意修改它们！
+
+修改 `table` 组件以包含一个 `@rest` 属性，允许我们向组件提供任意HTML属性。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 在 Core_components.ex 中按字母顺序添加到其他 `attr`
+attr :rest, :global, doc: "要添加到表格的任意HTML属性"
+
+# 在 Core_components.ex 中将 `@rest` 添加到表格主体元素
+<tbody
+  id={@id}
+  phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
+  class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
+  {@rest}
+>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 附加钩子
+
+将 `phx-hook` 绑定添加到表格元素。我们还需要在 `InfiniteScroll` 钩子中使用的 `data-page` 属性，以访问最后加载的数据页。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 在 `index.ex` 中将 Phx-hook 和 Data-page 属性添加到表格元素
+<.table 
+  id="messages" 
+  rows={@streams.messages} 
+  phx-hook="InfiniteScroll" 
+  data-page={@page} 
+  row_click={fn {_id, message} -> JS.navigate(~p"/messages/#{message}") end}
+>
+```
+
+## PicChat: 高亮显示
+
+我们已经看到我们的客户端可以使用 `pushEvent` 向服务器发送消息。我们的服务器也可以使用[Phoenix.LiveView.push_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_event/3)向客户端发送消息。当我们想要触发某些JavaScript逻辑时，这通常很有用。
+
+为了演示此功能，我们将高亮显示每当消息被更新或创建时。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 从服务器推送“highlight”事件
+
+将[push_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_event/3)添加到您的“new”和“edit”操作的处理程序中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@impl true
+def handle_info(
+      %Phoenix.Socket.Broadcast{topic: "messages", event: "new", payload: message},
+      socket
+    ) do
+  {:noreply,
+    socket
+    |> push_event("highlight", %{id: message.id})
+    |> stream_insert(:messages, message, at: 0)}
+end
+
+@impl true
+def handle_info(
+      %Phoenix.Socket.Broadcast{topic: "messages", event: "edit", payload: message},
+      socket
+    ) do
+  {:noreply,
+    socket
+    |> push_event("highlight", %{id: message.id})
+    |> stream_insert(:messages, message)}
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 在客户端接收消息
+
+使用 `handleEvent` 在客户端接收消息，并将 `"highlight"` 类添加到新或更新的元素。将以下内容添加到 `mounted` 函数中。
+
+```javascript
+mounted() {
+    // 保留现有的 InfiniteScroll 代码，并在其下方添加此内容。
+    this.handleEvent("highlight", () => {
+        new_message = document.getElementById(`message-${id}`)
+        if (new_message) {
+            new_message.classList.add("highlight")
+        }
+    })
+}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 样式高亮显示的元素
+
+```css
+.highlight {
+  border-radius: 3px;
+  animation: highlight 1000ms ease-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: lightgrey;
+  }
+
+  100% {
+    background-color: white;
+  }
+}
+```
+
+## 测试
+
+### 上下文测试
+
+添加以下测试以确保 `limit` 和 `offset` 在 `Chat` 上下文中按预期工作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "list_messages/1 returns paginated messages" do
+  user = user_fixture()
+  message1 = message_fixture(user_id: user.id)
+  message2 = message_fixture(user_id: user.id)
+  assert Chat.list_messages(limit: 1, offset: 1) == [message1]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### LiveView 测试
+
+我们可以使用[render_hook/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render_hook/3)发送钩子事件，以测试 `"load-more"` 事件处理程序。
+
+在“Index”描述块中添加以下测试。此测试确保我们在触发 `"load-more"` 事件后仅显示下一页数据。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "infinite load 10 messages at a time", %{conn: conn} do
+  user = user_fixture()
+
+  messages =
+    Enum.map(1..20, fn n ->
+      message_fixture(user_id: user.id, content: "message-content-#{n}")
+    end)
+    |> Enum.reverse()
+
+  page_one_message = Enum.at(messages, 0)
+  page_two_message = Enum.at(messages, 10)
+
+  {:ok, index_live, html} = live(conn, ~p"/messages")
+
+  assert html =~ "列出消息"
+
+  assert html =~ page_one_message.content
+  refute html =~ page_two_message.content
+  assert render_hook(index_live, "load-more", %{}) =~ page_two_message.content
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [HexDocs: 模拟延迟](https://hexdocs.pm/phoenix_live_view/js-interop.html#simulating-latency)
+* [HexDocs: JavaScript 互操作性](https://hexdocs.pm/phoenix_live_view/js-interop.html#content)
+* [HexDocs: 客户端 Hooks](https://hexdocs.pm/phoenix_live_view/js-interop.html#client-hooks-via-phx-hook)
+* [HexDocs: Phoenix.LiveView.JS](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html)
+* [HexDocs: 处理服务器推送的事件](https://hexdocs.pm/phoenix_live_view/js-interop.html#handling-server-pushed-events)
+* [MDN: CSS 动画](https://developer.mozilla.org/pt-BR/docs/Web/CSS/CSS_Animations)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的[发布版本](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 PicChat: 分页阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=PicChat: Pagination">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/pic_chat_pub_sub.livemd">PicChat: PubSub</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/picchat_emails.livemd">PicChat: 邮件</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

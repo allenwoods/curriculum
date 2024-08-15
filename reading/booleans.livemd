@@ -1,0 +1,360 @@
+# 布尔值
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:visual, github: "brooklinjazz/visual"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Booleans">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/io.livemd">IO</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comparison_operators.livemd">比较运算符</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是布尔值，它们在程序中可能表示什么信息？
+* 什么是布尔运算符，它们的作用是什么？
+* 严格与非严格布尔运算符有什么区别？
+* 什么是 `if` 语句，它们在我们的程序中有什么用？
+
+## 布尔值
+
+布尔值（BOO-LEE-ANS）是你代码中的 `true` 和 `false` 值。它们通常用于表示条件并触发程序中的动作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+true
+false
+```
+
+在编程中，你会经常创建分支路径。基本上，根据某些条件可能会发生多种情况。我们通常称之为 **控制流**。
+
+让我们举个例子，假设我们有一个控制灯光的程序。
+我们可以告诉灯光开 `on` 或关 `off`。在这种情况下，`on` 将是 `true`，而 `off` 将是 `false`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+  A[is_powered] --> true --> on
+  A[is_powered] --> false --> off
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的 Elixir 单元中，将我们的灯光控制程序的电源打开，看看灯光是否亮起！将 `false` 替换为 `true`。
+
+<!-- livebook:{"attrs":{"code":"power = false","source":"content = if power, do: \"/images/on.png\", else: \"/images/off.png\"\nKino.Image.new(File.read!(__DIR__ <> content), :png)","title":"电源开启！"},"chunks":null,"kind":"Elixir.Visual","livebook_object":"smart_cell"} -->
+
+```elixir
+power = false
+content = if power, do: "/images/on.png", else: "/images/off.png"
+Kino.Image.new(File.read!(__DIR__ <> content), :png)
+```
+
+有关布尔值的更多信息，请参考 Crash Course Computer Science 的视频。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=gI-qXk7XojA\")","title":"布尔逻辑与逻辑门"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=gI-qXk7XojA")
+```
+
+## 布尔运算符
+
+使用 **布尔运算符** `and`、`or` 和 `not`，我们可以比较和操作布尔值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### `and`: 检查两个布尔值是否为 `true`。
+
+如果左侧和右侧都为 true，则返回 `true`。如果左侧和/或右侧的运算符为 `false`，则返回 `false`。
+
+```mermaid
+  flowchart LR
+  A[true] --> C
+  B[true] --> C
+  C[and] --> D[true]
+```
+
+```elixir
+true and true
+```
+
+```elixir
+true and false
+```
+
+```elixir
+false and true
+```
+
+```elixir
+false and false
+```
+
+### `or`: 检查一个或多个布尔值是否为 true。
+
+如果左侧或右侧的运算符为 `true`，则返回 `true`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+  flowchart LR
+  A[false] --> C
+  B[true] --> C
+  C[or] --> D[true]
+```
+
+```elixir
+true or true
+```
+
+```elixir
+true or false
+```
+
+```elixir
+false or true
+```
+
+```elixir
+false or false
+```
+
+### `not`: 翻转布尔值
+
+将 `false` 翻转为 `true`，将 `true` 翻转为 `false`。
+
+```elixir
+not true
+```
+
+```elixir
+not false
+```
+
+## 严格与非严格运算符
+
+`and`、`or` 和 `not` 是严格布尔运算符，意味着它们只能与布尔值一起使用，否则会引发错误。
+
+```elixir
+1 and 1
+```
+
+有时我们想使用 **truthy** 和 **falsy** 值进行逻辑比较。`nil` 和 `false` 是 falsy 值，其他所有值都是 truthy 值。
+
+我们可以使用非严格布尔运算符 `&&`（and）、`||`（or）和 `!`（not）来处理 truthy 和 falsy 值。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### `&&` 检查两个值是否为 truthy。
+
+如果左侧值为 truthy，则返回右侧值。
+
+```elixir
+1 && 2
+```
+
+如果左侧值为 falsy，则返回左侧值。
+
+```elixir
+nil && 2
+```
+
+```elixir
+false && 2
+```
+
+### `||` 检查一个或多个值是否为 truthy。
+
+返回左侧或右侧的第一个 truthy 值。
+
+```elixir
+2 || nil
+```
+
+```elixir
+1 || 2
+```
+
+```elixir
+nil || 2
+```
+
+### `!`: 将 falsy 或 truthy 值翻转为 `true` 或 `false`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+将 truthy 翻转为 `false`，将 falsy 翻转为 `true`。
+
+```elixir
+!1
+```
+
+```elixir
+!nil
+```
+
+## 何时使用严格或非严格运算符？
+
+你可能会想，为什么不总是使用非严格运算符 `&&`、`||` 和 `!`，因为它们也适用于布尔值。
+
+```elixir
+true && true
+```
+
+```elixir
+false || true
+```
+
+```elixir
+!true
+```
+
+主要原因是沟通。我们希望我们的代码能够与其他开发者进行沟通，因此使用 `and`、`or` 和 `not` 来向阅读我们代码的其他开发者传达我们正在处理布尔值是很有用的。
+
+通常，建议在布尔值中使用 `and`、`or` 和 `not`，而在非布尔值中使用 `&&`、`||` 和 `!`。
+
+## 控制流
+
+通过比较布尔值，你可以根据某些条件在代码中创建分支路径。
+
+例如，假设我们正在构建一个天气应用。这个应用可能会向用户发送早晨通知，以让他们知道今天将是一个阳光明媚的日子。
+
+你可能会检查用户 **是否订阅**、**是否是早晨**，以及 **是否是阳光明媚的天气**。如果所有这些条件都为真，那么我们想要发送通知。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+  A[is subscribed] --> and
+  B[is morning] --> and
+  C[is sunny] --> and
+  and --> true
+  true --> D[send notification]
+  and --> false
+  false --> E[don't send notification]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们可以巧妙地使用布尔运算符来编写这个逻辑。尝试将任何 `true` 值更改为 `false`，你会发现我们不再模拟发送通知。
+
+```elixir
+is_subscribed = true
+is_morning = true
+is_sunny = true
+
+is_subscribed and is_morning and is_sunny && "send notification!"
+```
+
+### `if`
+
+与其完全依赖布尔运算符，使用特定的控制流结构更为常见。例如，我们可以使用 [if](https://elixir-lang.org/getting-started/case-cond-and-if.html#if-and-unless) 语句复制上面的代码。
+
+```elixir
+if is_subscribed and is_morning and is_sunny do
+  "send notification"
+end
+```
+
+### `else`
+
+`if` 语句允许我们在某个条件为真时触发一些代码。我们通常将 `if` 语句与 `else` 语句结合使用，以在代码中创建两个独立的分支路径。
+
+例如，假设我们正在创建一个抛硬币游戏。用户提供一个 `guess`，可以是 `:heads` 或 `:tails`，而我们有一个 `coin` 抛出结果，可以是 `:heads` 或 `:tails`。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart LR
+if/else --> c[coin == guess] --true--> w[你赢了！]
+c --false--> l[你输了！]
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+以下是我们如何在代码中编写这个逻辑。尝试将 `guess` 更改为 `:heads` 来赢得抛硬币游戏。
+
+```elixir
+coin = :heads
+guess = :tails
+
+if coin == guess do
+  "你赢了！"
+else
+  "你输了！"
+end
+```
+
+## 深入阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir-lang: 布尔值](https://elixir-lang.org/getting-started/basic-types.html#booleans)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成布尔值阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Booleans">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/io.livemd">IO</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comparison_operators.livemd">比较运算符</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

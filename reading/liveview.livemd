@@ -1,0 +1,614 @@
+# LiveView
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=LiveView">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/capstone_mock.livemd">顶点项目：模拟</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/liveview_follow_along_counter.livemd">跟随：LiveView 计数器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 如何在路由器中挂载 LiveView？
+* LiveView 的生命周期是什么？
+* 信息如何存储和设置在 socket 中？
+* 如何向 LiveView 发送消息并处理它们？
+* 如何测试 LiveView？
+
+## 概述
+
+### Phoenix LiveView
+
+[Phoenix.LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) 是 [模型-视图-控制器](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) 模式（有时称为死视图）的替代方案。
+
+LiveViews 偏离了典型的请求/响应模式，其中客户端负责发起与服务器的所有交互。
+
+相反，它们建立了一个双向的 [网络 socket](https://en.wikipedia.org/wiki/Network_socket) 连接，允许客户端和服务器之间信息的双向交换。这使得客户端和服务器之间能够进行实时的“直播”通信，并启用一些在传统请求/响应模式下难以实现的功能。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+C1[客户端]
+C2[客户端]
+S1[服务器]
+S2[服务器]
+
+subgraph LiveView
+  C2 <--socket--> S2
+end
+
+subgraph 请求/响应
+  C1 --请求--> S1
+  S1 --响应--> C1
+end
+```
+
+## LiveView 进程
+
+LiveViews 是使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 实现的进程。对于每个客户端，服务器生成一个 LiveView 进程，该进程维护状态并可以发送和接收消息。LiveView 将状态存储在 [socket assigns](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Socket.html) 结构中。
+
+Phoenix 在应用程序的 `Supervisor` 下启动每个 LiveView 进程。[Supervisor](https://hexdocs.pm/elixir/Supervisor.html) 在发生崩溃时重新启动 LiveView。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+flowchart
+Supervisor
+C1[客户端]
+C2[客户端]
+C3[客户端]
+L1[LiveView]
+L2[LiveView]
+L3[LiveView]
+
+Supervisor --> L1
+Supervisor --> L2
+Supervisor --> L3
+L1 --socket.assigns--> C1
+L2 --socket.assigns--> C2
+L3 --socket.assigns--> C3
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+通过使用 OTP 进程/监视器，LiveViews 非常适合有状态的交互和实时容错系统。
+
+## LiveView 生命周期
+
+LiveView 连接生命周期有五个主要步骤。
+
+1. 客户端向我们的服务器发出 HTTP GET 请求。
+2. LiveView 在我们应用程序的监督树下挂载并启动。
+3. LiveView 向客户端发送初始 HTML 响应。
+4. 客户端通过双向 socket 连接连接到 LiveView。
+5. LiveView 建立有状态连接并重新挂载。
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+sequenceDiagram
+    Client->>LiveView: GET /page_url
+    LiveView-->>LiveView: mount/3
+    LiveView->>Client: render HTML
+    Client-->>LiveView: connect to socket
+    LiveView-->>LiveView: mount/3
+    LiveView-->>Client: establish stateful connection
+```
+
+## 直播路由
+
+[live/4](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Router.html#live/4) 宏定义了一个直播视图路由。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+scope "/", AppWeb do
+  pipe_through :browser
+
+  live "/", ExampleLive
+end
+```
+
+与通常对应于单个 URL 的控制器操作不同，单个 LiveView 可能处理许多不同的 URL，具有不同的 live_actions，这些 live_actions 以某种有意义的方式改变 LiveView 渲染 UI 的方式。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+live "/new", ExampleLive.Index, :new
+live "/:id/edit", ExampleLive.Index, :edit
+```
+
+## 创建 LiveView
+
+Phoenix LiveViews 定义了一个 [mount/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) 回调，用于初始化 LiveView。
+
+[mount/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) 回调接受三个参数
+
+1. `params` 包含用户可以设置的公共信息，例如查询参数和路由路径参数。
+2. `session` 包含特定于当前客户端的会话信息。例如，这包含 [跨站请求伪造令牌](https://en.wikipedia.org/wiki/Cross-site_request_forgery)。
+3. `socket` 是一个 [Phoenix.LiveView.Socket](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Socket.html)，包含 LiveView 的状态和其他 socket 信息。
+
+Phoenix LiveViews 还定义了一个 [render/1](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:render/1) 回调，用于渲染模板。每当 LiveView 检测到新的内容需要渲染并发送给客户端时，都会调用 [render/1](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:render/1) 回调。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule AppWeb.MountLiveExample do
+  use AppWeb, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    你好，世界！
+    """
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### [跨站请求伪造 (CSRF) 令牌](https://en.wikipedia.org/wiki/Cross-site_request_forgery)
+
+跨站请求伪造 (CSRF) 是一种攻击，用户被欺骗以在他们已认证的 Web 应用程序上执行不想要的操作。CSRF 令牌保护 Web 应用程序免受 CSRF 攻击。这些令牌是由服务器生成并包含在提供给用户的网页 HTML 中的随机唯一字符串。当用户向服务器提交请求时，服务器检查请求中是否存在 CSRF 令牌。如果令牌不存在或无效，请求将被拒绝。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%{"_csrf_token" => "cOO0xNX3-Ifc34aicN7UqAc5"}
+```
+
+在 Phoenix 中，跨站请求伪造令牌设置在 `root.html.heex` 中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<meta name="csrf-token" content={csrf_token_value()}>
+```
+
+然后在 `assets/app.js` 中检索并存储该令牌。
+
+```javascript
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+```
+
+## 连接与断开挂载
+
+LiveView 执行 **断开挂载** 以发送初始 HTML 响应，然后执行 **连接挂载** 以建立实时 socket。
+
+我们可以使用 [connected?/1](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#connected?/1) 函数检查 socket 是否已连接，以避免执行两次操作。这通常对动画或加载数据等操作很有用，我们不希望执行两次。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule AppWeb.MountLiveExample do
+  use AppWeb, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    if connected?(socket) do
+      IO.puts("已连接")
+    else
+      IO.puts("已断开")
+    end
+    {:ok, socket}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    你好，世界！
+    """
+  end
+end
+```
+
+## 事件
+
+客户端通常通过 HTML 元素上的 `phx-` 绑定（例如 `phx-click`）向 LiveView 发送消息，当元素被点击时会向 LiveView 发送消息。
+
+这些事件由 [handle_event/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_event/3) 回调函数处理。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule AppWeb.EventExampleLive do
+  use AppWeb, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+  
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <button phx-click="event_name">点击我！</button>
+    """
+  end
+
+  @impl true
+  def handle_event("event_name", _params, socket) do
+    # 处理
+    {:noreply, socket}
+  end
+end
+```
+
+请参见 [绑定](https://hexdocs.pm/phoenix_live_view/bindings.html) 和 [表单绑定](https://hexdocs.pm/phoenix_live_view/form-bindings.html) 以获取完整的事件列表。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 事件回调
+
+LiveViews 是在底层使用 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 构建的，因此它们可以接收消息并使用通常的 GenServer 回调函数处理它们。有关更多信息，请参见 [事件回调](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#callbacks)。
+
+## 更新状态
+
+使用 [assign/2](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#assign/2) 或 [assign/3](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#assign/3) 函数可以获取一个 socket 并更新 socket 的状态。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+assign(socket, :field, "value")
+# Assign/2 使更新多个状态字段更容易。
+assign(socket, field1: "value", field2: "value")
+```
+
+[mount/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) 回调定义了 LiveView 的初始状态。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@impl true
+def mount(_params, _session, socket) do
+  {:ok, assign(socket, :some_field, "初始值")}
+end
+```
+
+事件处理程序可以更新 LiveView 的状态。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+@impl true
+def handle_event("event_name", _params, socket) do
+  {:noreply, assign(socket, :some_field, "某个值")}
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 重新渲染差异
+
+当 LiveView 的状态发生变化时，LiveView 通过仅更改需要更改的部分实时更新页面。这些更改称为 **差异**（differences），显著提高了 LiveView 的性能。
+
+这意味着我们不需要像通常在典型控制器视图中那样重新渲染整个页面。
+
+## 直播导航
+
+### 直播操作
+
+LiveView 路由可以使用 `live_action` 原子定义。多个路由可以由同一个 LiveView 处理，通常具有不同的直播操作。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+live "/new", ExampleLive, :new
+live "/edit", ExampleLive, :edit
+```
+
+此直播操作将绑定到 LiveView 中的 `socket.assigns.live_action`。它通常用于在同一个 LiveView 中显示不同的 UI。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule AppWeb.ExampleLive do
+  use AppWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  def render(assigns) do
+    ~L"""
+    <%= if @live_action == :new do %>
+      <h1>新建</h1>
+    <% end %>
+    <%= if @live_action == :edit do %>
+      <h1>编辑</h1>
+    <% end %>
+    """
+  end
+
+  def handle_event("increment", _, socket) do
+    {:noreply, assign(socket, count: socket.assigns.count + 1)}
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 直播导航
+
+LiveView 允许在不完全重新加载页面的情况下进行页面导航。
+
+您可以通过两种方式触发直播导航：
+
+1. 从客户端：使用 [Phoenix.Component.link/1](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#link/1) 并传递 `patch={url}` 或 `navigate={url}`。
+
+2. 从服务器：使用 [Phoenix.LiveView.push_patch/2](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_patch/2) 或 [Phoenix.LiveView.push_navigate/2](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#push_navigate/2)。
+
+patch 和 redirect/navigate 具有不同的目的。
+
+* **patch**：使用不同的参数重新渲染当前 LiveView。这会触发 [handle_params/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_params/3) 回调，但不会重新挂载 LiveView。
+* **navigate**：重定向到不同的 LiveView。这将卸载当前 LiveView 并 [mount/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) 新的 LiveView。
+
+请参见 [HexDocs: LiveNavigation](https://hexdocs.pm/phoenix_live_view/live-navigation.html) 以获取完整说明。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 处理参数
+
+每当发生补丁事件时，都会在挂载后调用 [handle_params/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_params/3) 回调。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def handle_params(_params, _url, socket) do
+  {:noreply, socket}
+end
+```
+
+它通常用于根据 URL 参数或路由提供的 `live_action` 更新 socket 的状态，从而改变 LiveView 渲染的内容。
+
+## 表单
+
+Phoenix LiveView 18 引入了 [to_form/2](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#to_form/2) 函数，用于创建一个 [Phoenix.HTML.Form](https://hexdocs.pm/phoenix_html/3.3.0/Phoenix.HTML.Form.html) 结构，定义表单的字段。
+
+[to_form/2](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#to_form/2) 函数接受一个字符串键的映射或表单的 changeset。
+
+表单通常发送 `phx-change` 事件，每当字段更改时触发，并在每次提交表单时发送 `phx-submit` 事件。通常我们在更改时触发验证，并在提交时创建或更新数据库中的数据。
+
+以下是定义带有 `phx-submit` 和 `phx-change` 绑定及事件处理程序的表单示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule AppWeb.FormExampleLive do
+  use AppWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, form: to_form(%{"name" => "初始值"}))}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <.simple_form for={@form} phx-change="validate" phx-submit="submit">
+      <.input field={@form[:name]} label="姓名"/>
+      <:actions>
+        <.button>提交</.button>
+      </:actions>
+    </.simple_form>
+    """
+  end
+
+  def handle_event("validate", params, socket) do
+    # 通常 phx-change 事件用于实时验证表单数据
+    {:noreply, socket}
+  end
+
+  def handle_event("submit", params, socket) do
+    # socket.assigns.form 保留了状态中的表单值
+    # 这避免了清空表单
+    {:noreply, assign(socket, form: to_form(params))}
+  end
+end
+```
+
+`params` 将与表单数据的形状匹配。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+%{"name" => "某个名字"}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 验证数据
+
+使用 changeset 的表单将依赖于 changeset 进行错误处理。使用 `map` 的表单可以向 `to_form/2` 函数提供可选的 `:errors` 列表。
+
+以下是向 `params` 映射提供错误的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+assign(socket, form: to_form(params, errors: [name: {"必须少于 20 个字符", []}]))
+```
+
+## LiveView 测试
+
+### 在测试中挂载 LiveView
+
+[LiveView 测试](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#content)
+
+我们可以使用 [live/2](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#live/2) 宏在测试中挂载 LiveView。这将挂载 LiveView 进程并返回一个元组，其中包含用于测试的 `html` 和 LiveView 进程（`view`）。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:ok, _view, html} = live(conn, "/hello")
+```
+
+渲染的 html 用于断言。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+assert html =~ "你好，世界！"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试 LiveView
+
+与所有测试一样，测试模块通常在 Phoenix 应用程序的 `tests` 文件夹中的相应文件中定义。例如，位于 `lib/app_web/live/example_live.ex` 的模块将在 `test/app_web/live/example_live.ex` 中进行测试。
+
+Phoenix 提供了 [LiveViewTest](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html) 模块用于测试 LiveViews。广义上讲，这些函数选择元素、触发事件并返回 HTML 响应以进行断言。
+
+以下是一些常用函数：
+
+* [element/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#element/3) 选择一个元素。
+* [form/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#form/3) 选择一个表单元素。
+* [render/1](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render/1) 渲染一个元素或整个视图的 HTML。
+* [render_click/2](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render_click/2) 返回点击元素后 LiveView 的 HTML 响应。
+* [render_submit/2](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render_submit/2) 提交表单并返回提交后 LiveView 的 HTML 响应。
+
+我们可以使用这些函数模拟用户与 LiveView 的交互。
+
+以下是对点击事件和表单提交的示例测试。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule LiveViewCounterWeb.CounterLiveTest do
+  use LiveViewCounterWeb.ConnCase, async: true
+  import Phoenix.LiveViewTest
+
+  test "增加计数", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/")
+    assert html =~ "计数：0"
+
+    assert view
+           |> element("#increment-button", "增加")
+           |> render_click() =~ "计数：1"
+  end
+
+  test "通过表单值增加计数", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/")
+    assert html =~ "计数：0"
+
+    assert view
+           |> form("#increment-form")
+           |> render_submit(%{increment_by: "3"}) =~ "计数：3"
+  end
+end
+```
+
+`#increment-form` 和 `#increment` 将是 LiveView 渲染的 HTML 元素提供的 `id` 属性。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def render(assigns) do
+  ~H"""
+  <h1>计数器</h1>
+  <p>计数：<%= @count %></p>
+  <.button id="increment-button" phx-click="increment">增加</.button>
+  <.simple_form id="increment-form" for={@form} phx-change="change" phx-submit="increment_by">
+    <.input type="number" field={@form[:increment_by]} label="增加计数"/>
+    <:actions>
+      <.button>增加</.button>
+    </:actions>
+  </.simple_form>
+  """
+end
+```
+
+请参见 [HexDocs: Phoenix.LiveViewTesting](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#content) 以获取更多信息。
+
+## Phoenix.LiveView.JS
+
+[Phoenix.LiveView.JS](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html) 提供了执行常见 JavaScript 命令的函数。
+
+以下是使用 [JS.toggle/1](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html#toggle/1) 隐藏和显示页面上某个元素的示例。
+
+```html
+<button phx-click={JS.toggle(to: "#toggleable-element")}>隐藏/显示</button>
+<p id="toggleable-element">这将隐藏和显示</p>
+```
+
+虽然这主要超出了本课程的范围，但 JavaScript 是我们在 Web 开发中使用的另一种编程语言，我们有时依赖于它作为 Elixir/Phoenix 开发者。LiveView 在很大程度上取代了与 JavaScript 的工作需求，但可能总会有我们需要依赖它的时刻。
+
+请参见 [MDN: JavaScript 指南](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide) 以了解更多关于 JavaScript 的信息。
+
+## 深入阅读
+
+考虑以下资源以加深您对该主题的理解。
+
+* [HexDocs: LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html)
+* [Elixir 学校: LiveView](https://elixirschool.com/blog/phoenix-live-view/)
+* [HexDocs: Phoenix.HTML](https://hexdocs.pm/phoenix_html/Phoenix.HTML.html)
+* [PragProg: 编程 Phoenix LiveView](https://pragprog.com/titles/liveview/programming-phoenix-liveview/)
+
+## 提交您的进度
+
+DockYard Academy 现在建议您使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的存储库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交您的进度。
+
+```
+$ git add .
+$ git commit -m "完成 LiveView 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习。
+
+我们还提供付费课程，您可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=LiveView">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/capstone_mock.livemd">顶点项目：模拟</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/liveview_follow_along_counter.livemd">跟随：LiveView 计数器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

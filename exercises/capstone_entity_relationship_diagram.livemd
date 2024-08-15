@@ -1,0 +1,120 @@
+# 毕业设计项目：实体关系图
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Capstone Project: Entity-Relationship Diagram">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/capstone_github_project.livemd">毕业设计 GitHub 项目</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/capstone_mock.livemd">毕业设计项目：模拟</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 毕业设计项目：实体关系图
+
+在你的毕业设计项目的 `README.md` 中，使用 mermaid 创建一个实体关系图。
+
+以下是一个描述博客项目中数据和关联的实体关系图示例。
+
+```mermaid
+erDiagram
+User {
+  string username
+  string email
+  string password
+  string hashed_password
+  naive_datetime confirmed_at
+}
+
+Post {
+    string title
+    text content
+    date published_on
+    boolean visibility
+}
+
+CoverImage {
+    text url
+    id post_id
+}
+
+Comment {
+  text content
+  id post_id
+}
+
+Tag {
+    string name
+}
+
+User |O--O{ Post: ""
+Post }O--O{ Tag: ""
+Post ||--O{ Comment: ""
+Post ||--|| CoverImage: ""
+```
+
+请参见 https://mermaid.js.org/syntax/entityRelationshipDiagram.html 以获取语法。
+
+### 要求
+
+* 记录实体及其字段。
+* 记录关联（多对一，多对多，一对一）。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成毕业设计项目：实体关系图练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Capstone Project: Entity-Relationship Diagram">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/capstone_github_project.livemd">毕业设计 GitHub 项目</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/capstone_mock.livemd">毕业设计项目：模拟</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

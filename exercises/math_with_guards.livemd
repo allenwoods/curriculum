@@ -1,0 +1,168 @@
+# 带守卫的数学
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Math With Guards">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/user_validation.livemd">用户验证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/protocols.livemd">协议</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 带守卫的数学
+
+你将创建一个 `Math` 模块，使用 **守卫** 来对 **整数**、**字符串** 和 **列表** 进行加法或减法，使用相同的 `add/2` 和 `subtract/2` 函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+2 = Math.add(1, 1)
+[1, 2, 3, 4] = Math.add([1, 2], [3, 4])
+"hello there" = Math.add("hello there")
+
+1 = Math.subtract(2, 1)
+[2, 3] = Math.subtract([3, 2, 3], [3])
+"ab" = Math.subtract("babc", "bc")
+```
+
+如果提供了无效值，则引发 [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html) 错误。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Math.add(2, "2")
+** (FunctionClauseError) no function clause matching in Math.add/2
+```
+
+<details style="background-color: burlywood; padding: 1rem; margin: 1rem 0;">
+<summary>提示：减去字符串</summary>
+
+考虑将字符串转换为列表，然后将两个列表相减，再将结果连接回字符串。
+
+</details>
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule Math do
+  def add(integer1, integer2) when is_integer(integer1) and is_integer(integer2) do
+    integer1 + integer2
+  end
+
+  def add(list1, list2) when is_list(list1) and is_list(list2) do
+    list1 ++ list2
+  end
+
+  def add(string1, string2) when is_binary(string1) and is_binary(string2) do
+    string1 <> string2
+  end
+
+  def subtract(integer1, integer2) when is_integer(integer1) and is_integer(integer2) do
+    integer1 - integer2
+  end
+
+  def subtract(list1, list2) when is_list(list1) and is_list(list2) do
+    list1 -- list2
+  end
+
+  def subtract(string1, string2) when is_binary(string1) and is_binary(string2) do
+    String.split(string1, "")
+    |> subtract(String.split(string2, ""))
+    |> Enum.join()
+  end
+end
+```
+
+</details>
+
+按照下面的文档实现 `Math` 模块。
+
+```elixir
+defmodule Math do
+  @moduledoc """
+  iex> Math.add(1, 1)
+  2
+  iex> Math.add([1, 2], [3, 4])
+  [1, 2, 3, 4]
+  iex> Math.add("hello ", "there")
+  "hello there" 
+
+  iex> Math.subtract(2, 1)
+  1
+  iex> Math.subtract([3, 2, 3], [3])
+  [2, 3] 
+  iex> Math.subtract("babc", "bc")
+  "ab"
+
+  iex> Math.add(2, "2")
+  ** (FunctionClauseError) no function clause matching in Math.add/2
+  """
+
+  def add(value1, value2) do
+  end
+
+  def subtract(value1, value2) do
+  end
+end
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成带守卫的数学练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Math With Guards">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/user_validation.livemd">用户验证</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/protocols.livemd">协议</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

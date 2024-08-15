@@ -1,0 +1,156 @@
+# 监督栈
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervised Stack">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/supervisor_drills.livemd">监督者练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_supervised_score_tracker.livemd">游戏：监督分数追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 监督栈
+
+你将创建一个栈项目，该项目在一个监督者下启动一个名为 [Stack](./stack_server.livemd) 的 GenServer 进程。
+
+```
+mix new stack
+```
+
+这是一个你可以使用的 Stack GenServer 示例。
+
+```elixir
+defmodule Stack do
+  use GenServer
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  @impl true
+  def init(state) do
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_call(:pop, _from, state) do
+    [head | tail] = state
+    {:reply, head, tail}
+  end
+
+  @impl true
+  def handle_call({:push, element}, _from, state) do
+    new_state = [element | state]
+    {:reply, new_state, new_state}
+  end
+end
+```
+
+我们能够从栈中推送和弹出元素。然而，存在一个错误。如果我们尝试从空栈中 `pop/1` 一个项目，进程将由于函数子句错误而崩溃，因为 `handle_call/2` 函数期望一个包含一个或多个元素的列表。
+
+取消注释以下代码以观察 `Stack` 崩溃。
+
+```elixir
+# {:ok, pid} = GenServer.start_link(Stack, [])
+# GenServer.call(stack_pid, :pop)
+```
+
+通常，我们可以通过使用控制流来处理这个问题。例如，我们可以为栈为空时创建另一个 `handle_call/3` 函数子句。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 当栈为空时返回 `nil`。
+@impl true
+def handle_call(:pop, _from, []) do
+  {:reply, nil, []}
+end
+```
+
+相反，你将启动 `Stack` 进程在你的应用程序下的监督者中，以便在崩溃时重新启动它。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+children = [
+  {Stack, []}
+]
+
+{:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+</details>
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 崩溃栈
+
+打开 [IEx](https://hexdocs.pm/iex/IEx.html) shell，并向 `Stack` 发送 `:pop` 消息以使其崩溃并重新启动。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+$ iex -S mix
+iex> GenServer.call(Stack, :pop)
+```
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成监督栈练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人以自己的节奏学习，免费使用。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Supervised Stack">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/supervisor_drills.livemd">监督者练习</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/games_supervised_score_tracker.livemd">游戏：监督分数追踪器</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

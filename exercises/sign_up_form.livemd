@@ -1,0 +1,173 @@
+# 注册表单
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:ecto, "~> 3.9.5"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Sign Up Form">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/ecto_changeset.livemd">Ecto Changesets</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/book_changeset.livemd">书籍更改集</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 用户更改集
+
+创建一个 `User` 无模式更改集以验证用户。
+
+用户结构应具有以下字段。
+
+* `username`（必填）一个 3-12 个字符的字符串。
+* `password`（必填）一个 12-50 个字符的字符串。
+* `age` 一个整数。
+* `birthdate` 一个日期。
+* `terms_and_conditions`（必填）一个必须为 `true` 的布尔值。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+defmodule User do
+  defstruct [:username, :password, :age, :birthdate, :terms_and_conditions]
+
+  @types %{
+    username: :string,
+    password: :string,
+    age: :integer,
+    birthdate: :date,
+    terms_and_conditions: :boolean
+  }
+
+  def changeset(%__MODULE__{} = user, params) do
+    {user, @types}
+    |> Ecto.Changeset.cast(params, Map.keys(@types))
+    |> Ecto.Changeset.validate_required([:username, :password])
+    |> Ecto.Changeset.validate_length(:username, min: 3, max: 12)
+    |> Ecto.Changeset.validate_length(:password, min: 12, max: 50)
+    |> Ecto.Changeset.validate_acceptance(:terms_and_conditions)
+  end
+
+  def new(params) do
+    %__MODULE__{}
+    |> changeset(params)
+    |> Ecto.Changeset.apply_action(:update)
+  end
+end
+```
+
+</details>
+
+```elixir
+defmodule User do
+  @moduledoc """
+  Documentation for `User`
+
+  Defines a schemaless changeset and `User` struct.
+
+  ## Examples
+
+      iex> %User{}
+      %User{username: nil, password: nil, age: nil, birthdate: nil, terms_and_conditions: nil}
+  """
+  defstruct []
+
+  @types %{}
+
+  @doc """
+  Create a User changeset.
+
+  ## Examples
+
+      iex> User.changeset(%User{}, %{username: "user1", password: "securepassword1", age: 20, terms_and_conditions: true})
+      #Ecto.Changeset<action: nil, changes: %{age: 20, password: "securepassword1", terms_and_conditions: true, username: "user1"}, errors: [], data: #User<>, valid?: true>
+  """
+  def changeset(%__MODULE__{} = user, params) do
+  end
+
+  @doc """
+  Validate and create a User struct.
+
+  ## Examples
+
+      iex> User.new(%{username: "user1", password: "securepassword1", age: 20, terms_and_conditions: true})
+      {:ok, %User{username: "user1", password: "securepassword1", age: 20, terms_and_conditions: true}}
+
+      Terms and conditions must be signed.
+
+      User.new(%{username: "user1", password: "securepassword1", age: 20, terms_and_conditions: false})
+      {:error, _changeset}
+  """
+  def new(params) do
+  end
+end
+```
+
+## 注册表单
+
+你将创建一个 `SignUp` 应用程序，通过注册表单验证用户数据。
+创建一个注册表单，包含适当的表单字段以供 `User` 更改集使用。
+
+```
+$ mix phx.new sign_up
+```
+
+使用 `User` 更改集为每个表单输入 `:username`、`:password`、`:age`、`:birthdate` 和 `:terms_and_conditions` 提供错误反馈。
+
+## 提交你的进展
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进展。
+
+```
+$ git add .
+$ git commit -m "完成注册表单练习"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费学习，按照自己的节奏进行。
+
+我们还提供一个付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Sign Up Form">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/ecto_changeset.livemd">Ecto Changesets</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/book_changeset.livemd">书籍更改集</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

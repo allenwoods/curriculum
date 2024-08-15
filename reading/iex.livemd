@@ -1,0 +1,380 @@
+# IEx
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=IEx">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/code_editors.livemd">代码编辑器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/command_line_family_tree.livemd">命令行家族树</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## IEx
+
+[IEx](https://hexdocs.pm/iex/IEx.html) 是 Elixir 的交互式 shell。如果你在你的计算机上 [安装 Elixir](https://elixir-lang.org/install.html)，你可以在命令行中运行 `iex` 来启动交互式 shell。它会打印关于你的 [IEx](https://hexdocs.pm/iex/IEx.html) 环境的信息，例如你安装的 Elixir 和 Erlang/OTP 版本。
+
+```
+$ iex
+Erlang/OTP 24 [erts-12.3] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [jit]
+
+Interactive Elixir (1.13.3) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)>
+```
+
+我们可以在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中评估 Elixir 代码。[IEx](https://hexdocs.pm/iex/IEx.html) 通常用于小实验、运行 Elixir 脚本，甚至作为构建/运行 Elixir 应用程序的游乐场环境。
+
+### 你的回合
+
+在 `iex` shell 中执行一些简单的算术运算，如下所示。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex > 4 + 4
+8
+```
+
+## IO
+
+我们可以使用 [IO](https://hexdocs.pm/elixir/IO.html) 模块来获取用户输入和显示输出。我们将在后面的课程中学习更多关于模块的内容。
+
+将任何值包装在 `IO.inspect()` 中以打印它。
+
+```elixir
+IO.inspect(2 + 2)
+```
+
+我们还可以使用 [IO.gets/2](https://hexdocs.pm/elixir/IO.html#gets/2) 从用户那里获取输入。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> input = IO.gets("给我一些输入: ")
+给我一些输入: sure!
+"sure!\n"
+iex> input
+"sure!\n"
+```
+
+请记住，这在运行 Elixir 项目或在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中时有效，但在 Livebook 中运行时会因 `:enotsup`（错误不支持）而失败。
+
+```elixir
+IO.gets("我会失败！")
+```
+
+这是因为在 Livebook 中没有命令行或其他设备来获取用户输入。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中从命令行运行 [IO.gets/2](https://hexdocs.pm/elixir/IO.html#gets/2)，并将返回值绑定到 `input` 变量。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> input = IO.gets("给我一些输入: ")
+```
+
+## 多行表达式
+
+你可以在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中将 Elixir 代码分成多行，只有在表达式完成时才会进行评估。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中写 `4 +`，然后按回车将表达式分成多行。然后通过写另一个整数，例如 `5` 来完成表达式。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex >
+  4 +
+    ... > 5
+
+9
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中创建一个模块 `Greeting`，然后调用 `hello/0` 函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> defmodule Greeting do
+iex>  def hello do
+iex>   "Hello, world!"
+iex>  end
+iex> end
+{:module, Greeting,
+ <<70, 79, 82, 49, 0, 0, 4, 204, 66, 69, 65, 77, 65, 116, 85, 56, 0, 0, 0, 140,
+   0, 0, 0, 14, 15, 69, 108, 105, 120, 105, 114, 46, 71, 114, 101, 101, 116,
+   105, 110, 103, 8, 95, 95, 105, 110, 102, 111, ...>>, {:hello, 0}}
+iex> Greeting.hello()
+"Hello, world!"
+```
+
+我们将在未来的课程中学习更多关于模块的内容。
+
+## 关闭 IEx Shell
+
+一旦我们启动了 [IEx](https://hexdocs.pm/iex/IEx.html) shell，你可以通过按 <kbd>CTRL</kbd>+<kbd>\\</kbd> 来关闭它。
+
+### 你的回合
+
+首先，在你当前的 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中定义一个变量。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> hello = "world"
+```
+
+关闭当前的 [IEx](https://hexdocs.pm/iex/IEx.html) shell，然后使用 `iex` 命令重新打开它。
+注意，之前在上一个 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中定义的变量不存在。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex(1)> hello
+** (CompileError) iex:1: undefined function hello/0 (there is no such import)
+```
+
+## 自动补全
+
+就像在 livebook 中一样，你可以通过按 <kbd>Tab</kbd> 来自动补全 Elixir 表达式。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> Enum.a
+all?/1    all?/2    any?/1    any?/2    at/2      at/3
+```
+
+## IEx 辅助工具
+
+内置的 [IEx.Helpers](https://hexdocs.pm/iex/IEx.Helpers.html) 模块提供了帮助工具，使得在 IEx shell 中工作更容易。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 帮助 (h)
+
+`h` 辅助工具打印任何代码的文档。
+
+例如，在你的 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中执行以下命令以查看 [Enum](https://hexdocs.pm/elixir/Enum.html) 文档。
+
+```
+iex> h Enum
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 信息 (i)
+
+`i` 辅助工具提供关于任何 Elixir 术语（数据类型）的信息。
+
+例如，在你的 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中执行以下命令以查看有关 [Integer](https://hexdocs.pm/elixir/Integer.html) 数据类型的更多信息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> i 2
+Term
+  2
+Data type
+  Integer
+Reference modules
+  Integer
+Implemented protocols
+  IEx.Info, Inspect, List.Chars, String.Chars
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 编译 (c)
+
+[c](https://hexdocs.pm/iex/IEx.Helpers.html#c/2) 辅助工具可以将 Elixir 文件加载到你的 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中。
+
+例如，使用命令行创建一个 `hello.exs` 文件。使用你的代码编辑器将以下内容添加到文件中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Greeting do
+  def hello do
+    "Hello, world!"
+  end
+end
+
+IO.puts("执行 hello.exs")
+```
+
+然后启动一个 [IEx](https://hexdocs.pm/iex/IEx.html) 会话并加载该文件。
+注意 `IO.puts("执行 hello.exs")` 会立即运行。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> c "hello.exs"
+执行 hello.exs
+[Greeting]
+```
+
+`Greeting` 模块现在在当前的 [IEx](https://hexdocs.pm/iex/IEx.html) 会话中可用。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> Greeting.hello()
+"Hello, world!"
+```
+
+`iex` 命令还接受文件名作为参数，以将文件加载到 IEx shell 中。
+
+```
+$ iex hello.exs
+iex> Greeting.hello()
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 重新编译 (r)
+
+[r](https://hexdocs.pm/iex/IEx.Helpers.html#r/1) 辅助工具在当前 IEx shell 中重新编译模块。
+
+例如，将 `hello.exs` 中的 `Greeting` 模块更改为返回不同的值。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Greeting do
+  def hello do
+    "Hello!" # 更改值
+  end
+end
+
+IO.puts("执行 hello.exs")
+```
+
+现在，重新编译模块并执行 `hello/0` 函数。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex> r Greeting
+iex> Greeting.hello()
+"Hello!"
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 值 (v)
+
+[v](https://hexdocs.pm/iex/IEx.Helpers.html#v/1) 辅助工具返回给定行的值。
+
+我们在之前的示例中省略了 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中的行号，但你会注意到每一行都有一个对应的编号。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex(1)> 1 + 1
+2
+```
+
+要使用先前表达式的返回值，请使用 `v/1` 和所需的行号。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex(2)> v(1) + 2
+4
+```
+
+或者，我们可以将先前的返回值通过管道 `(|>)` 传递到当前表达式中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+iex(1)> %{}
+iex(2)> |> Map.put(:key, "value")
+%{key: "value"}
+```
+
+### `clear`
+
+如果 IEx shell 变得混乱，我们可以使用 [clear](https://hexdocs.pm/iex/IEx.Helpers.html#clear/0) 辅助工具来清除控制台屏幕。
+
+```
+iex> clear
+```
+
+## 进一步阅读
+
+IEx 通常对实验 Elixir 代码和探索现有项目或脚本非常有帮助。欲了解更多，请考虑阅读以下内容：
+
+* [HexDocs: IEx.Helpers](https://hexdocs.pm/iex/IEx.Helpers.html#functions) 包含完整的辅助函数列表及其用法，超出上述内容。
+* [Elixir Schools: IEx.Helpers](https://elixirschool.com/en/lessons/basics/iex_helpers) 是关于 `IEx.Helpers` 的 Elixir 学校课程。
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 IEx 阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=IEx">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/code_editors.livemd">代码编辑器</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/command_line_family_tree.livemd">命令行家族树</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

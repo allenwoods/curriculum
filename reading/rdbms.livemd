@@ -1,0 +1,540 @@
+# 关系数据库管理系统
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"},
+  {:kino_db, "~> 0.2.1"},
+  {:postgrex, "~> 0.16.5"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Relational Database Management Systems">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pokemon_api.livemd">Pokemon API</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/sql_drills.livemd">SQL 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 为什么使用数据库而不是文件系统进行长期持久化？
+* 三种关系数据库关联是什么？
+
+## 关系数据库管理系统
+
+数据库在程序中存储长期信息。数据库有很多种类，但在 Elixir 中，我们将重点关注使用 PostgreSQL 的关系数据库管理系统（RDBMS）。
+
+这是 Linux Academy 的一篇很好的入门文章。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Tk1t3WKK-ZY\")","title":"PostgreSQL"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=Tk1t3WKK-ZY")
+```
+
+关系数据库将数据存储在相互关联的表中。你可以将这些表概念上视为 Excel 电子表格中的行和列。表中的每个项目称为 **记录**。
+
+为了演示如何使用关系数据库，我们将构建一个日记数据库，许多用户将创建私人日记条目。
+
+我们的日记数据库将有一个用户表，存储用户的姓名、电子邮件和唯一标识符（id）。
+
+<!-- livebook:{"break_markdown":true} -->
+
+| id  | name  | email            |
+| --- | ----- | ---------------- |
+| 1   | Peter | peter@spider.web |
+| 2   | Miles | miles@spider.web |
+
+<!-- livebook:{"break_markdown":true} -->
+
+我们的日记数据库还将有一个条目表。条目表存储条目的标题、内容和唯一标识符。每个条目还包含对用户表中记录的引用。此引用是指向拥有该日记的用户的外键 id（用户 id）。
+
+<!-- livebook:{"break_markdown":true} -->
+
+| id  | user_id | title             | content                                         |
+| --- | ------- | ----------------- | ----------------------------------------------- |
+| 3   | 1       | Rhino Encounter   | 今天，我与犀牛搏斗。                          |
+| 4   | 2       | Multiverse Theory | 蜘蛛宇宙是多元宇宙的一个子集吗？ |
+
+## PostgreSQL 入门
+
+PostgreSQL 是一种关系数据库管理系统，通常与 Elixir 一起使用。确保你 [下载并安装 PostgreSQL](https://www.postgresql.org/)。
+
+安装 PostgreSQL 应该会创建一个名为 `postgres` 的用户，密码为 `postgres`。我们建议保持此默认设置，以确保与本课的一致性。
+
+你可以使用以下命令在 Mac 或 Linux 上检查 PostgreSQL 是否已安装并正在运行：
+
+```
+$ pgrep -u postgres -fa -- -D
+```
+
+如果 PostgreSQL 在你的计算机上运行，你应该会看到类似以下的输出：
+
+```
+1254 /usr/lib/postgresql/12/bin/postgres -D /var/lib/postgresql/12/main -c config_file=/etc/postgresql/12/main/postgresql.conf
+```
+
+如果你没有看到任何输出，请查看下面的调试部分。
+
+在 PostgreSQL 运行的情况下，我们可以启动 PostgreSQL 命令行工具。
+
+首先，使用以下命令切换到 `postgres` 用户。
+
+```
+$ sudo -i -u postgres
+```
+
+然后打开 PostgreSQL 命令行工具。你应该会看到一个新的 postgres 提示符。从这里，我们可以与我们的 PostgreSQL 数据库进行交互。
+
+```
+$ psql
+postgres-#
+```
+
+如果你没有为 `postgres` 用户设置默认密码，可以使用 `\password` 命令进行设置。
+
+```
+postgres=# \password postgres
+```
+
+使用 `\q` 关闭提示符。
+
+```
+postgres-# \q
+```
+
+## 调试
+
+不幸的是，在设置 PostgreSQL 时常常会遇到问题。每个学生的环境不同，因此很难预见你可能遇到的问题。
+
+如果你遇到困难，请与同学交谈，向你的讲师请教，或在 Dockyard Academy 仓库上 [提出问题](https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=)。你也可以尝试通过研究错误消息并在线查找建议来调试问题。
+
+我们建议在运行互联网上找到的命令时要小心，因为它们可能会导致进一步的问题。我们还建议你记录下你尝试过的所有内容。这本日记可以帮助你和其他人识别问题，并可能在你将来遇到同样的问题时提供帮助。
+
+通常，"关掉再开" 是有帮助的。在这种情况下，卸载并重新安装 PostgreSQL。
+
+在这里，我们提供了一些常见问题的调试说明。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### PostgreSQL 未启动
+
+在 Linux（Ubuntu）上，你可以使用以下命令启动 postgresql 进程。
+
+```
+$ sudo service postgresql start
+```
+
+在 macOS 上，你可以使用以下命令启动 postgresql 进程。
+
+```
+$ postgres -D /usr/local/var/postgres
+```
+
+然后再次测试 PostgreSQL 是否在你的计算机上运行。
+
+```
+$ pgrep -u postgres -fa -- -D
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 角色不存在
+
+PostgreSQL 使用不同的角色来管理与 PostgreSQL 数据库通信时的权限。确保你使用正确的 `postgres` 角色，使用以下命令。
+
+```
+$ sudo -i -u postgres
+```
+
+然后确保你可以启动 PostgreSQL 命令行工具。
+
+```
+$ psql
+postgres-#
+```
+
+## Postgres 命令行工具 (psql)
+
+我们可以使用 `psql` 命令行工具手动与我们的数据库进行交互。
+
+为了简单起见，我们将切换到 postgres 用户，以避免任何身份验证问题。在本课之后，你可以通过在终端中运行 `exit` 来切换回你的普通用户（在退出 PostgreSQL 提示符后）。
+
+```
+$ sudo -i -u postgres
+```
+
+使用 `createdb` 命令创建一个数据库。我们将把数据库命名为 `example`。
+
+```
+$ createdb example
+```
+
+运行 `psql` 命令以打开 PostgreSQL 提示符。
+
+```
+$ psql
+postgres-#
+```
+
+我们可以使用 `\l` 命令查看我们的数据库。
+
+```
+postgres-# \l
+```
+
+你应该会看到一个包含你的 PostgreSQL 数据库的表。
+
+```sql
+                                     List of databases
+          Name           |  Owner   | Encoding | Collate |  Ctype  |   Access privileges
+-------------------------+----------+----------+---------+---------+-----------------------
+ example                 | postgres | UTF8     | C.UTF-8 | C.UTF-8 |
+```
+
+我们可以使用 `\c` 命令连接到 `example` 数据库。
+
+```
+postgres-# \c example
+You are now connected to database "example" as user "postgres".
+```
+
+## SQL
+
+现在我们已连接到数据库。我们可以使用结构化查询语言（SQL）来读取和写入数据库中的数据。
+
+关于 SQL 语法的入门，这里有 Danielle Thé 的一段很好的视频。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=27axs9dO7AE\")","title":"SQL"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=27axs9dO7AE")
+```
+
+[SQL 备忘单](https://www.sqltutorial.org/sql-cheat-sheet/) 也提供了 SQL 语法的概述。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 创建表
+
+我们将使用 SQL 在我们的示例数据库中创建一个用户表。我们可以使用 `CREATE TABLE` 查询创建一个表，并定义表如何存储记录。
+
+将以下内容复制并粘贴到 `psql` 提示符中。
+
+```sql
+CREATE TABLE users (
+   ID    INT              NOT NULL,
+   NAME  VARCHAR (255)    NOT NULL,
+   EMAIL VARCHAR (255)    NOT NULL,
+   PRIMARY KEY (ID)
+);
+```
+
+`INT` 和 `VARCHAR` 都是 SQL 数据类型。以下是 PostgreSQL 支持的 [SQL 数据类型](https://www.postgresql.org/docs/current/datatype.html) 的完整列表。`INT` 在概念上与 Elixir 中的整数相同，而 `VARCHAR` 在概念上与 Elixir 中的字符串相似。
+
+`NOT NULL` 指定表中的字段必须存在。
+
+`PRIMARY KEY` 将 `ID` 字段定义为每个用户的唯一标识符。因此，每个主键必须是唯一的。
+
+你可以使用 `\dt` 命令列出数据库中的当前表。
+
+```
+example=# \dt
+
+         List of relations
+ Schema | Name  | Type  |  Owner
+--------+-------+-------+----------
+ public | users | table | postgres
+```
+
+现在，我们将创建条目表，该表将存储属于用户的日记条目。条目表将有一个外键，引用用户表，因为每个条目属于一个用户。
+
+条目内容可以是任意大小，因此我们使用 `TEXT` SQL 类型来表示无限长度的字符串。
+
+将以下内容复制并粘贴到 psql 提示符中。
+
+```sql
+CREATE TABLE entries (
+    ID INT NOT NULL,
+    TITLE VARCHAR(255) NOT NULL,
+    CONTENT TEXT NOT NULL,
+    USERID INT,
+    PRIMARY KEY (ID),
+    FOREIGN KEY (USERID) REFERENCES users(ID)
+);
+```
+
+我们应该能够使用 `/dt` 命令查看这两个表。
+
+```sql
+example=# \dt
+          List of relations
+ Schema |  Name   | Type  |  Owner
+--------+---------+-------+----------
+ public | entries | table | postgres
+ public | users   | table | postgres
+(2 rows)
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 插入数据
+
+现在我们已经创建了这两个表，让我们插入一些数据。首先，我们将使用 `INSERT INTO` 查询在用户表中创建一个用户。
+
+```sql
+INSERT INTO users (ID,NAME,EMAIL) VALUES (1, 'Peter', 'peter@spider.web');
+```
+
+我们还将为该用户创建一个条目。
+
+```sql
+INSERT INTO entries (ID,TITLE,CONTENT,USERID) VALUES (1, 'Rhino Encounter', '今天，我遇到了犀牛。', 1);
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 查询
+
+我们可以使用 `SELECT` 查询读取表中的记录。
+
+```sql
+SELECT * FROM users;
+```
+
+上面的查询应该显示以下内容。
+
+```sql
+ id | name  |      email
+----+-------+------------------
+  1 | Peter | peter@spider.web
+```
+
+我们还可以查看在条目表中创建的数据。
+
+```sql
+SELECT * FROM entries;
+```
+
+上面的查询应该显示以下内容。
+
+```sql
+id |      title      |          content           | userid
+----+-----------------+----------------------------+--------
+  1 | Rhino Encounter | 今天，我遇到了犀牛。       |      1
+```
+
+`*` 是一个通配符，表示我们想显示记录中的每个字段。或者，我们可以指定要显示的字段。例如，以下是如何仅检索每个条目的标题和内容。
+
+```sql
+SELECT TITLE,CONTENT from entries
+```
+
+上面的查询应该显示以下内容。
+
+```sql
+      title      |          content
+-----------------+----------------------------
+ Rhino Encounter | 今天，我遇到了犀牛。
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 条件查询
+
+我们可以使用 `WHERE` 查询过滤我们的 `SELECT` 结果。例如，
+
+```sql
+SELECT * FROM users u WHERE u.id = 1
+```
+
+`WHERE` 前的 `u` 在概念上类似于绑定到表中每个用户的变量。然后我们可以使用 [SQL 比较运算符](https://www.sqltutorial.org/sql-comparison-operators/) 例如 `=`（等于）来过滤从表中返回的数据。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+Livebook 提供了 [智能单元](https://www.youtube.com/watch?v=4hVIxyHxwK8&ab_channel=ElixirConf)，可以连接到我们的 PostgreSQL 数据库。例如，以下智能单元应该能够成功连接到你的 `example` 数据库，如果你使用了默认的 `postgres` 用户。
+
+<!-- livebook:{"attrs":{"database":"example","hostname":"localhost","password":"postgres","port":5432,"type":"postgres","username":"postgres","variable":"conn"},"chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
+
+```elixir
+opts = [
+  hostname: "localhost",
+  port: 5432,
+  username: "postgres",
+  password: "postgres",
+  database: "example"
+]
+
+{:ok, conn} = Kino.start_child({Postgrex, opts})
+```
+
+一旦连接，这些智能单元可以对我们的数据库进行 SQL 查询。这里你应该能看到你的用户表。
+
+<!-- livebook:{"attrs":{"connection":{"type":"postgres","variable":"conn"},"query":"select * from users","result_variable":"result2","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+
+```elixir
+result2 = Postgrex.query!(conn, "select * from users", [])
+```
+
+### 你的回合
+
+<!-- livebook:{"break_markdown":true} -->
+
+使用以下 SQL 智能单元在用户表中创建一个新用户。重新评估上面的智能单元以查看表中的新用户。
+
+<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"query":"","result_variable":"result3","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+
+```elixir
+result3 = Postgrex.query!(conn, "", [])
+```
+
+使用以下 SQL 智能单元在条目表中创建一个新条目，该条目具有指向你之前创建的同一用户的外键。
+
+<!-- livebook:{"attrs":{"connection":{"type":"postgres","variable":"conn"},"query":"","result_variable":"result4","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+
+```elixir
+result4 = Postgrex.query!(conn, "", [])
+```
+
+## 关系
+
+表可以通过关系与其他表相关联。
+
+有三种主要关系（有时称为关联）。
+
+* 一对一
+* 一对多
+* 多对多
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 一对一
+
+一对一关系意味着一个表中的每条记录与另一个表中的一条记录相关联。例如，我们可能选择在我们的日记应用程序中添加个人资料图片。每个用户只能有一张个人资料图片。
+
+我们通过说用户 **有一个** 个人资料图片来描述关系的性质，而个人资料图片 **属于** 用户。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+graph TD;
+  a[User]
+  b[Profile Picture]
+  a --has one--> b
+  b --belongs to--> a
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+在底层，每个个人资料图片将存储一个用户的外键。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 一对多
+
+一对多关系意味着一个表中的每条记录与另一个表中的多条记录相关联。例如，我们的日记应用程序的用户将有许多日记条目。
+
+我们通过说用户 **有许多** 条目来描述一对多关系的性质，而条目 **属于** 用户。
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- Learn more at https://mermaid-js.github.io/mermaid -->
+
+```mermaid
+graph TD;
+  a[User]
+  b[Entry]
+  c[Entry]
+  d[Entry]
+  a --has many--> b
+  a --has many--> c
+  a --has many--> d
+  b --belongs to--> a
+  c --belongs to--> a
+  d --belongs to--> a
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+每个条目将存储一个用户的外键。此外，我们可能会为每个条目 id 创建一个索引，以加快查询速度。
+
+有关索引的更多信息，请考虑阅读 [PostgreSQL 中的索引使用](https://www.postgresql.org/docs/current/indexes-intro.html)。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 多对多
+
+多对多关系意味着数据库中的许多记录与许多其他记录相关联。例如，如果我们为日记应用程序添加社交网络功能，则每个用户可能有许多朋友，而这些朋友也可能有许多朋友。
+
+在这种情况下，用户之间将存在 **多对多** 关系。
+
+## 深入阅读
+
+PostgreSQL、SQL 和关系数据库管理系统是深奥的话题。
+
+将来，你将使用 [Ecto](https://hexdocs.pm/ecto/Ecto.html) 作为数据库的封装，而不是直接使用 SQL 与 PostgreSQL 交互。本课是为你准备使用 Ecto 并理解底层发生的事情的入门。
+
+考虑以下资源以加深你对该主题的理解。
+
+* [SQL 教程组织](https://www.sqltutorial.org/)
+* [PostgreSQL 教程](https://www.postgresqltutorial.com/)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [发布版本](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。然后在 `curriculum` 文件夹中运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成关系数据库管理系统阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Relational Database Management Systems">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/pokemon_api.livemd">Pokemon API</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/sql_drills.livemd">SQL 练习</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,578 @@
+<!-- livebook:{"file_entries":[{"name":"Route%20specificity%20error.png","type":"attachment"}]} -->
+
+# Phoenix 认证
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Authentication">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_comments.livemd">博客：评论</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_authentication.livemd">博客：认证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 我们如何在 Phoenix 中搭建一个授权系统？
+* 我们如何保护一个路由以防止未授权访问？
+
+## 概述
+
+这是 [博客：认证](../exercises/blog_authentication.livemd) 练习的配套阅读。本课概述了如何在 Phoenix 应用程序中添加认证和授权。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 认证
+
+认证是验证用户或系统身份的过程。它通常涉及提供凭据，例如用户名和密码或数字证书，并将其与可信来源进行验证。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 授权
+
+授权是确定用户或系统是否被允许执行特定操作或访问特定资源的过程。它涉及验证请求者的身份和权限，并将其与系统的访问控制策略进行比较。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 基于所有权的授权
+
+某些资源应仅由拥有它们的用户或组进行管理。例如，在博客应用程序中，用户可能只能编辑和删除自己的博客文章。
+
+通常，我们通过将资源与用户关联来证明所有权。例如，用户在 **一对多** 关系中 **拥有多个** 博客文章。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 基于角色的授权
+
+某些操作可以根据用户角色进行允许。例如，**管理员** 用户通常可以执行所有需要授权的操作。
+
+如果你熟悉 Discord 应用程序，那么你可能非常熟悉他们用于管理特定语音和文本频道权限的基于角色的授权系统。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 密码哈希
+
+密码在数据库中被加密，以确保即使发生数据库泄露，密码也会被加密。
+
+默认情况下，Phoenix 认证系统使用 [bcrypt_elixir](https://hex.pm/packages/bcrypt_elixir) 来哈希密码。
+
+Computerphile 有一段关于哈希算法和安全性的精彩概述视频。
+
+<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=b4b8ktEV4Bg&ab_channel=Computerphile\")","title":"Hashing Algorithms and Security - Computerphile"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+
+```elixir
+YouTube.new("https://www.youtube.com/watch?v=b4b8ktEV4Bg&ab_channel=Computerphile")
+```
+
+### 用户令牌
+
+Phoenix 认证系统使用用户令牌来识别用户。这避免了在客户端存储机密用户信息，因为这并不安全。
+
+客户端在每次请求时发送令牌，服务器可以使用此令牌来识别并从数据库中检索用户。出于安全原因，令牌通常在一段时间后过期。
+
+## 生成器
+
+Phoenix 提供以下 [mix phx.gen.auth](https://hexdocs.pm/phoenix/mix_phx_gen_auth.html) 命令来生成我们系统中所需的所有认证脚手架。
+
+```
+mix phx.gen.auth Accounts User users
+```
+
+可以使用控制器或 LiveView 生成认证系统。现在，我们在使用生成器时选择 **n** 以使用控制器。
+
+```
+可以以两种不同的方式创建认证系统：
+- 使用 Phoenix.LiveView（默认）
+- 仅使用 Phoenix.Controller
+您想创建基于 LiveView 的认证系统吗？ [Yn] n
+```
+
+生成器创建了大量文件，以下是一些你应该熟悉的文件：
+
+* app
+  * `accounts.ex`: 管理用户账户的上下文。
+  * `user.ex`: 用户模式。
+  * `user_token.ex`: 用户令牌模式。
+  * `user_notifier.ex`: 用于用户电子邮件的邮件模块，例如账户确认和重置密码。
+* app web
+  * `user_confirmation_controller.ex`: 确认用户账户的控制器操作。
+  * `user_registration_controller.ex`: 用户注册的控制器操作。
+  * `user_reset_password_controller.ex`: 重置用户密码的控制器操作。
+  * `user_session_controller.ex`: 用户登录和注销的控制器操作。
+  * `user_settings_controller.ex`: 管理用户设置的控制器操作。
+  * `user_auth.ex`: 用于管理应用程序网页端用户的实用函数。例如，`require_authenticated_user/2` 确保用户在访问某些资源之前已登录。
+* tests
+  * `accounts_fixtures.ex`: 在测试中创建用户的夹具。
+  * 在现有的 `conn_case.ex` 文件中的 `register_and_log_in_user/1` 和 `log_in_user/2` 函数。
+
+## 修改用户
+
+Phoenix 生成器仅生成认证系统的脚手架。我们仍然拥有应用程序的这一部分，并负责维护应用程序的安全性。
+
+我们还可以对用户进行更改，例如向用户表中添加字段。例如，我们可以编写一个迁移，向 `users` 表添加一个 `username` 字段或其他用户信息。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.AddUsernameToUsers do
+  use Ecto.Migration
+
+  def change do
+    alter table(:users) do
+      add :username, :string, null: false
+    end
+  end
+end
+```
+
+## 将资源与用户关联
+
+为了将资源与用户关联，它需要通过外键在数据库中引用用户。
+
+```mermaid
+erDiagram
+
+Post {
+  string title
+  text content
+  date published_on
+  boolean visibility
+  id user_id
+}
+
+User {
+  string username
+  string email
+  string password
+  string hashed_password
+  naive_datetime confirmed_at
+}
+
+User ||--O{ Post : "owns"
+```
+
+这是一个示例迁移，它将 `user_id` 添加到现有的 `posts` 表中。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Repo.Migrations.AddUserIdToPosts do
+  use Ecto.Migration
+
+  def change do
+    alter table(:posts) do
+      add :user_id, references(:users, on_delete: :delete_all), null: false
+    end
+  end
+end
+```
+
+模式应反映数据库中所做的任何更改。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule Blog.Posts.Post do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "posts" do
+    field :content, :string
+    field :title, :string
+    field :visible, :boolean, default: true
+    field :published_on, :utc_datetime
+    has_many :comments, Blog.Comments.Comment
+    belongs_to :user, Blog.Accounts.User
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(post, attrs) do
+    post
+    |> cast(attrs, [:title, :content, :visible, :published_on, :user_id])
+    |> validate_required([:title, :content, :visible, :user_id])
+    |> unique_constraint(:title)
+    |> foreign_key_constraint(:user_id)
+  end
+end
+
+```
+
+## 修复破损的测试
+
+通常，在数据库表中创建必需字段或关联会破坏任何创建这些记录的测试，而没有该字段或关联。
+
+要修复测试，在创建资源时必须提供所需的字段或关联。
+
+这是一个创建与用户关联的帖子的测试示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "delete_post/1 deletes the post" do
+  user = user_fixture()
+  post = post_fixture(user_id: user.id)
+  assert {:ok, %Post{}} = Posts.delete_post(post)
+  assert_raise Ecto.NoResultsError, fn -> Posts.get_post!(post.id) end
+end
+```
+
+在对模式/迁移进行重大更改时，建议在 git 中没有其他更改时进行更改。通常最好在继续其他功能之前修复所有测试，以避免潜在的错误和不必要的复杂性。
+
+## 保护控制器操作
+
+生成的 `UserAuth` 模块包含两个用于保护路由的有用插头。`require_authenticated_user/2` 插头确保用户必须登录才能访问该路由，而 `redirect_if_user_is_authenticated/2` 插头则相反。
+
+我们可以在想要保护某些路由时使用这些插头。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 要求已认证用户
+
+这是保护仅应由已认证用户执行的帖子控制器操作的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+scope "/", BlogWeb do
+  pipe_through [:browser, :require_authenticated_user]
+
+  resources "/posts", PostController, only: [:new, :edit, :update, :create, :delete]
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 要求用户拥有资源
+
+有时我们希望根据用户是否拥有特定资源来保护路由。例如，我们可能只希望让用户编辑自己的帖子。
+
+有多种方法可以要求用户拥有资源。以下是一些选项：
+
+* 单独保护特定控制器操作（处理一个操作的认证）。
+* 全面保护多个控制器操作（处理整个控制器的认证）。
+* 创建自定义插头并在路由器中使用（处理多个控制器的认证）。
+
+这是在控制器中创建插头函数的示例，可以选择性地应用于多个路由。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 通常放在控制器操作上方，导入/别名下方
+plug :require_user_owns_post when action in [:edit, :update, :delete]
+
+# 通常放在文件底部
+defp require_user_owns_post(conn, _params) do
+  post_id = String.to_integer(conn.path_params["id"])
+  post = Posts.get_post!(post_id)
+
+  if conn.assigns[:current_user].id == post.user_id do
+    conn
+  else
+    conn
+    |> put_flash(:error, "您只能编辑或删除自己的帖子。")
+    |> redirect(to: ~p"/posts/#{post_id}")
+    |> halt()
+  end
+end
+```
+
+或者，如果你想为每个操作提供不同的错误消息，可以将此授权代码包含在操作本身中。这会导致更多的代码，因为每个控制器操作处理自己的授权，但它允许更具体的响应。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+def delete(conn, %{"id" => id}) do
+  if conn.assigns[:current_user].id == post.user_id do
+    post = Posts.get_post!(id)
+    {:ok, _post} = Posts.delete_post(post)
+
+    conn
+    |> put_flash(:info, "帖子成功删除。")
+    |> redirect(to: ~p"/posts")
+  else
+    conn
+    |> put_flash(:error, "您只能删除自己的帖子。")
+    |> redirect(to: ~p"/posts/#{id}")
+    |> halt()
+  end
+end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 测试闪存消息
+
+Phoenix 1.7 废弃了 [get_flash/2](https://hexdocs.pm/phoenix/Phoenix.ConnTest.html#get_flash/2)，取而代之的是 [Phoenix.Flash.get/2](https://hexdocs.pm/phoenix/Phoenix.Flash.html#get/2)。如果我们想对闪存消息进行断言，可以在测试中使用此函数。
+
+这是一个测试用户无法编辑不属于他们的资源的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "a user cannot edit another user's post", %{conn: conn} do
+  post_user = user_fixture()
+  other_user = user_fixture()
+  post = post_fixture(user_id: post_user.id)
+  conn = conn |> log_in_user(other_user) |> get(~p"/posts/#{post}/edit")
+  assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "您只能编辑或删除自己的帖子。"
+  assert redirected_to(conn) == ~p"/posts/#{post}"
+end
+```
+
+## 路由特异性
+
+当我们开始将路由拆分为不同的作用域时，路由可能会发生冲突。
+
+例如，以下两个路由冲突，因为通配符 `:id` 也会处理值 `"new"`，因此第二个路由将永远不会触发。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+get "posts/:id", PostController, :show
+get "posts/new", PostController, :new
+```
+
+这就像有一个 case 语句，其中第一个子句总是匹配。
+
+```elixir
+url = "/posts/new"
+
+case url do
+  "/posts" <> id -> "显示路由"
+  # 这个 case 子句将永远不会匹配。
+  "/posts/new" -> "新建路由"
+end
+```
+
+如果你遇到这个问题，可能会遇到奇怪的错误，如下所示。
+
+![](files/Route%20specificity%20error.png)
+
+## 在 Assigns 中访问当前用户
+
+默认情况下，如果用户已登录，则 `:current_user` 在 `conn.assigns` 中可用。这是由路由器中生成的 `:fetch_current_user` 插头设置的。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+pipeline :browser do
+  plug :accepts, ["html"]
+  plug :fetch_session
+  plug :fetch_live_flash
+  plug :put_root_layout, {BlogWeb.Layouts, :root}
+  plug :protect_from_forgery
+  plug :put_secure_browser_headers
+  plug :fetch_current_user
+end
+```
+
+我们可以在任何 heex 模板中使用 `@current_user` 值，或者在必要时将 `@current_user` 提供给其他函数组件。
+
+例如，我们可以看到 `@current_user` 的电子邮件在 `root.html.heex` 中默认显示。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<li class="text-[0.8125rem] leading-6 text-zinc-900">
+  <%= @current_user.email %>
+</li>
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 在表单中包含用户关联
+
+存储在 `conn.assigns` 中的 `@current_user` 如果需要在表单中包含当前用户非常重要。以下是将用户传递到表单组件的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.header>
+  新帖子
+  <:subtitle>使用此表单管理数据库中的帖子记录。</:subtitle>
+</.header>
+
+<.post_form changeset={@changeset} action={~p"/posts"} current_user={@current_user} />
+
+<.back navigate={~p"/posts"}>返回帖子</.back>
+```
+
+然后，表单组件可以将用户的 ID 作为 HTTP 请求的一部分发送到主体参数、URL 参数或查询参数。以下是使用主体参数的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    哦，出了点问题！请检查下面的错误。
+  </.error>
+  <.input field={f[:user_id]} type="hidden" value={@current_user.id} />
+  <.input field={f[:title]} type="text" label="标题" />
+  <.input field={f[:content]} type="text" label="内容" />
+  <.input field={f[:published_on]} type="datetime-local" label="发布日期" value={DateTime.utc_now()} />
+  <.input field={f[:visible]} type="checkbox" label="可见" />
+  <:actions>
+    <.button>保存帖子</.button>
+  </:actions>
+</.simple_form>
+```
+
+但是，请注意，直接访问 `@current_user` 要求用户必须已登录。如果你在一个用户不需要登录的页面上，则可以安全地使用访问语法访问用户。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+assigns[:current_user]
+```
+
+## 在测试中登录用户
+
+某些测试可能需要你登录用户。幸运的是，`ConnCase` 模块包含一个生成的 `log_in_user/2` 函数，我们可以用来解决这些问题。
+
+这是一个在测试中登录用户的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+test "renders form for editing chosen post", %{conn: conn} do
+  user = user_fixture()
+  post = post_fixture(user_id: user.id)
+  # 登录用户
+  conn = conn |> log_in_user(user) |> get(~p"/posts/#{post}/edit")
+  assert html_response(conn, 200) =~ "编辑帖子"
+end
+```
+
+## 隐藏元素
+
+某些元素需要授权或认证才能在页面上显示。
+
+这是一个根据是否有当前用户来隐藏元素的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+<%= if assigns[:current_user] do %>
+  仅认证用户可以看到此内容
+<% end %>
+```
+
+这是一个根据用户是否拥有特定资源（在这种情况下是评论）来隐藏元素的示例。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# 在访问诸如 `id` 之类的字段之前，验证映射是否存在非常重要。
+# 否则，如果 Assigns[:current_user] 映射为 `nil`，访问 `id` 将导致页面崩溃。
+<%= if assigns[:current_user] && comment.user_id == assigns[:current_user].id do %>
+  <.link href={~p"/comments/#{comment.id}"} method="delete" data-confirm="您确定吗？">
+    删除
+  </.link>
+<% end %>
+```
+
+## 预加载嵌套关联
+
+[Ecto.Query.preload/3](https://hexdocs.pm/ecto/Ecto.Query.html#preload/3) 和 [Ecto.Repo.preload/3](https://hexdocs.pm/ecto/Ecto.Repo.html#c:preload/3) 可以预加载关联数据，如果模式包含 [has_many/3](https://hexdocs.pm/ecto/Ecto.Schema.html#has_many/3) 或 [belongs_to/3](https://hexdocs.pm/ecto/Ecto.Schema.html#belongs_to/3) 关联。
+
+还可以通过向预加载函数提供关键字列表来预加载嵌套关联。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+query = from p in Post, preload: [:user, comments: [:user]]
+```
+
+我们甚至可以提供另一个查询来修改如何预加载关联结果，而不是提供原子。
+
+这是一个预加载帖子评论并按最新 -> 最旧排序的示例。评论本身也预加载其关联用户。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+comments_query = from c in Comment, 
+  order_by: [desc: c.inserted_at, desc: c.id],
+  preload: :user
+
+post_query = from p in Post, preload: [:user, comments: ^comments_query]
+
+Repo.get!(post_query, id)
+```
+
+## 进一步阅读
+
+我们提供了基于路由和基于所有权的认证的概述。
+然而，授权是一个远远超出本课程范围的庞大主题。
+
+没有单一的授权解决方案，有效的授权实现取决于应用程序的需求。因此，始终考虑谁应该能够访问应用程序资源以及如何有效地保护它们。
+
+在继续学习有关授权和认证的更多内容时，请考虑以下资源：
+
+<!-- livebook:{"break_markdown":true} -->
+
+* [使用基于角色的访问控制（RBAC）在 Phoenix Web 应用程序中进行授权](https://www.youtube.com/watch?v=6TlcVk-1Tpc)
+* [HexDocs: mix phx.gen.auth](https://hexdocs.pm/phoenix/mix_phx_gen_auth.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成 Phoenix 认证阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，任何人都可以免费从中学习，按照自己的节奏进行。
+
+我们还提供一门付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Phoenix Authentication">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/blog_comments.livemd">博客：评论</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../exercises/blog_authentication.livemd">博客：认证</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>

@@ -1,0 +1,209 @@
+# 元组
+
+```elixir
+Mix.install([
+  {:jason, "~> 1.4"},
+  {:kino, "~> 0.9", override: true},
+  {:youtube, github: "brooklinjazz/youtube"},
+  {:hidden_cell, github: "brooklinjazz/hidden_cell"}
+])
+```
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tuples">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/atoms.livemd">原子</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/lists.livemd">列表</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
+
+## 复习问题
+
+完成本课后，学生应该能够回答以下问题。
+
+* 什么是元组，如何创建一个元组？
+* 如何对元组进行模式匹配，将元组中的元素绑定到变量？
+
+## 元组
+
+元组是固定大小的多个元素的容器。
+与列表一样，它们可以包含任何数据类型。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{}
+{7}
+{1, 2, 3}
+{"example"}
+{1, "pizza", 3, :success, false}
+```
+
+当你知道所需元素的数量和类型时，通常会使用元组。
+例如，在Elixir中，使用元组来表示失败或成功的情况，并附带相关的错误消息或成功值是很常见的。
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+{:success, "做得好！"}
+{:error, "太糟糕了！"}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+在下面的Elixir单元中，创建一个元组，第一个元素为 `:ok`，第二个元素为 `"got it!"`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+{:ok, "got it!"}
+```
+
+</details>
+
+```elixir
+
+```
+
+## 模式匹配
+
+在Elixir中，`=` 符号是匹配运算符。在其他编程语言中，你可能称之为赋值运算符。
+
+Elixir称 `=` 为匹配运算符，因为它使用模式匹配来绑定变量。
+
+什么是模式匹配？实际上，Elixir允许你在 `=` 的左侧绑定变量，而不仅仅是将值赋给变量。只要它与 `=` 右侧的形状匹配即可。
+
+例如，以下表达式是最“严格”的匹配。两侧完全相等。
+
+```elixir
+{1, 2, 3} = {1, 2, 3}
+```
+
+`=` 运算符试图强制左侧的值与右侧的值匹配，因此当我们写下以下表达式时，我们将 `my_tuple` 绑定到 `{1, 2, 3}` 以使左右两侧匹配。
+
+对于简单的变量名，匹配的强制性不那么明显，因为它就像一块空白画布，可以匹配任何值。
+
+```elixir
+my_tuple = {1, 2, 3}
+```
+
+然而，我们可以在容器数据类型中绑定其他值，因此左右两侧仍然匹配。
+
+```elixir
+{one, two, three} = {1, 2, 3}
+```
+
+现在我们可以在程序中使用这些绑定的变量 `one`、`two` 和 `three`。
+
+```elixir
+one
+```
+
+```elixir
+two
+```
+
+```elixir
+three
+```
+
+只要匹配运算符 `=` 左侧的表达式与右侧的模式匹配，你就可以将变量绑定到值。
+
+左侧绑定变量的元组必须与右侧的元组具有相同数量的元素，否则会导致 [MatchError](https://hexdocs.pm/elixir/MatchError.html)。
+
+```elixir
+{one, two} = {1, 2, 3}
+```
+
+如果我们想在元组中绑定某些变量，并忽略其他变量，可以使用 `_` 来忽略任何变量。
+
+```elixir
+{one, _two, three} = {1, 2, 3}
+```
+
+你可以使用任何类型的数据进行模式匹配。只要左侧与右侧匹配即可。我们将在后面的阅读材料中介绍其他数据结构的模式匹配。
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 你的回合
+
+使用模式匹配将 `"jewel"` 绑定到一个名为 `jewel` 的变量。
+用你的答案替换 `jewel`。
+
+<details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
+<summary>示例解决方案</summary>
+
+```elixir
+{_gold, _treasure, jewel} = {"gold", "treasure", "jewel"}
+jewel
+```
+
+</details>
+
+```elixir
+{"gold", "treasure", "jewel"}
+```
+
+## 进一步阅读
+
+考虑以下资源以加深你对该主题的理解。
+
+* [Elixir Lang: 元组](https://elixir-lang.org/getting-started/basic-types.html#tuples)
+* [Exercism: 元组](https://exercism.org/tracks/elixir/concepts/tuples)
+* [Elixir Schools: 元组](https://elixirschool.com/en/lessons/basics/collections#tuples-4)
+* [HexDocs: Tuple](https://hexdocs.pm/elixir/Tuple.html)
+
+## 提交你的进度
+
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
+
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
+
+```
+$ git add .
+$ git commit -m "完成元组阅读"
+$ git push
+```
+
+我们自豪地提供我们的开源课程，供任何人免费学习，按自己的节奏进行。
+
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受2023年6月至8月的课程申请。
+
+## 导航
+
+<div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
+<div style="display: flex;">
+<i class="ri-home-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
+</div>
+<div style="display: flex;">
+<i class="ri-bug-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Tuples">报告问题</a>
+</div>
+<div style="display: flex;">
+<i class="ri-arrow-left-fill"></i>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/atoms.livemd">原子</a>
+</div>
+<div style="display: flex;">
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/lists.livemd">列表</a>
+<i class="ri-arrow-right-fill"></i>
+</div>
+</div>
