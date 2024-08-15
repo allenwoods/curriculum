@@ -66,7 +66,7 @@ DockYard 学院的课程是一个使用 Livebook 构建的开源 Elixir 课程�
     - 进程
     - GenServers
     - 测试 GenServers
-    - 主管基础和容错
+    - Supervisor基础和容错
     - 使用任务进行并发
 - Phoenix
     - HTML 和 CSS
@@ -104,7 +104,7 @@ DockYard 学院的课程是一个使用 Livebook 构建的开源 Elixir 课程�
     - 队列
     - 工作池
     - Rubix Cube 项目
-    
+
 <!-- course-outline-end -->
 
 

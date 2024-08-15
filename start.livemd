@@ -1,590 +1,588 @@
-# Course Outline
+# 课程概述
 
-## Overview
+## 概述
 
-Use the following index to find reading material and exercises for this course.
+使用以下索引来查找本课程的阅读材料和练习。
 
-For new students, we recommend that you [start here](reading/start_here.livemd).
+对于新生，我们建议您[从这里开始](reading/start_here.livemd)。 
 
-## Elixir Fundamentals
+## Elixir 基础
 
-### Prerequisites
+### 先决条件
 
-* Install [Elixir](https://elixir-lang.org/install.html)
-* Install [Livebook](https://github.com/livebook-dev/livebook)
-* Install [Postgres](https://www.postgresql.org/download/) (optional to get started)
-* Install [Phoenix](https://hexdocs.pm/phoenix/installation.html) (optional to get started)
-* Setup [WSL with Visual Studio Code](https://code.visualstudio.com/docs/remote/wsl) (Windows Users Only)
-* Optionally Install [asdf](https://asdf-vm.com/guide/getting-started.html) to manage Elixir and Erlang versions.
-* Basic understanding of [Computer Hardware](reading/computer_hardware.livemd)
+* 安装 [Elixir](https://elixir-lang.org/install.html)
+* 安装 [Livebook](https://github.com/livebook-dev/livebook)
+* 安装 [Postgres](https://www.postgresql.org/download/) （开始时可选）
+* 安装 [Phoenix](https://hexdocs.pm/phoenix/installation.html) （开始时可选）
+* 设置 [带有 Visual Studio Code 的 WSL](https://code.visualstudio.com/docs/remote/wsl) （仅限 Windows 用户）
+* 可选安装 [asdf](https://asdf-vm.com/guide/getting-started.html) 来管理 Elixir 和 Erlang 版本。
+* 对 [计算机硬件](reading/computer_hardware.livemd) 的基本理解 
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Course Tools
+### 课程工具
 
-* Reading
-  * [Command Line](reading/command_line.livemd)
+* 阅读
+  * [命令行](reading/command_line.livemd)
   * [Git](reading/git.livemd)
   * [Livebook](reading/livebook.livemd)
-  * [Code Editors](reading/code_editors.livemd)
+  * [代码编辑器](reading/code_editors.livemd)
   * [IEx](reading/iex.livemd)
-* Exercises
-  * [Command Line Family Tree](exercises/command_line_family_tree.livemd)
-  * [GitHub Engineering Journal](exercises/github_engineering_journal.livemd)
-  * Bonus: [GitHub Collab](exercises/github_collab.livemd)
+* 练习
+  * [命令行家族树](exercises/command_line_family_tree.livemd)
+  * [GitHub 工程日志](exercises/github_engineering_journal.livemd)
+  * 奖励：[GitHub 协作](exercises/github_collab.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Basics
+### 基础
 
-* Reading
-  * [Comments](reading/comments.livemd)
-  * [Arithmetic](reading/arithmetic.livemd)
-  * [Strings](reading/strings.livemd)
-  * [IO](reading/io.livemd)
-  * [Booleans](reading/booleans.livemd)
-  * [Comparison Operators](reading/comparison_operators.livemd)
-  * [Match Operator](reading/match_operator.livemd)
-* Exercises
-  * [Fun Formulas](exercises/fun_formulas.livemd)
-  * [Card Counting](exercises/card_counting.livemd)
-  * [Habit Tracker](exercises/habit_tracker.livemd)
-  * [Mad Libs](exercises/mad_libs.livemd)
-  * Bonus: [Guessing Games](exercises/guessing_games.livemd)
+* 阅读
+  * [注释](reading/comments.livemd)
+  * [算术](reading/arithmetic.livemd)
+  * [字符串](reading/strings.livemd)
+  * [输入输出](reading/io.livemd)
+  * [布尔值](reading/booleans.livemd)
+  * [比较运算符](reading/comparison_operators.livemd)
+  * [匹配运算符](reading/match_operator.livemd)
+* 练习
+  * [有趣的公式](exercises/fun_formulas.livemd)
+  * [纸牌计数](exercises/card_counting.livemd)
+  * [习惯追踪器](exercises/habit_tracker.livemd)
+  * [疯狂填词](exercises/mad_libs.livemd)
+  * 奖励：[猜谜游戏](exercises/guessing_games.livemd)
 
-<!-- livebook:{"break_markdown":true} -->
+<!-- livebook:{"break_markdown":true} --> 
+### 数据结构和模式匹配简介
 
-### Data Structures And Intro To Pattern Matching
-
-* Reading
-  * [Atoms](reading/atoms.livemd)
-  * [Tuples](reading/tuples.livemd)
-  * [Lists](reading/lists.livemd)
-  * [Keyword Lists](reading/keyword_lists.livemd)
-  * [Maps](reading/maps.livemd)
-* Exercises
-  * [Shopping List](exercises/shopping_list.livemd)
-  * [Family Tree](exercises/family_tree.livemd)
-  * [Mazes](exercises/mazes.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Control Flow And Abstraction
-
-* Reading
-  * [Functions](reading/functions.livemd)
-  * [Control Flow](reading/control_flow.livemd)
-* Exercises
-  * [Naming Numbers](exercises/naming_numbers.livemd)
-  * [Rock Paper Scissors](exercises/rock_paper_scissors.livemd)
+* 阅读
+  * [原子](reading/atoms.livemd)
+  * [元组](reading/tuples.livemd)
+  * [列表](reading/lists.livemd)
+  * [关键字列表](reading/keyword_lists.livemd)
+  * [映射](reading/maps.livemd)
+* 练习
+  * [购物清单](exercises/shopping_list.livemd)
+  * [家族树](exercises/family_tree.livemd)
+  * [迷宫](exercises/mazes.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Modules And Structs
+### 控制流和抽象
 
-* Reading
-  * [Modules](reading/modules.livemd)
-  * [Structs](reading/structs.livemd)
-* Exercises
-  * [Rock Paper Scissors Lizard Spock](exercises/rock_paper_scissors_lizard_spock.livemd)
-  * [RPG Dialogue](exercises/rpg_dialogue.livemd)
-  * Bonus: [Pokemon Battle](exercises/pokemon_battle.livemd)
+* 阅读
+  * [函数](reading/functions.livemd)
+  * [控制流](reading/control_flow.livemd)
+* 练习
+  * [数字命名](exercises/naming_numbers.livemd)
+  * [石头剪刀布](exercises/rock_paper_scissors.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Enumeration
+### 模块和结构体
 
-* Reading
-  * [Ranges](reading/ranges.livemd)
+* 阅读
+  * [模块](reading/modules.livemd)
+  * [结构体](reading/structs.livemd)
+* 练习
+  * [石头剪刀布蜥蜴史波克](exercises/rock_paper_scissors_lizard_spock.livemd)
+  * [RPG 对话](exercises/rpg_dialogue.livemd)
+  * 奖励：[口袋妖怪战斗](exercises/pokemon_battle.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 枚举
+
+* 阅读
+  * [范围](reading/ranges.livemd)
   * [Enum](reading/enum.livemd)
-* Exercises
+* 练习
   * [FizzBuzz](exercises/fizzbuzz.livemd)
-  * [Named Number Lists](exercises/named_number_lists.livemd)
-  * [Measurements](exercises/measurements.livemd)
+  * [命名数字列表](exercises/named_number_lists.livemd)
+  * [测量](exercises/measurements.livemd)
+
+<!-- livebook:{"break_markdown":true} --> 
+### 内置模块
+
+* 阅读
+  * [内置模块](reading/built-in_modules.livemd)
+* 练习
+  * [按类型筛选值](exercises/filter_values_by_type.livemd)
+  * [井字游戏](exercises/tic-tac-toe.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Built-in Modules
+### 推导式和不可枚举数据类型
 
-* Reading
-  * [Built-In Modules](reading/built-in_modules.livemd)
-* Exercises
-  * [Filter Values By Type](exercises/filter_values_by_type.livemd)
-  * [Tic-tac-toe](exercises/tic-tac-toe.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Comprehensions And Non-Enumerable Data Types
-
-* Reading
-  * [Enumerating on Non-Enumerables](reading/non_enumerables.livemd)
-  * [Comprehensions](reading/comprehensions.livemd)
-* Exercises
-  * [Palindrome](exercises/palindrome.livemd)
-  * [Anagram](exercises/anagram.livemd)
-  * [Comprehension Search](exercises/comprehension_search.livemd)
+* 阅读
+  * [对不可枚举对象进行枚举](reading/non_enumerables.livemd)
+  * [推导式](reading/comprehensions.livemd)
+* 练习
+  * [回文](exercises/palindrome.livemd)
+  * [变位词](exercises/anagram.livemd)
+  * [推导式搜索](exercises/comprehension_search.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Reduce
+### 归约
 
-* Reading
-  * [Reduce](reading/reduce.livemd)
-* Exercises
-  * [Number Finder](exercises/number_finder.livemd)
-  * [Custom Enum With Reduce](exercises/custom_enum_with_reduce.livemd)
-  * Bonus: [Data Traversal](exercises/data_traversal.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Dates And Time
-
-* Reading
-  * [Dates and Times](reading/datetime.livemd)
-* Exercises
-  * [Time Converting](exercises/time_converting.livemd)
-  * [Itinerary](exercises/itinerary.livemd)
-  * Bonus: [Timeline](exercises/timeline.livemd)
+* 阅读
+  * [归约](reading/reduce.livemd)
+* 练习
+  * [数字查找器](exercises/number_finder.livemd)
+  * [使用归约的自定义枚举](exercises/custom_enum_with_reduce.livemd)
+  * 奖励：[数据遍历](exercises/data_traversal.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### String Manipulation
+### 日期和时间
 
-* Reading
-  * [Strings and Binaries](reading/strings_and_binaries.livemd)
-  * [Regex](reading/regex.livemd)
-* Exercises
-  * [Email Validation](exercises/email_validation.livemd)
-  * [Caesar Cypher](exercises/caesar_cypher.livemd)
-  * Bonus: [Rollable Expressions](exercises/rollable_expressions.livemd)
-  * Bonus: [Phone Number Parsing](exercises/phone_number_parsing.livemd)
+* 阅读
+  * [日期和时间](reading/datetime.livemd)
+* 练习
+  * [时间转换](exercises/time_converting.livemd)
+  * [行程](exercises/itinerary.livemd)
+  * 奖励：[时间轴](exercises/timeline.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Recursion
+### 字符串操作
 
-* Reading
-  * [Recursion](reading/recursion.livemd)
-* Exercises
-  * [Fibonacci](exercises/fibonacci.livemd)
-  * [Lucas Numbers](exercises/lucas_numbers.livemd)
-  * Bonus: [Factorial](exercises/factorial.livemd)
-  * Bonus: [Pascals Triangle](exercises/pascals_triangle.livemd)
+* 阅读
+  * [字符串和二进制](reading/strings_and_binaries.livemd)
+  * [正则表达式](reading/regex.livemd)
+* 练习
+  * [电子邮件验证](exercises/email_validation.livemd)
+  * [凯撒密码](exercises/caesar_cypher.livemd)
+  * 奖励：[可滚动表达式](exercises/rollable_expressions.livemd)
+  * 奖励：[电话号码解析](exercises/phone_number_parsing.livemd)
 
-## Mix Projects
+<!-- livebook:{"break_markdown":true} --> 
+### 递归
 
-### Elixir Build Tooling
+* 阅读
+  * [递归](reading/recursion.livemd)
+* 练习
+  * [斐波那契](exercises/fibonacci.livemd)
+  * [卢卡斯数](exercises/lucas_numbers.livemd)
+  * 奖励：[阶乘](exercises/factorial.livemd)
+  * 奖励：[帕斯卡三角形](exercises/pascals_triangle.livemd)
 
-* Reading
+<!-- livebook:{"break_markdown":true} -->
+
+### Mix 项目
+
+### Elixir 构建工具
+
+* 阅读
   * [Mix](reading/mix.livemd)
-* Exercises
-  * [Games: Setup](exercises/games.livemd)
-  * [Games: Guessing Game](exercises/games_guessing_game.livemd)
-  * [Games: Rock Paper Scissors](exercises/games_rock_paper_scissors.livemd)
+* 练习
+  * [游戏：设置](exercises/games.livemd)
+  * [游戏：猜谜游戏](exercises/games_guessing_game.livemd)
+  * [游戏：石头剪刀布](exercises/games_rock_paper_scissors.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Testing With ExUnit
+### 使用 ExUnit 进行测试
 
-* Reading
+* 阅读
   * [ExUnit](reading/exunit.livemd)
-* Exercises
-  * [Games: Wordle Application](exercises/games_wordle.livemd)
+* 练习
+  * [游戏：Wordle 应用程序](exercises/games_wordle.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Documentation And Static Analysis
+### 文档和静态分析
 
-* Reading
-  * [Documentation](reading/documentation_and_static_analysis.livemd)
-* Exercises
-  * Drills: [Typespecs](exercises/typespec_drills.livemd)
-  * [Games: Documentation and Static Analysis](exercises/games_documentation_and_static_analysis.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Executables
-
-* Reading
-  * [Executables](reading/executables.livemd)
-* Exercises
-  * [Games: Menu](exercises/games_menu.livemd)
-
-## Advanced Syntax
-
-### Advanced Pattern Matching
-
-* Reading
-  * [Advanced Pattern Matching](reading/advanced_pattern_matching.livemd)
-* Exercises
-  * [Drills: Pattern Matching](exercises/treasure_matching.livemd)
-  * [Replacing nils](exercises/drill-patternmatching-replace-nils.livemd)
-  * Bonus: [Metric Conversion](exercises/metric_conversion.livemd)
+* 阅读
+  * [文档](reading/documentation_and_static_analysis.livemd)
+* 练习
+  * 练习：[类型规范](exercises/typespec_drills.livemd)
+  * [游戏：文档和静态分析](exercises/games_documentation_and_static_analysis.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Guarding
+### 可执行文件
 
-* Reading
-  * [Guards](reading/guards.livemd)
+* 阅读
+  * [可执行文件](reading/executables.livemd)
+* 练习
+  * [游戏：菜单](exercises/games_menu.livemd)
+
+## 高级语法
+
+### 高级模式匹配
+
+* 阅读
+  * [高级模式匹配](reading/advanced_pattern_matching.livemd)
+* 练习
+  * [练习：模式匹配](exercises/treasure_matching.livemd)
+  * [替换 nils](exercises/drill-patternmatching-replace-nils.livemd)
+  * 奖励：[公制转换](exercises/metric_conversion.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 守卫
+
+* 阅读
+  * [守卫](reading/guards.livemd)
   * [with](reading/with.livemd)
-* Exercises
-  * [Message Validation](exercises/message_validation.livemd)
-  * [User Validation](exercises/user_validation.livemd)
-  * [Math With Guards](exercises/math_with_guards.livemd)
+* 练习
+  * [消息验证](exercises/message_validation.livemd)
+  * [用户验证](exercises/user_validation.livemd)
+  * [带守卫的数学](exercises/math_with_guards.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Protocols
+### 协议
 
-* Reading
-  * [Protocols](reading/protocols.livemd)
-* Exercises
-  * [Math With Protocols](exercises/math_with_protocols.livemd)
-  * Bonus: [Battle Map](exercises/battle_map.livemd)
+* 阅读
+  * [协议](reading/protocols.livemd)
+* 练习
+  * [带协议的数学](exercises/math_with_protocols.livemd)
+  * 奖励：[战斗地图](exercises/battle_map.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Persistence Using The File System
+### 使用文件系统进行持久化
 
-* Reading
-  * [Streams](reading/streams.livemd)
-  * [File](reading/file.livemd)
-* Exercises
-  * Drills: [Streams](exercises/stream_drills.livemd)
-  * Drills: [File](exercises/file_drills.livemd)
-  * [Save Game](exercises/save_game.livemd)
-  * Bonus: [File System Todo App](exercises/file_system_todo_app.livemd)
-  * Bonus: [Document Tools](exercises/document_tools.livemd)
-  * Mastery: [File Search](exercises/file_search.livemd)
+* 阅读
+  * [流](reading/streams.livemd)
+  * [文件](reading/file.livemd)
+* 练习
+  * 练习：[流](exercises/stream_drills.livemd)
+  * 练习：[文件](exercises/file_drills.livemd)
+  * [保存游戏](exercises/save_game.livemd)
+  * 奖励：[文件系统待办事项应用程序](exercises/file_system_todo_app.livemd)
+  * 奖励：[文档工具](exercises/document_tools.livemd)
+  * 精通：[文件搜索](exercises/file_search.livemd)
 
 ## OTP
 
-### Processes
+### 进程
 
-* Reading
-  * [Processes](reading/processes.livemd)
-* Exercises
-  * Drills: [Process](exercises/process_drills.livemd)
-  * [Process Mailbox](exercises/process_mailbox.livemd)
+* 阅读
+  * [进程](reading/processes.livemd)
+* 练习
+  * 演练：[进程](exercises/process_drills.livemd)
+  * [进程邮箱](exercises/process_mailbox.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### GenServers
 
-* Reading
+* 阅读
   * [GenServers](reading/genservers.livemd)
-* Exercises
-  * [Drills: GenServers](exercises/genserver_drills.livemd)
-  * [Score Tracker](exercises/score_tracker.livemd)
-  * [Stack Server](exercises/stack_server.livemd)
-  * [Timer](exercises/timer.livemd)
+* 练习
+  * [演练：GenServers](exercises/genserver_drills.livemd)
+  * [分数跟踪器](exercises/score_tracker.livemd)
+  * [堆栈服务器](exercises/stack_server.livemd)
+  * [定时器](exercises/timer.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Testing GenServers
+### 测试 GenServers
 
-* Reading
-  * [Testing GenServers](reading/testing_genservers.livemd)
-* Exercises
-  * [Stack GenServer Testing](exercises/stack.livemd)
-  * Bonus: [Traffic Light Server](exercises/traffic_light_server.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Supervisor Basics And Fault Tolerance
-
-* Reading
-  * [Supervisors](reading/supervisors.livemd)
-* Exercises
-  * Drills: [Supervisors](exercises/supervisor_drills.livemd)
-  * [Supervised Stack](exercises/supervised_stack.livemd)
-  * [Games: Supervised Score Tracker](exercises/games_supervised_score_tracker.livemd)
+* 阅读
+  * [测试 GenServers](reading/testing_genservers.livemd)
+* 练习
+  * [堆栈 GenServer 测试](exercises/stack.livemd)
+  * 奖励：[交通灯服务器](exercises/traffic_light_server.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Concurrency With Tasks
+### 主管基础和容错
 
-* Reading
-  * [Task](reading/task.livemd)
-  * [Task Supervisor](reading/task_supervisor.livemd)
-* Exercises
-  * Drills: [Tasks](exercises/task_drills.livemd)
-  * [Concurrent Word Count](exercises/concurrent_word_count.livemd)
+* 阅读
+  * [主管](reading/supervisors.livemd)
+* 练习
+  * 演练：[主管](exercises/supervisor_drills.livemd)
+  * [受监管的堆栈](exercises/supervised_stack.livemd)
+  * [游戏：受监管的分数跟踪器](exercises/games_supervised_score_tracker.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 任务并发
+
+* 阅读
+  * [任务](reading/task.livemd)
+  * [任务主管](reading/task_supervisor.livemd)
+* 练习
+  * 演练：[任务](exercises/task_drills.livemd)
+  * [并发单词计数](exercises/concurrent_word_count.livemd)
 
 ## Phoenix
 
-### HTML And CSS
+### HTML 和 CSS
 
-* Reading
+* 阅读
   * [HTML + CSS](reading/html_css.livemd)
-* Exercises
-  * [Common Components](exercises/common_components.livemd)
-  * Bonus: Play [FlexBox Froggy](https://flexboxfroggy.com/)
-  * Bonus: Play [Grid Garden](https://cssgridgarden.com/)
+* 练习
+  * [常见组件](exercises/common_components.livemd)
+  * 奖励：玩 [FlexBox Froggy](https://flexboxfroggy.com/)
+  * 奖励：玩 [Grid Garden](https://cssgridgarden.com/)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### APIs
 
-* Reading
+* 阅读
   * [APIs](reading/apis.livemd)
-* Exercises
-  * [Pokemon API](exercises/pokemon_api.livemd)
+* 练习
+  * [口袋妖怪 API](exercises/pokemon_api.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Relational Databases
+### 关系型数据库
 
-* Reading
-  * [Relational Database Management Systems](reading/rdbms.livemd)
-* Exercises
-  * [Drills: SQL Queries](exercises/sql_drills.livemd)
+* 阅读
+  * [关系型数据库管理系统](reading/rdbms.livemd)
+* 练习
+  * [演练：SQL 查询](exercises/sql_drills.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### Phoenix
 
-* Reading
+* 阅读
   * [Phoenix 1.7](reading/phoenix_1.7.livemd)
-  * Bonus: [Web Servers](reading/web_servers.livemd)
-* Exercises
-  * Follow Along: [Phoenix Counter App](exercises/phoenix_follow_along_counter_app.livemd)
-  * Drills: [Phoenix](exercises/phoenix_drills.livemd)
+  * 奖励：[Web 服务器](reading/web_servers.livemd)
+* 练习
+  * 跟随：[Phoenix 计数器应用](exercises/phoenix_follow_along_counter_app.livemd)
+  * 演练：[Phoenix](exercises/phoenix_drills.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Group Project Blog
+### 小组项目博客
 
-* [Group Project: Blog](exercises/group_project_blog.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Phoenix And Ecto
-
-* Reading
-  * [Phoenix and Ecto](reading/phoenix_and_ecto.livemd)
-* Exercises
-  * [Blog: Posts](exercises/blog_posts.livemd)
+* [小组项目：博客](exercises/group_project_blog.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Testing Phoenix
+### Phoenix 和 Ecto
 
-* Reading
-  * [Testing Phoenix](reading/testing_phoenix.livemd)
-* Exercises
-  * [Blog: Search](exercises/blog_search.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Phoenix Forms And Components
-
-* Reading
-  * [Phoenix Components](reading/phoenix_components.livemd)
-* Exercises
-  * [Blog: Visibility Migration](exercises/blog_migration.livemd)
+* 阅读
+  * [Phoenix 和 Ecto](reading/phoenix_and_ecto.livemd)
+* 练习
+  * [博客：文章](exercises/blog_posts.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Phoenix And Ecto One-to-Many Associations
+### 测试 Phoenix
 
-* Reading
-  * [One to Many Associations](reading/phoenix_one_to_many_associations.livemd)
-* Exercises
-  * [Blog: Comments](exercises/blog_comments.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Phoenix Authentication
-
-* Reading
-  * [Phoenix Authentication](reading/phoenix_authentication.livemd)
-* Exercises
-  * [Blog: Authentication](exercises/blog_authentication.livemd)
+* 阅读
+  * [测试 Phoenix](reading/testing_phoenix.livemd)
+* 练习
+  * [博客：搜索](exercises/blog_search.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Phoenix And Ecto Many-to-Many Relationships
+### Phoenix 表单和组件
 
-* Reading
-  * [Many-to-Many Relationships](reading/phoenix_many_to_many_relationships.livemd)
-* Exercises
-  * [Blog: Tags](exercises/blog_tags.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Phoenix And Ecto One-to-One Relationships
-
-* Reading
-  * [One-to-One Relationships](reading/phoenix_one_to_one_relationships.livemd)
-* Exercise
-  * [Blog: Cover Image](exercises/blog_cover_image.livemd)
+* 阅读
+  * [Phoenix 组件](reading/phoenix_components.livemd)
+* 练习
+  * [博客：可见性迁移](exercises/blog_migration.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
+### Phoenix 和 Ecto 一对多关联
+
+* 阅读
+  * [一对多关联](reading/phoenix_one_to_many_associations.livemd)
+* 练习
+  * [博客：评论](exercises/blog_comments.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Phoenix 认证
+
+* 阅读
+  * [Phoenix 认证](reading/phoenix_authentication.livemd)
+* 练习
+  * [博客：认证](exercises/blog_authentication.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Phoenix 和 Ecto 多对多关系
+
+* 阅读
+  * [多对多关系](reading/phoenix_many_to_many_relationships.livemd)
+* 练习
+  * [博客：标签](exercises/blog_tags.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Phoenix 和 Ecto 一对一关系
+
+* 阅读
+  * [一对一关系](reading/phoenix_one_to_one_relationships.livemd)
+* 练习
+  * [博客：封面图片](exercises/blog_cover_image.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
 ### Tailwind
 
-* Reading
+* 阅读
   * [Tailwind](reading/tailwind.livemd)
-* Exercises
-  * [Blog: Home Page](exercises/blog_home_page.livemd)
+* 练习
+  * [博客：主页](exercises/blog_home_page.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Deployment
+### 部署
 
-* Reading
-  * [Deployment](reading/phoenix_deployment.livemd)
-* Exercise
-  * [Blog: Deployment](exercises/blog_deployment.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Custom Feature
-
-* [Blog: Custom Feature](exercises/blog_custom_feature.livemd)
+* 阅读
+  * [部署](reading/phoenix_deployment.livemd)
+* 练习
+  * [博客：部署](exercises/blog_deployment.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Group Project Presentation
+### 自定义功能
 
-* [Group Project: Presentation](exercises/group_project_blog_presentation.livemd)
+* [博客：自定义功能](exercises/blog_custom_feature.livemd)
 
-## Capstone Project Preparation
+<!-- livebook:{"break_markdown":true} -->
 
-### Capstone Project
+### 小组项目展示
 
-* Reading
-  * [Capstone Project: Guide](reading/capstone_project_guide.livemd)
-* Exercises
-  * [Capstone Project: GitHub Project](exercises/capstone_github_project.livemd)
-  * [Capstone Project: Entity-Relationship Diagram](exercises/capstone_entity_relationship_diagram.livemd)
-  * [Capstone Project: Design Mock](exercises/capstone_mock.livemd)
+* [小组项目：展示](exercises/group_project_blog_presentation.livemd)
+
+## 顶点项目准备
+
+### 顶点项目
+
+* 阅读
+  * [顶点项目：指南](reading/capstone_project_guide.livemd)
+* 练习
+  * [顶点项目：GitHub 项目](exercises/capstone_github_project.livemd)
+  * [顶点项目：实体关系图](exercises/capstone_entity_relationship_diagram.livemd)
+  * [顶点项目：设计模型](exercises/capstone_mock.livemd)
 
 ## LiveView
 
 ### LiveView
 
-* Reading
+* 阅读
   * [LiveView](reading/liveview.livemd)
-* Exercises
-  * [Follow Along: LiveView Counter](exercises/liveview_follow_along_counter.livemd)
-  * Bonus: [Math Game](exercises/math_game.livemd)
+* 练习
+  * [跟随：LiveView 计数器](exercises/liveview_follow_along_counter.livemd)
+  * 奖励：[数学游戏](exercises/math_game.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### LiveView And Ecto
+### LiveView 和 Ecto
 
-* Instruction
-  * [PicChat: Messages](reading/pic_chat_messages.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### LiveView Authentication
-
-* Instruction
-  * [PicChat: Authentication](reading/pic_chat_authentication.livemd)
+* 指导
+  * [PicChat：消息](reading/pic_chat_messages.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### LiveView Image Uploads
+### LiveView 认证
 
-* Instruction
-  * [PicChat: Image Upload](reading/pic_chat_image_upload.livemd)
+* 指导
+  * [PicChat：认证](reading/pic_chat_authentication.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### LiveView 图片上传
+
+* 指导
+  * [PicChat：图片上传](reading/pic_chat_image_upload.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### PubSub
 
-* Instruction
-  * [PicChat: PubSub](reading/pic_chat_pub_sub.livemd)
+* 指导
+  * [PicChat：PubSub](reading/pic_chat_pub_sub.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### LiveView JS Interoperability And Pagination
+### LiveView JavaScript 互操作性和分页
 
-* Instruction
-  * [PicChat: Pagination and Infinite Scroll](reading/pic_chat_infinite_scroll.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Scheduling And Emailing With Swoosh And Oban
-
-* Instruction
-  * [PicChat: Emails](reading/picchat_emails.livemd)
-
-## Bonus Topics
-
-The following topics are not part of the DockYard Academy core curriculum, but serve as a bonus section for those interested in delving deeper into programming and Elixir.
+* 指导
+  * [PicChat：分页和无限滚动](reading/pic_chat_infinite_scroll.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Performance Optimization
+### 使用 Swoosh 和 Oban 进行调度和发送电子邮件
 
-* Reading
-  * [Lists and Tuples](reading/lists_vs_tuples.livemd)
-  * [Maps, MapSets, and Keyword Lists](reading/maps_mapsets_keyword_lists.livemd)
-* Exercises
-  * [Drills: MapSets](exercises/mapset_drills.livemd)
-  * [Fibonacci Challenge](exercises/fibonacci_challenge.livemd)
+* 指导
+  * [PicChat：电子邮件](reading/picchat_emails.livemd)
 
-<!-- livebook:{"break_markdown":true} -->
+## 奖励主题
 
-### Benchmarking And Performance
-
-* Reading
-  * [Big O Notation](reading/big_o_notation.livemd)
-  * [Benchmarking](reading/benchmarking.livemd)
-* Exercises
-  * [Custom Enum](exercises/custom_enum_with_recursion.livemd)
+以下主题不属于 DockYard 学院的核心课程，但作为奖励部分，为那些有兴趣更深入研究编程和 Elixir 的人提供。
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Ecto Changesets
+### 性能优化
 
-* Reading
-  * [Ecto Changeset](reading/ecto_changeset.livemd)
-* Exercises
-  * [Sign Up Form](exercises/sign_up_form.livemd)
-  * Bonus: [Book Changeset](exercises/book_changeset.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### State Management With Agents And ETS
-
-* Reading
-  * [State: Agent and ETS](reading/agents_and_ets.livemd)
-* Exercises
-  * [Agent Journal](exercises/agent_journal.livemd)
-  * [ETS Warehouse](exercises/inventory_management.livemd)
-  * Mastery: [Advanced Score Tracker](exercises/advanced_score_tracker.livemd)
+* 阅读
+    * [列表和元组](reading/lists_vs_tuples.livemd)
+    * [映射、MapSet 和关键字列表](reading/maps_mapsets_keyword_lists.livemd)
+* 练习
+    * [练习：MapSet](exercises/mapset_drills.livemd)
+    * [斐波那契挑战](exercises/fibonacci_challenge.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Metaprogramming
+### 基准测试和性能
 
-* Reading
-  * [Metaprogramming](reading/metaprogramming.livemd)
-* Exercises
-  * [Meta Math](exercises/meta_math.livemd)
-  * [Custom Assertions](exercises/custom_assertions.livemd)
-
-<!-- livebook:{"break_markdown":true} -->
-
-### Queues
-
-* Reading
-  * [Queues](reading/queues.livemd)
+* 阅读
+    * [大 O 表示法](reading/big_o_notation.livemd)
+    * [基准测试](reading/benchmarking.livemd)
+* 练习
+    * [自定义枚举](exercises/custom_enum_with_recursion.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Worker Pools
+### Ecto 变更集
 
-* [Worker Pools](reading/worker_pools.livemd)
+* 阅读
+    * [Ecto 变更集](reading/ecto_changeset.livemd)
+* 练习
+    * [注册表单](exercises/sign_up_form.livemd)
+    * 奖励：[图书变更集](exercises/book_changeset.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Rubix Cube Project
+### 借助代理和 ETS 的状态管理
 
-* [Rubix Cube](exercises/rubix_cube.livemd)
+* 阅读
+    * [状态：代理和 ETS](reading/agents_and_ets.livemd)
+* 练习
+    * [代理日志](exercises/agent_journal.livemd)
+    * [ETS 仓库](exercises/inventory_management.livemd)
+    * 精通：[高级分数跟踪器](exercises/advanced_score_tracker.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 元编程
+
+* 阅读
+    * [元编程](reading/metaprogramming.livemd)
+* 练习
+    * [元数学](exercises/meta_math.livemd)
+    * [自定义断言](exercises/custom_assertions.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 队列
+
+* 阅读
+    * [队列](reading/queues.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 工作池
+
+* [工作池](reading/worker_pools.livemd)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 魔方项目
+
+* [魔方](exercises/rubix_cube.livemd)
