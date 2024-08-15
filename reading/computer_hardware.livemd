@@ -1,6 +1,6 @@
 <!-- livebook:{"file_entries":[{"name":"hello_stack_heap.png","type":"attachment"},{"name":"hello_stored_in_memory.png","type":"attachment"},{"name":"memory_blank.png","type":"attachment"},{"name":"memory_consumption_filled_livebook_runtime.png","type":"attachment"},{"name":"memory_consumption_livebook_runtime.png","type":"attachment"},{"name":"stack-overflow-without-tail-recursion.png","type":"attachment"},{"name":"stack_and_heap.png","type":"attachment"},{"name":"stack_frame_steps123.png","type":"attachment"},{"name":"stack_frame_steps4567.png","type":"attachment"}]} -->
 
-# Computer Hardware
+# 计算机硬件
 
 ```elixir
 Mix.install([
@@ -11,51 +11,47 @@ Mix.install([
 ])
 ```
 
-## Navigation
+## 导航
 
 <div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
 <div style="display: flex;">
 <i class="ri-home-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">Home</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
 </div>
 <div style="display: flex;">
 <i class="ri-bug-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Computer Hardware">Report An Issue</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Computer Hardware">报告问题</a>
 </div>
 <div style="display: flex;">
 <i class="ri-arrow-left-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/start_here.livemd">Start Here</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/start_here.livemd">从这里开始</a>
 </div>
 <div style="display: flex;">
-<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/command_line.livemd">Command Line</a>
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/command_line.livemd">命令行</a>
 <i class="ri-arrow-right-fill"></i>
 </div>
 </div>
 
-## Review Questions
+## 复习问题
 
-Upon completing this lesson, a student should be able to answer the following questions.
+完成本课后，学生应该能够回答以下问题。
 
-* How does the processor, memory, and storage device of a computer affect the performance of our programs?
-* How are program instructions executed on the Stack?
+* 计算机的处理器、内存和存储设备如何影响我们程序的性能？
+* 程序指令是如何在栈上执行的？
 
 <!-- livebook:{"branch_parent_index":0} -->
 
-## Overview
+## 概述
 
-Computers are composed of several parts. As programmers, we are primarily concerned about
- the **processor**, and the **memory**.
+计算机由多个部分组成。作为程序员，我们主要关注 **处理器** 和 **内存**。
 
-The processor determines the computer's speed when performing calculations.
+处理器决定了计算机在执行计算时的速度。
 
-Memory or **RAM** (random access memory) determines the amount of data
-we can store during a calculation.
+内存或 **RAM**（随机存取内存）决定了我们在计算过程中可以存储的数据量。
 
-In software terms, this translates to the **speed** and **memory consumption** of our program. Generally
-as you build software, those are your main performance concerns.
+在软件术语中，这转化为我们程序的 **速度** 和 **内存消耗**。通常在构建软件时，这些是你主要的性能关注点。
 
-It's not within the scope of the course to provide an indepth understanding of computers and computer hardware.
-Here's a great primer by Tom Scott to understand more about what your computer is doing under the hood.
+本课程的范围不包括对计算机和计算机硬件的深入理解。以下是 Tom Scott 的一段很好的入门视频，帮助你了解计算机在后台做了什么。
 
 <!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Z5JC9Ve1sfI\")\n","title":"Tom Scott: The Fetch-Execute Cycle: What's Your Computer Actually Doing?"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
@@ -63,44 +59,41 @@ Here's a great primer by Tom Scott to understand more about what your computer i
 YouTube.new("https://www.youtube.com/watch?v=Z5JC9Ve1sfI")
 ```
 
-## Memory
+## 内存
 
-We store information in memory. We can think of memory as a series of cells that
-can each store some value.
+我们在内存中存储信息。我们可以将内存视为一系列单元，每个单元可以存储某个值。
 
 ![](files/memory_blank.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-The string "hello" might be stored in memory like so.
+字符串 "hello" 可能以如下方式存储在内存中。
 
 ![](files/hello_stored_in_memory.png)
 
-Under the hood, memory is stored in electrical signals called bits.
+在底层，内存是以称为位的电信号存储的。
 
-Each bit represents `1` or `0` as an `on` or `off` value for an electrical signal.
+每个位表示 `1` 或 `0`，作为电信号的 `开` 或 `关` 值。
 
-Eight bits are grouped together to make **bytes**. See [Strings and Binaries](strings_and_binaries.livemd) for more.
+八个位组合在一起形成 **字节**。有关更多信息，请参见 [字符串和二进制](strings_and_binaries.livemd)。
 
-Memory is generally measured in kilobytes (`1024` bytes) megabytes (`1024` kilobytes) and gigabytes (`1024` megabytes).
+内存通常以千字节（`1024` 字节）、兆字节（`1024` 千字节）和吉字节（`1024` 兆字节）来衡量。
 
-Since they use the metric system, you might expect each to increase by `1000` instead of `1024`.
-However, computers use binary numbers, so hardware is built based on powers of `2`.
+由于它们使用公制系统，你可能期望每个单位以 `1000` 而不是 `1024` 增加。然而，计算机使用二进制数字，因此硬件是基于 `2` 的幂构建的。
 
-### Stack Vs Heap
+### 栈与堆
 
-Memory is divided into several parts.
+内存被分为几个部分。
 
-The **stack** holds functions and variables as they execute.
+**栈** 存储函数和变量在执行时的状态。
 
-The **heap** is a free memory resource where we can put pretty much any value that we want.
+**堆** 是一个自由的内存资源，我们可以在其中放置几乎任何我们想要的值。
 
 ![](files/stack_and_heap.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-For example, when you define the variable `hello` and bind it to `"world"`, hello is stored
-on the **stack** and it points to the location of memory in the heap.
+例如，当你定义变量 `hello` 并将其绑定到 `"world"` 时，hello 存储在 **栈** 上，并指向堆中内存的位置。
 
 ```elixir
 hello = "world"
@@ -108,12 +101,12 @@ hello = "world"
 
 ![](files/hello_stack_heap.png)
 
-### Stack Frames
+### 栈帧
 
-The stack is a LIFO (last in first out) queue.
-Instructions stored on the stack create **stack frames**.
+栈是一个 LIFO（后进先出）队列。
+存储在栈上的指令创建 **栈帧**。
 
-As we execute functions, they are stored in a stack frame.
+当我们执行函数时，它们被存储在栈帧中。
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -121,14 +114,13 @@ As we execute functions, they are stored in a stack frame.
 
 <!-- livebook:{"break_markdown":true} -->
 
-The last function to be added onto the stack will be the first one executed and removed from the
-stack.
+最后添加到栈中的函数将是第一个被执行并从栈中移除的函数。
 
 ![](files/stack_frame_steps4567.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-That's why in the code below, `three/0` executes, then `two/1`, then `one/1`.
+这就是为什么在下面的代码中，`three/0` 先执行，然后是 `two/1`，最后是 `one/1`。
 
 ```elixir
 one = fn _ -> IO.inspect("one") end
@@ -138,35 +130,29 @@ three = fn -> IO.inspect("three") end
 one.(two.(three.()))
 ```
 
-### Stack Overflow
+### 栈溢出
 
-The stack has a limited amount of memory allocated to it. When we over-allocate memory on the stack we get stack
-overflow. For example, if we continued executing functions in functions eventually the
-stack would (generally) run out of space.
+栈的内存分配是有限的。当我们在栈上过度分配内存时，会发生栈溢出。例如，如果我们继续在函数中执行函数，最终栈将（通常）耗尽空间。
 
-![Stack Overflow](files/stack-overflow-without-tail-recursion.png)
+![栈溢出](files/stack-overflow-without-tail-recursion.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### Memory Consumption
+### 内存消耗
 
-Whenever we create a value it is stored in memory. If the value is too large, it can consume more
-memory than is available on the heap (or is allocated to the program).
+每当我们创建一个值时，它会存储在内存中。如果值太大，它可能会消耗超过堆上可用的内存（或分配给程序的内存）。
 
-For example, loading a large file's contents into memory is a performance concern.
+例如，将大文件的内容加载到内存中是一个性能问题。
 
-You can see the memory this livebook consumes in the Runtime Settings panel. Press `s` then `r` to open
-the settings panel.
+你可以在运行时设置面板中查看这个 livebook 消耗的内存。按 `s` 然后 `r` 打开设置面板。
 
 ![](files/memory_consumption_livebook_runtime.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-Uncomment the line below and evaluate the cell. You'll notice that the amount of memory consuption
-by **Processes** should increase. That's because the `list` must be stored in memory.
+取消注释下面的行并评估单元格。你会注意到 **进程** 的内存消耗应该增加。这是因为 `list` 必须存储在内存中。
 
-Comment the line again and re-evaluate the cell and you'll notice that the memory consuption
-goes down because the `list` is no longer in memory.
+再次注释该行并重新评估单元格，你会注意到内存消耗下降，因为 `list` 不再在内存中。
 
 ```elixir
 # list = Enum.to_list(1..1000000)
@@ -176,7 +162,7 @@ goes down because the `list` is no longer in memory.
 
 <!-- livebook:{"break_markdown":true} -->
 
-For more on Memory, there is a more indepth video by Crash Course Computer Science.
+有关内存的更多信息，Crash Course Computer Science 有一段更深入的视频。
 
 <!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=fpnE6UAfbtU\")","title":"Registers and Ram: Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
@@ -184,17 +170,13 @@ For more on Memory, there is a more indepth video by Crash Course Computer Scien
 YouTube.new("https://www.youtube.com/watch?v=fpnE6UAfbtU")
 ```
 
-### Storage
+### 存储
 
-Generally, we are more concerned about the memory consumption of our program. However, if
-our application requires that users download large files onto their computer, it's useful
-to be aware of storage.
+通常，我们更关心程序的内存消耗。然而，如果我们的应用程序要求用户将大文件下载到他们的计算机上，了解存储是有用的。
 
-Files can be saved to the hard drive (or solid state drive in more modern computers) of a computer. The hard drive is a slower (but generally larger)
-storage device. Unlike memory, it is often used for persistent values rather than values which only
-exist during the runtime of the program.
+文件可以保存到计算机的硬盘（或更现代计算机中的固态硬盘）上。硬盘是一个较慢（但通常较大）的存储设备。与内存不同，它通常用于持久值，而不是仅在程序运行时存在的值。
 
-For more on memory and storage, you can watch this video by Crash Course Computer Science.
+有关内存和存储的更多信息，你可以观看 Crash Course Computer Science 的这段视频。
 
 <!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=TQCr9RV7twk\")","title":"Memory & Storage: Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
@@ -204,18 +186,17 @@ YouTube.new("https://www.youtube.com/watch?v=TQCr9RV7twk")
 
 ## CPU
 
-The CPU (Central Processing Unit) executes the instructions that you create in your program.
+CPU（中央处理单元）执行你在程序中创建的指令。
 
-When you perform any operation such as `2 + 2` it is handled by the CPU.
+当你执行任何操作，例如 `2 + 2` 时，它由 CPU 处理。
 
-The more instructions you provide to your program, the more work the CPU has to perform. If
-there are too many instructions, then the program will take longer to execute.
+你提供给程序的指令越多，CPU 需要执行的工作就越多。如果指令过多，程序的执行时间将会更长。
 
-For example, it's far faster to perform ten addition operations than it is to perform ten million.
+例如，执行十次加法操作要比执行一千万次加法操作快得多。
 
-Try evaluating the two cells below and notice how the first is far faster (nearly instant).
+尝试评估下面的两个单元格，注意第一个单元格的执行速度要快得多（几乎是瞬间）。
 
-> You don't need to understand the specifics of [Enum](https://hexdocs.pm/elixir/Enum.html) and that works yet. The only important difference between these examples is the size of the data. The first is for `10` elements, the second is for `10_000_000`.
+> 你不需要理解 [Enum](https://hexdocs.pm/elixir/Enum.html) 的具体细节。两个示例之间唯一重要的区别是数据的大小。第一个是 `10` 个元素，第二个是 `10_000_000`。
 
 ```elixir
 Enum.map(1..10, fn each -> each + 2 end)
@@ -225,7 +206,7 @@ Enum.map(1..10, fn each -> each + 2 end)
 Enum.map(1..10_000_000, fn each -> each + 2 end)
 ```
 
-For more on the CPU there is an great video by Crash Course Computer Science.
+有关 CPU 的更多信息，Crash Course Computer Science 有一段很好的视频。
 
 <!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=FZGugFqdr60\")","title":"The Central Processing Unit (CPU) Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
@@ -233,47 +214,47 @@ For more on the CPU there is an great video by Crash Course Computer Science.
 YouTube.new("https://www.youtube.com/watch?v=FZGugFqdr60")
 ```
 
-## Conclusion
+## 结论
 
-Performance issues can significantly impact a program, leading to slowness or even crashing. Always consider your program's processing and memory constraints and how this might affect your users.
+性能问题可能会显著影响程序，导致缓慢甚至崩溃。始终考虑程序的处理和内存限制，以及这可能如何影响用户。
 
-In addition, performance issues generally have a more significant impact on lower-quality computers. Thus, your program may be performant on your personal computer but cause problems on lower-performance hardware.
+此外，性能问题通常对低质量计算机的影响更大。因此，你的程序在个人计算机上可能表现良好，但在低性能硬件上可能会出现问题。
 
-## Commit Your Progress
+## 提交你的进度
 
-DockYard Academy now recommends you use the latest [Release](https://github.com/DockYard-Academy/curriculum/releases) rather than forking or cloning our repository.
+DockYard Academy 现在建议你使用最新的 [Release](https://github.com/DockYard-Academy/curriculum/releases)，而不是分叉或克隆我们的仓库。
 
-Run `git status` to ensure there are no undesirable changes.
-Then run the following in your command line from the `curriculum` folder to commit your progress.
+运行 `git status` 以确保没有不必要的更改。
+然后在 `curriculum` 文件夹中从命令行运行以下命令以提交你的进度。
 
 ```
 $ git add .
-$ git commit -m "finish Computer Hardware reading"
+$ git commit -m "完成计算机硬件阅读"
 $ git push
 ```
 
-We're proud to offer our open-source curriculum free of charge for anyone to learn from at their own pace.
+我们自豪地提供我们的开源课程，供任何人免费学习，按照自己的节奏进行。
 
-We also offer a paid course where you can learn from an instructor alongside a cohort of your peers.
-We will accept applications for the June-August 2023 cohort soon.
+我们还提供付费课程，你可以在同伴的陪伴下向讲师学习。
+我们将很快接受 2023 年 6 月至 8 月的课程申请。
 
-## Navigation
+## 导航
 
 <div style="display: flex; align-items: center; width: 100%; justify-content: space-between; font-size: 1rem; color: #61758a; background-color: #f0f5f9; height: 4rem; padding: 0 1rem; border-radius: 1rem;">
 <div style="display: flex;">
 <i class="ri-home-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">Home</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../start.livemd">首页</a>
 </div>
 <div style="display: flex;">
 <i class="ri-bug-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Computer Hardware">Report An Issue</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="https://github.com/DockYard-Academy/curriculum/issues/new?assignees=&labels=&template=issue.md&title=Computer Hardware">报告问题</a>
 </div>
 <div style="display: flex;">
 <i class="ri-arrow-left-fill"></i>
-<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/start_here.livemd">Start Here</a>
+<a style="display: flex; color: #61758a; margin-left: 1rem;" href="../reading/start_here.livemd">从这里开始</a>
 </div>
 <div style="display: flex;">
-<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/command_line.livemd">Command Line</a>
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/command_line.livemd">命令行</a>
 <i class="ri-arrow-right-fill"></i>
 </div>
 </div>
