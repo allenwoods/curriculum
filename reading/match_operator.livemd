@@ -178,7 +178,7 @@ hello = "world"
 在下面输入你的解决方案。
 
 ```elixir
-
+hello = "world"
 ```
 
 ### 变异
@@ -249,7 +249,7 @@ IO.inspect(my_value)
 ```elixir
 my_value = IO.inspect("hello")
 
-my_value
+IO.puts(my_value)
 ```
 
 ### 你的回合
@@ -258,6 +258,7 @@ my_value
 
 ```elixir
 hello = "world!"
+IO.inspect(hello)
 ```
 
 ## 深入阅读

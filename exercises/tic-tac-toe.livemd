@@ -138,6 +138,15 @@ end
 </details>
 
 ```elixir
+ board = [
+ ["A", "B", "C"],
+ ["D", "E", "F"],
+ ["G", "H", "I"]
+ ]
+Enum.count(board)-0
+```
+
+```elixir
 defmodule TicTacToe do
   @moduledoc """
     Documentation for `TicTacToe`
@@ -163,6 +172,10 @@ defmodule TicTacToe do
       "A"
   """
   def at(board, coordinate) do
+    {x, y} = coordinate
+    board
+    |> Enum.at(Enum.count(board)-1-y)
+    |> Enum.at(x)
   end
 
   @doc """
@@ -181,6 +194,50 @@ defmodule TicTacToe do
       [[nil, nil, nil], [nil, "O", nil], [nil, nil, nil]]
   """
   def fill(board, coordinate, symbol) do
+    {x, y} = coordinate
+    board
+    |> List.update_at(Enum.count(board)-1-y, 
+                      fn row -> List.replace_at(row, x, symbol) end)
+  end
+  @doc """
+  确定玩家是否赢得了游戏。
+  
+  ## 示例
+  
+    行胜利：
+  
+    iex> TicTacToe.winner([["X", "X", "X"], [nil, nil, nil], [nil, nil, nil]])
+    "X"
+    iex> TicTacToe.winner([[nil, nil, nil], ["X", "X", "X"], [nil, nil, nil]])
+    "X"
+    iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], ["X", "X", "X"]])
+    "X"
+  
+    列胜利：
+  
+    iex> TicTacToe.winner([["X", nil, nil], ["X", nil, nil], ["X", nil, nil]])
+    "X"
+    iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, "X", nil]])
+    "X"
+    iex> TicTacToe.winner([[nil, nil, "X"], [nil, nil, "X"], [nil, nil, "X"]])
+    "X"
+  
+    对角线胜利
+  
+    iex> TicTacToe.winner([["X", nil, nil], [nil, "X", nil], [nil, nil, "X"]])
+    "X"
+    iex> TicTacToe.winner([[nil, nil, "X"], [nil, "X", nil], ["X", nil, nil]])
+    "X"
+  
+    无赢家
+  
+    iex> TicTacToe.winner([[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]])
+    nil
+    iex> TicTacToe.winner([[nil, "X", nil], [nil, "X", nil], [nil, nil, nil]])
+    nil
+  
+  """
+  def winner(board) do
   end
 end
 ```

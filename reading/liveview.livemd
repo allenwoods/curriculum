@@ -44,7 +44,7 @@ Mix.install([
 
 ### Phoenix LiveView
 
-[Phoenix.LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) 是 [模型-视图-控制器](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) 模式（有时称为死视图）的替代方案。
+[Phoenix.LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) 是 [模型-视图-控制器](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) 模式（有时称为MVC: Model-View-Controller）的替代方案。
 
 LiveViews 偏离了典型的请求/响应模式，其中客户端负责发起与服务器的所有交互。
 

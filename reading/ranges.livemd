@@ -129,7 +129,7 @@ Enum.to_list(0..10//2)
 </details>
 
 ```elixir
-
+Enum.to_list(3..9//3)
 ```
 
 ### 使用范围进行模式匹配
@@ -145,7 +145,7 @@ Enum.to_list(0..10//2)
 我们还可以将范围的起始和结束绑定到模式匹配中的变量。
 
 ```elixir
-start..finish = 1..10
+start..finish // _ = 1..10
 ```
 
 ```elixir

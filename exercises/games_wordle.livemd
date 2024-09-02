@@ -72,6 +72,7 @@ style 5 fill:yellow
 > ```elixir
 > Games.Wordle.feedback("XXXAA", "AAAAY") == [:yellow, :grey, :grey, :green, :grey]
 > ```
+> 
 > 首先处理绿色，然后按顺序填充黄色。剩余的字符为灰色。
 > 
 > 请注意，这是一个 **困难** 的奖励挑战，显著增加了解决方案的复杂性。考虑先解决没有这个边缘情况的练习。

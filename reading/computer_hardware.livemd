@@ -53,10 +53,11 @@ Mix.install([
 
 本课程的范围不包括对计算机和计算机硬件的深入理解。以下是 Tom Scott 的一段很好的入门视频，帮助你了解计算机在后台做了什么。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Z5JC9Ve1sfI\")\n","title":"Tom Scott: The Fetch-Execute Cycle: What's Your Computer Actually Doing?"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9WjVKQzlWZTFzZklcIilcbiIsInRpdGxlIjoiVG9tIFNjb3R0OiBUaGUgRmV0Y2gtRXhlY3V0ZSBDeWNsZTogV2hhdCdzIFlvdXIgQ29tcHV0ZXIgQWN0dWFsbHkgRG9pbmc/In0","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=Z5JC9Ve1sfI")
+
 ```
 
 ## 内存
@@ -155,7 +156,7 @@ one.(two.(three.()))
 再次注释该行并重新评估单元格，你会注意到内存消耗下降，因为 `list` 不再在内存中。
 
 ```elixir
-# list = Enum.to_list(1..1000000)
+list = Enum.to_list(1..1000000)
 ```
 
 ![](files/memory_consumption_filled_livebook_runtime.png)
@@ -164,7 +165,7 @@ one.(two.(three.()))
 
 有关内存的更多信息，Crash Course Computer Science 有一段更深入的视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=fpnE6UAfbtU\")","title":"Registers and Ram: Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9ZnBuRTZVQWZidFVcIikiLCJ0aXRsZSI6IlJlZ2lzdGVycyBhbmQgUmFtOiBDcmFzaCBDb3Vyc2UgQ29tcHV0ZXIgU2NpZW5jZSJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=fpnE6UAfbtU")
@@ -178,7 +179,7 @@ YouTube.new("https://www.youtube.com/watch?v=fpnE6UAfbtU")
 
 有关内存和存储的更多信息，你可以观看 Crash Course Computer Science 的这段视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=TQCr9RV7twk\")","title":"Memory & Storage: Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9VFFDcjlSVjd0d2tcIikiLCJ0aXRsZSI6Ik1lbW9yeSAmIFN0b3JhZ2U6IENyYXNoIENvdXJzZSBDb21wdXRlciBTY2llbmNlIn0","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=TQCr9RV7twk")
@@ -208,7 +209,7 @@ Enum.map(1..10_000_000, fn each -> each + 2 end)
 
 有关 CPU 的更多信息，Crash Course Computer Science 有一段很好的视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=FZGugFqdr60\")","title":"The Central Processing Unit (CPU) Crash Course Computer Science"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9RlpHdWdGcWRyNjBcIikiLCJ0aXRsZSI6IlRoZSBDZW50cmFsIFByb2Nlc3NpbmcgVW5pdCAoQ1BVKSBDcmFzaCBDb3Vyc2UgQ29tcHV0ZXIgU2NpZW5jZSJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=FZGugFqdr60")

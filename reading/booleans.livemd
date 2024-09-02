@@ -42,7 +42,7 @@ Mix.install([
 
 ## 布尔值
 
-布尔值（BOO-LEE-ANS）是你代码中的 `true` 和 `false` 值。它们通常用于表示条件并触发程序中的动作。
+布尔值（booleeans, BOO-LEE-ANS）是你代码中的 `true` 和 `false` 值。它们通常用于表示条件并触发程序中的动作。
 
 <!-- livebook:{"force_markdown":true} -->
 
@@ -70,17 +70,18 @@ flowchart LR
 
 在下面的 Elixir 单元中，将我们的灯光控制程序的电源打开，看看灯光是否亮起！将 `false` 替换为 `true`。
 
-<!-- livebook:{"attrs":{"code":"power = false","source":"content = if power, do: \"/images/on.png\", else: \"/images/off.png\"\nKino.Image.new(File.read!(__DIR__ <> content), :png)","title":"电源开启！"},"chunks":null,"kind":"Elixir.Visual","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjb2RlIjoicG93ZXIgPSB0cnVlIiwic291cmNlIjoiY29udGVudCA9IGlmIHBvd2VyLCBkbzogXCIvaW1hZ2VzL29uLnBuZ1wiLCBlbHNlOiBcIi9pbWFnZXMvb2ZmLnBuZ1wiXG5LaW5vLkltYWdlLm5ldyhGaWxlLnJlYWQhKF9fRElSX18gPD4gY29udGVudCksIDpwbmcpIiwidGl0bGUiOnRydWV9","chunks":null,"kind":"Elixir.Visual","livebook_object":"smart_cell"} -->
 
 ```elixir
-power = false
+power = true
 content = if power, do: "/images/on.png", else: "/images/off.png"
 Kino.Image.new(File.read!(__DIR__ <> content), :png)
+
 ```
 
 有关布尔值的更多信息，请参考 Crash Course Computer Science 的视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=gI-qXk7XojA\")","title":"布尔逻辑与逻辑门"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9Z0ktcVhrN1hvakFcIikiLCJ0aXRsZSI6IuW4g+WwlOmAu+i+keS4jumAu+i+kemXqCJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=gI-qXk7XojA")
@@ -176,13 +177,13 @@ not false
 
 ### `&&` 检查两个值是否为 truthy。
 
-如果左侧值为 truthy，则返回右侧值。
+如果左侧值为 true，则返回右侧值。
 
 ```elixir
 1 && 2
 ```
 
-如果左侧值为 falsy，则返回左侧值。
+如果左侧值为 false，则返回左侧值。
 
 ```elixir
 nil && 2
@@ -192,9 +193,9 @@ nil && 2
 false && 2
 ```
 
-### `||` 检查一个或多个值是否为 truthy。
+### `||` 检查一个或多个值是否为 true。
 
-返回左侧或右侧的第一个 truthy 值。
+返回左侧或右侧的第一个 true 值。
 
 ```elixir
 2 || nil
@@ -212,7 +213,7 @@ nil || 2
 
 <!-- livebook:{"break_markdown":true} -->
 
-将 truthy 翻转为 `false`，将 falsy 翻转为 `true`。
+将 `true` 翻转为 `false`，将 `false` 翻转为 `true`。
 
 ```elixir
 !1

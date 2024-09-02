@@ -69,7 +69,7 @@ flowchart
 [artist1: "song 1", artist2: "song 2", artist3: "song 3", artist4: "song 4", artist5: "song 5"]
 ```
 
-然而，对于一个大型播放列表，我们可能选择使用[映射](./maps.livemd)，因为顺序并不重要，并且我们需要播放列表在大量数据时具有良好的性能。我们将在下一课中讨论映射。
+然而，对于一个大型播放列表，我们可能选择使用[Map(映射)](./maps.livemd)，因为顺序并不重要，并且我们需要播放列表在大量数据时具有良好的性能。我们将在下一课中讨论映射。
 
 <!-- livebook:{"force_markdown":true} -->
 
@@ -153,6 +153,10 @@ Elixir允许你使用这种优雅的`[key: "value"]`语法来处理关键字列�
 关键字列表语法必须位于列表的末尾，否则会导致[语法错误](https://hexdocs.pm/elixir/SyntaxError.html)。
 
 ```elixir
+["", key: "value"]
+```
+
+```elixir
 [key: "value", ""]
 ```
 
@@ -184,7 +188,7 @@ Elixir允许你使用这种优雅的`[key: "value"]`语法来处理关键字列�
 我们可以通过其关联的键使用方括号`[key]`语法访问关键字列表中的值，其中`key`是原子键。
 
 ```elixir
-keyword_list = [key: "value"]
+keyword_list = [key: "value1", key: "value2"]
 
 keyword_list[:key]
 ```
@@ -251,9 +255,9 @@ my_variable
 我们可以使用`[head | tail]`语法对关键字列表的尾部进行模式匹配，以避免此问题。
 
 ```elixir
-[head | _tail] = [one: 1, two: 2]
+[head | tail] = [one: 1, two: 2, three: 3]
 
-head
+tail[:three]
 ```
 
 如果我们想对列表中的键进行模式匹配，我们需要在`=`匹配运算符的左侧使用元组语法。

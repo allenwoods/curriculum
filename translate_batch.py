@@ -63,6 +63,6 @@ if __name__ == "__main__":
             json_content.append(json.dumps(payload))
             count += 1
             
-      with open(f"payload.jsonl", "w", encoding="utf-8") as f:
+      with open(f"need_translate.jsonl", "w", encoding="utf-8") as f:
           f.writelines([item + "\n" for item in json_content])
       print(f"{count} files translated")

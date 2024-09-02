@@ -124,11 +124,48 @@ end
 </details>
 
 ```elixir
+all_items = Products.all_items()
+all_items
+```
+
+```elixir
+Products.search(all_items, [min: 1, max: 100, name: "computer"])
+```
+
+```elixir
+# filter = [min: 1, max: 100, name: "computer"]
+filter = [min: 1, max: 100]
+
+for %{name: n, price: p} <- all_items, 
+  !filter[:name] || n == filter[:name], 
+  !filter[:min] || p > filter[:min], 
+  !filter[:max] || p < filter[:max] do
+  %{name: n, price: p}
+end
+```
+
+```elixir
 defmodule Products do
+  @doc """
+  iex> Enum.count(Products.all_items()) == 300
+  """
   def all_items do
+    for _i <- 1..300 do
+      %{name: Enum.take_random(["computer", "phone", "tablet"], 1) |> Enum.at(0),
+        price: Enum.random(1..100)}
+    end
   end
 
+  @doc """
+  iex> Products.search(Products.all_items(), [min: 10, max: 15, name: "computer"]) != nil
+  """
   def search(items, filters) do
+    for %{name: n, price: p} <- items, 
+      !filters[:name] || n == filters[:name], 
+      !filters[:min] || p > filters[:min], 
+      !filters[:max] || p < filters[:max] do
+      %{name: n, price: p}
+    end
   end
 end
 ```

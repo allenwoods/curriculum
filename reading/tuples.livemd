@@ -78,7 +78,7 @@ Mix.install([
 </details>
 
 ```elixir
-
+mytuple = {:ok, "got it!"}
 ```
 
 ## 模式匹配

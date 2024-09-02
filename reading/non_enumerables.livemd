@@ -25,7 +25,7 @@ Mix.install([
 <a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/tic-tac-toe.livemd">井字棋</a>
 </div>
 <div style="display: flex;">
-<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">理解</a>
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">列表推导式</a>
 <i class="ri-arrow-right-fill"></i>
 </div>
 </div>
@@ -69,7 +69,7 @@ Integer.digits(123)
 在下面的 Elixir 单元中，将整数 `4389` 转换为数字列表。
 
 ```elixir
-
+Integer.digits(4389)
 ```
 
 ### 反数字
@@ -147,7 +147,7 @@ String.split("hello world")
 在下面的 Elixir 单元中，将字符串 `"Hello, world!"` 转换为单个字符的列表。
 
 ```elixir
-
+String.split("Hello, world!", "", trim: true)
 ```
 
 ### 连接字符串
@@ -225,6 +225,9 @@ defmodule CharacterCount do
       4
   """
   def count(string) do
+    string 
+    |> String.split("", trim: true)
+    |> Enum.count()
   end
 end
 ```
@@ -271,7 +274,7 @@ $ git push
 <a style="display: flex; color: #61758a; margin-left: 1rem;" href="../exercises/tic-tac-toe.livemd">井字棋</a>
 </div>
 <div style="display: flex;">
-<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">理解</a>
+<a style="display: flex; color: #61758a; margin-right: 1rem;" href="../reading/comprehensions.livemd">列表推导式</a>
 <i class="ri-arrow-right-fill"></i>
 </div>
 </div>

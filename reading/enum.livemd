@@ -164,7 +164,7 @@ end
 ```
 
 ```elixir
-Enum.reduce(1..3, fn el, acc -> acc + el end)
+Enum.reduce(1..3, fn el, acc -> [acc, el] end)
 ```
 
 ## 场景
@@ -277,8 +277,10 @@ end)
 
 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 使用集合中的第一个值作为初始累加器。通常（但并不总是）为了清晰起见，建议使用 [Enum.reduce/3](https://hexdocs.pm/elixir/Enum.html#reduce/3)，我们将在大多数用例中优先使用它。
 
+> `reduce(enumerable, fun)` v.s `reduce(enumerable, acc, fun)`
+
 ```elixir
-Enum.reduce(1..3, 5, fn element, accumulator ->
+Enum.reduce(1..3, 2, fn element, accumulator ->
   element + accumulator
 end)
 ```
@@ -340,7 +342,7 @@ Enum.map(1..100, fn integer -> integer * 2 end)
 **关键字列表** 和 **映射** 将被视为元组列表以进行枚举。
 
 ```elixir
-Enum.map(%{"one" => 1, "two" => 2}, fn element -> element end)
+Enum.map(%{"one" => 1, "two" => 2}, fn element -> element.key end) # 与Python不同
 ```
 
 ```elixir
@@ -380,7 +382,7 @@ Enum.map(1..10, fn integer -> "#{integer}" end)
 在下面输入您的解决方案。
 
 ```elixir
-
+Enum.map(1..10, fn elem -> "#{elem}" end)
 ```
 
 ## Enum.reduce/2 和 Enum.reduce/3
@@ -411,56 +413,56 @@ Enum.reduce(list, fn integer, accumulator -> integer + accumulator end)
 
 集合中的第一个值将是初始累加器值。
 
-<!-- livebook:{"attrs":{"source":"frames = [\n      \"\n首先，我们定义调用 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 函数的列表和函数。\n```elixir\nEnum.reduce([1, 2, 3, 4], fn integer, accumulator -> integer + accumulator  end)\n```\n\",\n      \"\n列表中的第一个元素 `1` 是初始累加器值。\n```elixir\nEnum.reduce([2, 3, 4], fn integer, 1 -> integer + 1  end)\n```\n\",\n      \"\n函数在下一个元素 `2` 上被调用。下一个累加器是 2 + 1\n```elixir\nEnum.reduce([3, 4], fn 2, 1 -> 2 + 1  end)\n```\n\",\n      \"\n函数在下一个元素 `3` 上被调用。下一个累加器是 3 + 3\n```elixir\nEnum.reduce([4], fn 3, 3 -> 3 + 3  end)\n```\n\",\n      \"\n函数在下一个元素 `4` 上被调用。下一个累加器是 4 + 6\n```elixir\nEnum.reduce([], fn 4, 6 -> 4 + 6  end)\n```\n\",\n      \"\n4 + 6 等于 10。\n```elixir\nEnum.reduce([], fn 4, 6 -> 10  end)\n```\n\",\n      \"\n`10` 是最后的累加器值，因此 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 返回 `10`。\n```elixir\n                           10\n```\n\"\n    ]\n\nSmartAnimation.new(0..Enum.count(frames) - 1, fn i ->\n    Kino.Markdown.new(Enum.at(frames, i))\nend)","title":"Reduce"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJmcmFtZXMgPSBbXG4gICAgICBcIlxu6aaW5YWI77yM5oiR5Lus5a6a5LmJ6LCD55SoIFtFbnVtLnJlZHVjZS8yXShodHRwczovL2hleGRvY3MucG0vZWxpeGlyL0VudW0uaHRtbCNyZWR1Y2UvMikg5Ye95pWw55qE5YiX6KGo5ZKM5Ye95pWw44CCXG5gYGBlbGl4aXJcbkVudW0ucmVkdWNlKFsxLCAyLCAzLCA0XSwgZm4gaW50ZWdlciwgYWNjdW11bGF0b3IgLT4gaW50ZWdlciArIGFjY3VtdWxhdG9yICBlbmQpXG5gYGBcblwiLFxuICAgICAgXCJcbuWIl+ihqOS4reeahOesrOS4gOS4quWFg+e0oCBgMWAg5piv5Yid5aeL57Sv5Yqg5Zmo5YC844CCXG5gYGBlbGl4aXJcbkVudW0ucmVkdWNlKFsyLCAzLCA0XSwgZm4gaW50ZWdlciwgMSAtPiBpbnRlZ2VyICsgMSAgZW5kKVxuYGBgXG5cIixcbiAgICAgIFwiXG7lh73mlbDlnKjkuIvkuIDkuKrlhYPntKAgYDJgIOS4iuiiq+iwg+eUqOOAguS4i+S4gOS4que0r+WKoOWZqOaYryAyICsgMVxuYGBgZWxpeGlyXG5FbnVtLnJlZHVjZShbMywgNF0sIGZuIDIsIDEgLT4gMiArIDEgIGVuZClcbmBgYFxuXCIsXG4gICAgICBcIlxu5Ye95pWw5Zyo5LiL5LiA5Liq5YWD57SgIGAzYCDkuIrooqvosIPnlKjjgILkuIvkuIDkuKrntK/liqDlmajmmK8gMyArIDNcbmBgYGVsaXhpclxuRW51bS5yZWR1Y2UoWzRdLCBmbiAzLCAzIC0+IDMgKyAzICBlbmQpXG5gYGBcblwiLFxuICAgICAgXCJcbuWHveaVsOWcqOS4i+S4gOS4quWFg+e0oCBgNGAg5LiK6KKr6LCD55So44CC5LiL5LiA5Liq57Sv5Yqg5Zmo5pivIDQgKyA2XG5gYGBlbGl4aXJcbkVudW0ucmVkdWNlKFtdLCBmbiA0LCA2IC0+IDQgKyA2ICBlbmQpXG5gYGBcblwiLFxuICAgICAgXCJcbjQgKyA2IOetieS6jiAxMOOAglxuYGBgZWxpeGlyXG5FbnVtLnJlZHVjZShbXSwgZm4gNCwgNiAtPiAxMCAgZW5kKVxuYGBgXG5cIixcbiAgICAgIFwiXG5gMTBgIOaYr+acgOWQjueahOe0r+WKoOWZqOWAvO+8jOWboOatpCBbRW51bS5yZWR1Y2UvMl0oaHR0cHM6Ly9oZXhkb2NzLnBtL2VsaXhpci9FbnVtLmh0bWwjcmVkdWNlLzIpIOi/lOWbniBgMTBg44CCXG5gYGBlbGl4aXJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIDEwXG5gYGBcblwiXG4gICAgXVxuXG5TbWFydEFuaW1hdGlvbi5uZXcoMC4uRW51bS5jb3VudChmcmFtZXMpIC0gMSwgZm4gaSAtPlxuICAgIEtpbm8uTWFya2Rvd24ubmV3KEVudW0uYXQoZnJhbWVzLCBpKSlcbmVuZCkiLCJ0aXRsZSI6IlJlZHVjZSJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ````elixir
 frames = [
-  "
+      "
 首先，我们定义调用 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 函数的列表和函数。
 ```elixir
 Enum.reduce([1, 2, 3, 4], fn integer, accumulator -> integer + accumulator  end)
 ```
 ",
-  "
+      "
 列表中的第一个元素 `1` 是初始累加器值。
 ```elixir
 Enum.reduce([2, 3, 4], fn integer, 1 -> integer + 1  end)
 ```
 ",
-  "
+      "
 函数在下一个元素 `2` 上被调用。下一个累加器是 2 + 1
 ```elixir
 Enum.reduce([3, 4], fn 2, 1 -> 2 + 1  end)
 ```
 ",
-  "
+      "
 函数在下一个元素 `3` 上被调用。下一个累加器是 3 + 3
 ```elixir
 Enum.reduce([4], fn 3, 3 -> 3 + 3  end)
 ```
 ",
-  "
+      "
 函数在下一个元素 `4` 上被调用。下一个累加器是 4 + 6
 ```elixir
 Enum.reduce([], fn 4, 6 -> 4 + 6  end)
 ```
 ",
-  "
+      "
 4 + 6 等于 10。
 ```elixir
 Enum.reduce([], fn 4, 6 -> 10  end)
 ```
 ",
-  "
+      "
 `10` 是最后的累加器值，因此 [Enum.reduce/2](https://hexdocs.pm/elixir/Enum.html#reduce/2) 返回 `10`。
 ```elixir
                            10
 ```
 "
-]
+    ]
 
-SmartAnimation.new(0..(Enum.count(frames) - 1), fn i ->
-  Kino.Markdown.new(Enum.at(frames, i))
+SmartAnimation.new(0..Enum.count(frames) - 1, fn i ->
+    Kino.Markdown.new(Enum.at(frames, i))
 end)
 ````
 
@@ -502,7 +504,14 @@ end)
 在下面输入您的解决方案。
 
 ```elixir
-
+Enum.reduce(1..10, 0, 
+  fn elem, acc -> 
+    if rem(elem, 2) == 0 do 
+      elem + acc 
+    else
+      acc
+    end 
+  end)
 ```
 
 ## Enum.filter
@@ -540,7 +549,7 @@ odd_numbers = Enum.filter(1..10, fn integer -> rem(integer, 2) != 0 end)
 在下面输入您的解决方案。
 
 ```elixir
-
+Enum.filter(1..10, fn int -> rem(int, 2) != 0 end)
 ```
 
 ## Enum.all?/2
@@ -591,6 +600,7 @@ Enum.all?(1..10_000_000, fn integer -> is_integer(integer) end)
 
 ```elixir
 colors = [:green, :green, :red]
+Enum.all?(colors, fn c -> c == :green end)
 ```
 
 ## Enum.any?/2
@@ -658,6 +668,7 @@ Enum.count([{}, "hello", %{}, [[[]]]])
 
 ```elixir
 collection = [1, 2, 3, 4, 5]
+Enum.count(collection)
 ```
 
 ## Enum.find/3
@@ -677,7 +688,7 @@ Enum.find(["h", "e", "l", "l", "o"], fn each -> is_integer(each) end)
 您可能会注意到函数的 arity 为 `3`，即使我们只传入了 `2` 个参数。这是因为有一个可选的 `default` 值参数。如果未找到元素，将返回 `default` 值而不是 `nil`。
 
 ```elixir
-Enum.find(["h", "e", "l", "l", "o"], 10, fn each -> is_integer(each) end)
+Enum.find(["h", "e", "l", "l", "o"], "default: not find", fn each -> is_integer(each) end)
 ```
 
 ### 你的回合
@@ -712,7 +723,7 @@ Enum.map(1..10, fn _ -> Enum.random(0..9) end)
 在下面输入您的解决方案。
 
 ```elixir
-
+Enum.map(1..10, fn _ -> Enum.random(0..9) end) # Wrong! duplicated number exists
 ```
 
 ## 捕获运算符和模块函数
@@ -736,7 +747,7 @@ defmodule NonAnonymous do
   end
 end
 
-Enum.map(1..10, &NonAnonymous.function/1)
+Enum.map(1..10, &NonAnonymous.function/1) # Without & function NonAnonymous.function/0 is undefined
 ```
 
 这也可以与 Elixir 的任何内置函数一起使用，只要它们的 arity 与回调函数匹配。

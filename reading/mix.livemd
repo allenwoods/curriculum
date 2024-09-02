@@ -135,6 +135,8 @@ iex -S mix
 
 [Mix](https://hexdocs.pm/mix/Mix.html) 会忽略 `.exs` 文件，因此 `.exs` 文件中的任何模块在 [IEx](https://hexdocs.pm/iex/IEx.html) shell 中将不可用。
 
+> `.exs`文件通常用于编写一次性的脚本或执行一些临时的、实验性的代码。
+
 ### 你的回合
 
 将你的项目加载到 IEx Shell 中。

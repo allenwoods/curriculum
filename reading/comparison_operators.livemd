@@ -103,7 +103,7 @@ Mix.install([
 </details>
 
 ```elixir
-
+10 + 10 * 15 > (10 + 10) * 15
 ```
 
 使用比较运算符，确定 `4 ** 6` 是否等于 `4 * 4 * 4 * 4 * 4 * 4`。
@@ -118,7 +118,7 @@ Mix.install([
 </details>
 
 ```elixir
-
+4 ** 6 == 4 * 4 * 4 * 4 * 4 * 4
 ```
 
 使用比较运算符，确定 `100 / 2` 是否严格等于 `50`。
@@ -133,7 +133,7 @@ Mix.install([
 </details>
 
 ```elixir
-
+100 / 2 === 50
 ```
 
 ## 比较不同数据类型
@@ -182,7 +182,7 @@ number < atom < reference < function < port < pid < tuple < map < list < bitstri
 </details>
 
 ```elixir
-
+"a" < "Z"
 ```
 
 ## 深入阅读

@@ -82,7 +82,7 @@ end
 我们可以为任何或所有键传入值。
 
 ```elixir
-%StructName{key1: "value 1", key2: "value 2", key2: "value 2"}
+%StructName{key1: "value 1", key2: "value 2", key3: "value 3"}
 ```
 
 如果我们提供一个无效的值，我们的结构体实例将引发 [KeyError](https://hexdocs.pm/elixir/KeyError.html)。
@@ -180,7 +180,14 @@ end
 在下面输入你的解决方案。
 
 ```elixir
+defmodule Coordinate do
+  @enforce_keys [:x, :y]
+  defstruct @enforce_keys ++ [color: "red"]
+end
+```
 
+```elixir
+%Coordinate{x: 10, y: 10, color: "blue"}
 ```
 
 ## 模块函数
@@ -291,6 +298,7 @@ end
 ```elixir
 initial = %MyStruct{key: "value"}
 updated = %{initial | key: "new value"}
+updated.key
 ```
 
 您还可以使用点符号访问值。
@@ -305,6 +313,8 @@ instance.key
 
 ```elixir
 instance[:key]
+# compare_map = %{key: "value"}
+# compare_map[:key]
 ```
 
 ## 深入阅读

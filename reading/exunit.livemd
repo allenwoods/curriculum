@@ -99,7 +99,7 @@ ExUnit.run()
 1. 首先，我们启动 [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html)。在 mix 项目中，这一步在我们的 `test_helpers.ex` 文件中为我们处理。在 Livebook 中，我们必须手动启动它。
 2. 接下来，我们定义一个测试模块。通常，如果我们为特定模块编写测试，我们会将其命名为 `ModuleNameTest`，因此名为 `Greeter` 的模块的测试将位于 `GreeterTest` 模块中。
 3. 下一行，`use ExUnit.Case`，从 [ExUnit.Case](https://hexdocs.pm/ex_unit/ExUnit.Case.html) 模块生成一些代码，这使我们可以访问 [test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 和 [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 宏以及其他测试工具。
-4. [test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 是一个定义单个测试的宏。[test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 接受测试名称作为字符串，在这种情况下是 `"truthy"`。
+4. [test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 是一个定义单个测试的宏。[test/3](https://hexdocs.pm/ex_unit/ExUnit.Case.html#test/3) 接受测试名称作为字符串，在上面的例子中是 `"truthy"`。
 5. [assert/1](https://hexdocs.pm/ex_unit/ExUnit.Assertions.html#assert/1) 是一个在测试中进行单个断言的宏。如果它接收到一个真值，测试通过；如果接收到任何假值，测试失败。
 
 一个测试可以包含多个断言，一个测试模块可以有多个测试。
@@ -144,6 +144,10 @@ defmodule FailingTest do
 
   test "failing test" do
     assert false
+  end
+
+  test "nil test" do
+    assert nil
   end
 end
 
@@ -257,6 +261,10 @@ map = %{one: 1, two: 2}
 以下是实践示例。通常我们不应该测试 Elixir 函数，但为了示例，我们将使用 [Map.merge/2](https://hexdocs.pm/elixir/Map.html#merge/2)。
 
 ```elixir
+Map.merge(%{one: 1}, %{two: 2})
+```
+
+```elixir
 ExUnit.start(auto_run: false)
 
 defmodule MapMergeTest do
@@ -275,6 +283,7 @@ ExUnit.run()
 ```elixir
 string = "hello world"
 string =~ "hello"
+string =~ "Hello"
 ```
 
 ```elixir
@@ -330,7 +339,7 @@ end
 ExUnit.run()
 ```
 
-使用运算符的断言提供了 `:left` 和 `:right` 值以供反馈。通常，`:left` 应该是被测试系统的**接收**值，而 `:right` 应该是被测试系统的**预期**值。
+使用运算符的断言提供了 `:left` 和 `:right` 值以供反馈。通常，`:left` 应该是被测试系统的**接收**值，而 `:right` 应该是被测试系统的**预期**值。输出类似:
 
 <!-- livebook:{"force_markdown":true} -->
 
@@ -393,7 +402,7 @@ YouTube.new("https://www.youtube.com/watch?v=EZ05e7EMOLM")
 
 然而，对于 `Math.add/2` 函数，可能存在无限数量的输入和输出。假设单一示例全面测试所有输入是否安全？
 
-<!-- livebook:{"attrs":{"source":"for int1 <- 1..3, int2 <- 1..3 do\n  [input: int1, input: int2, output: int1 + int2]\nend\n|> Kino.DataTable.new()","title":"基于示例的测试"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJmb3IgaW50MSA8LSAxLi4zLCBpbnQyIDwtIDEuLjMgZG9cbiAgW2lucHV0OiBpbnQxLCBpbnB1dDogaW50Miwgb3V0cHV0OiBpbnQxICsgaW50Ml1cbmVuZFxufD4gS2luby5EYXRhVGFibGUubmV3KCkiLCJ0aXRsZSI6IuWfuuS6juekuuS+i+eahOa1i+ivlSJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 for int1 <- 1..3, int2 <- 1..3 do

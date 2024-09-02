@@ -80,14 +80,13 @@ is_binary("hello")
 
 这是一个二进制数字及其对应整数值的表格。
 
-<!-- livebook:{"attrs":{"source":"Enum.map(1..300, fn integer ->\n  binary = Integer.digits(integer, 2) |> Enum.join() |> String.to_integer()\n  %{base10: integer, base2: binary}\nend) |> Kino.DataTable.new()","title":"基数2转换表"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJFbnVtLm1hcCgxLi4zMDAsIGZuIGludGVnZXIgLT5cbiAgYmluYXJ5ID0gSW50ZWdlci5kaWdpdHMoaW50ZWdlciwgMikgfD4gRW51bS5qb2luKCkgfD4gU3RyaW5nLnRvX2ludGVnZXIoKVxuICAle2Jhc2UxMDogaW50ZWdlciwgYmFzZTI6IGJpbmFyeX1cbmVuZCkgfD4gS2luby5EYXRhVGFibGUubmV3KCkiLCJ0aXRsZSI6IuWfuuaVsDLovazmjaLooagifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 Enum.map(1..300, fn integer ->
   binary = Integer.digits(integer, 2) |> Enum.join() |> String.to_integer()
   %{base10: integer, base2: binary}
-end)
-|> Kino.DataTable.new()
+end) |> Kino.DataTable.new()
 ```
 
 每个字节在二进制中存储一个介于 `1` 和 `255` 之间的整数。这些整数用于表示字符。例如，数字 `65` 表示字符 `"A"`。这个数字被称为 **代码点**。我们可以使用 `?` 符号找到任何字符的代码点。
@@ -115,7 +114,7 @@ IO.inspect("ABCDEFG", binaries: :as_binaries)
 
 这里我们可以看到一个字母字符及其代码点的表格。注意大写字母和小写字母的代码点不同。
 
-<!-- livebook:{"attrs":{"source":"\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\"\n|> String.codepoints()\n|> Enum.map(fn char ->\n  <<code_point::utf8>> = char\n  %{character: char, code_point: code_point}\nend) |> Kino.DataTable.new()","title":"代码点"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJcIkFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpcIlxufD4gU3RyaW5nLmNvZGVwb2ludHMoKVxufD4gRW51bS5tYXAoZm4gY2hhciAtPlxuICA8PGNvZGVfcG9pbnQ6OnV0Zjg+PiA9IGNoYXJcbiAgJXtjaGFyYWN0ZXI6IGNoYXIsIGNvZGVfcG9pbnQ6IGNvZGVfcG9pbnR9XG5lbmQpIHw+IEtpbm8uRGF0YVRhYmxlLm5ldygpIiwidGl0bGUiOiLku6PnoIHngrkifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -123,8 +122,7 @@ IO.inspect("ABCDEFG", binaries: :as_binaries)
 |> Enum.map(fn char ->
   <<code_point::utf8>> = char
   %{character: char, code_point: code_point}
-end)
-|> Kino.DataTable.new()
+end) |> Kino.DataTable.new()
 ```
 
 为了将字符串表示为二进制，二进制中的每个字节表示一个代码点。
@@ -192,7 +190,7 @@ Elixir使用UTF-8来编码其字符串，这意味着每个代码点被编码为
 UTF-8使用一到四个字节来存储每个代码点。例如，字符 `é` 使用两个字节。
 
 ```elixir
-byte_size("é")
+[byte_size("中"), byte_size("か"), byte_size("é"), byte_size("e")]
 ```
 
 UTF-8还使用字形。字形可能由多个被视为一个的字符组成。
@@ -224,13 +222,13 @@ String.graphemes("é")
 使用 [String.graphemes/1](https://hexdocs.pm/elixir/String.html#graphemes/1) 将 [女性消防员](https://emojipedia.org/woman-firefighter/) emoji 👩‍🚒 转换为字形列表。
 
 ```elixir
-
+String.graphemes("👩‍🚒")
 ```
 
 使用 [String.codepoints/1](https://hexdocs.pm/elixir/String.html#codepoints/1) 将 emoji 👩‍🚒 转换为代码点列表。你会注意到它实际上是 👩 和 🚒 emoji 的组合。
 
 ```elixir
-
+String.codepoints("👩‍🚒")
 ```
 
 ## 十六进制
@@ -243,7 +241,7 @@ String.graphemes("é")
 
 十六进制使用从 `1` 到 `9` 的十进制符号。然后切换到使用字母 `a` 到 `f`，如下表所示。
 
-<!-- livebook:{"attrs":{"source":"\"0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f\"\n|> String.split(\",\")\n|> Enum.with_index()\n|> Enum.map(fn {symbol, index} -> %{integer: \"#{index}\", hexadecimal: symbol} end)\n|> Enum.take(-10)\n|> Kino.DataTable.new()","title":"十六进制"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJcIjAsMSwyLDMsNCw1LDYsNyw4LDksYSxiLGMsZCxlLGZcIlxufD4gU3RyaW5nLnNwbGl0KFwiLFwiKVxufD4gRW51bS53aXRoX2luZGV4KClcbnw+IEVudW0ubWFwKGZuIHtzeW1ib2wsIGluZGV4fSAtPiAle2ludGVnZXI6IFwiI3tpbmRleH1cIiwgaGV4YWRlY2ltYWw6IHN5bWJvbH0gZW5kKVxufD4gRW51bS50YWtlKC0xMClcbnw+IEtpbm8uRGF0YVRhYmxlLm5ldygpIiwidGl0bGUiOiLljYHlha3ov5vliLYifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f"
@@ -318,7 +316,7 @@ String.graphemes("é")
 </details>
 
 ```elixir
-
+0xF == 15
 ```
 
 ## 位字符串

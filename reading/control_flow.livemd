@@ -101,7 +101,7 @@ weather --> foggy --> r4[something bright]
 
 ```elixir
 # 将 :sunny 更改为 :snowing、:raining 和 :foggy 以查看不同的结果。
-weather = :sunny
+weather = :foggy
 
 recommendation = "t-shirt"
 recommendation = if weather == :snowing, do: "thick coat", else: recommendation
@@ -133,7 +133,11 @@ end
 在下面输入你的解决方案。
 
 ```elixir
+temperature = 10
 
+metric = if temperature > 10, do: :hot, else: :cold
+
+metric
 ```
 
 ## 清晰的控制流
@@ -196,7 +200,7 @@ weather --> foggy --> r4[something bright]
 
 ```elixir
 # 将 :sunny 更改为 :snowing、:raining 和 :foggy 以查看不同的结果。
-weather = :sunny
+weather = :snowing
 
 case weather do
   :sunny -> "t-shirt"
@@ -278,7 +282,7 @@ end
 通过更改下面的 `condition` 变量返回 `1` 到 `5` 的每个值。
 
 ```elixir
-condition = nil
+condition = %{:tesst_key=>"value1"} # %{test_key: "value"}
 
 case condition do
   :red -> 1
@@ -517,7 +521,14 @@ end
 </details>
 
 ```elixir
-
+grade = -42
+cond do
+  grade > 0 and grade <= 54 -> "D"
+  grade > 54 and grade <=69 -> "C"
+  grade > 69 and grade <= 84 -> "B"
+  grade > 84 and grade <= 100 -> "A"
+  true -> "Not a valid grade"
+end
 ```
 
 ## Unless
@@ -569,7 +580,10 @@ end
 * 创建一个 `unless` 语句。如果 `tired` 为假，则返回 `"awake"`。
 
 ```elixir
-
+tired = true
+unless tired do
+  "awake"
+end
 ```
 
 ## 提交你的进度

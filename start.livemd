@@ -4,7 +4,7 @@
 
 使用以下索引来查找本课程的阅读材料和练习。
 
-对于新生，我们建议您[从这里开始](reading/start_here.livemd)。 
+对于新生，我们建议您[从这里开始](reading/start_here.livemd)。
 
 ## Elixir 基础
 
@@ -16,7 +16,7 @@
 * 安装 [Phoenix](https://hexdocs.pm/phoenix/installation.html) （开始时可选）
 * 设置 [带有 Visual Studio Code 的 WSL](https://code.visualstudio.com/docs/remote/wsl) （仅限 Windows 用户）
 * 可选安装 [asdf](https://asdf-vm.com/guide/getting-started.html) 来管理 Elixir 和 Erlang 版本。
-* 对 [计算机硬件](reading/computer_hardware.livemd) 的基本理解 
+* 对 [计算机硬件](reading/computer_hardware.livemd) 的基本理解
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -52,7 +52,8 @@
   * [疯狂填词](exercises/mad_libs.livemd)
   * 奖励：[猜谜游戏](exercises/guessing_games.livemd)
 
-<!-- livebook:{"break_markdown":true} --> 
+<!-- livebook:{"break_markdown":true} -->
+
 ### 数据结构和模式匹配简介
 
 * 阅读
@@ -101,7 +102,8 @@
   * [命名数字列表](exercises/named_number_lists.livemd)
   * [测量](exercises/measurements.livemd)
 
-<!-- livebook:{"break_markdown":true} --> 
+<!-- livebook:{"break_markdown":true} -->
+
 ### 内置模块
 
 * 阅读
@@ -116,7 +118,7 @@
 
 * 阅读
   * [对不可枚举对象进行枚举](reading/non_enumerables.livemd)
-  * [推导式](reading/comprehensions.livemd)
+  * [列表推导式](reading/comprehensions.livemd)
 * 练习
   * [回文](exercises/palindrome.livemd)
   * [变位词](exercises/anagram.livemd)
@@ -157,7 +159,8 @@
   * 奖励：[可滚动表达式](exercises/rollable_expressions.livemd)
   * 奖励：[电话号码解析](exercises/phone_number_parsing.livemd)
 
-<!-- livebook:{"break_markdown":true} --> 
+<!-- livebook:{"break_markdown":true} -->
+
 ### 递归
 
 * 阅读
@@ -421,6 +424,7 @@
   * [博客：封面图片](exercises/blog_cover_image.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
+
 ### Tailwind
 
 * 阅读
@@ -521,59 +525,59 @@
 ### 性能优化
 
 * 阅读
-    * [列表和元组](reading/lists_vs_tuples.livemd)
-    * [映射、MapSet 和关键字列表](reading/maps_mapsets_keyword_lists.livemd)
+  * [列表和元组](reading/lists_vs_tuples.livemd)
+  * [映射、MapSet 和关键字列表](reading/maps_mapsets_keyword_lists.livemd)
 * 练习
-    * [练习：MapSet](exercises/mapset_drills.livemd)
-    * [斐波那契挑战](exercises/fibonacci_challenge.livemd)
+  * [练习：MapSet](exercises/mapset_drills.livemd)
+  * [斐波那契挑战](exercises/fibonacci_challenge.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### 基准测试和性能
 
 * 阅读
-    * [大 O 表示法](reading/big_o_notation.livemd)
-    * [基准测试](reading/benchmarking.livemd)
+  * [大 O 表示法](reading/big_o_notation.livemd)
+  * [基准测试](reading/benchmarking.livemd)
 * 练习
-    * [自定义枚举](exercises/custom_enum_with_recursion.livemd)
+  * [自定义枚举](exercises/custom_enum_with_recursion.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### Ecto 变更集
 
 * 阅读
-    * [Ecto 变更集](reading/ecto_changeset.livemd)
+  * [Ecto 变更集](reading/ecto_changeset.livemd)
 * 练习
-    * [注册表单](exercises/sign_up_form.livemd)
-    * 奖励：[图书变更集](exercises/book_changeset.livemd)
+  * [注册表单](exercises/sign_up_form.livemd)
+  * 奖励：[图书变更集](exercises/book_changeset.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### 借助代理和 ETS 的状态管理
 
 * 阅读
-    * [状态：代理和 ETS](reading/agents_and_ets.livemd)
+  * [状态：代理和 ETS](reading/agents_and_ets.livemd)
 * 练习
-    * [代理日志](exercises/agent_journal.livemd)
-    * [ETS 仓库](exercises/inventory_management.livemd)
-    * 精通：[高级分数跟踪器](exercises/advanced_score_tracker.livemd)
+  * [代理日志](exercises/agent_journal.livemd)
+  * [ETS 仓库](exercises/inventory_management.livemd)
+  * 精通：[高级分数跟踪器](exercises/advanced_score_tracker.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### 元编程
 
 * 阅读
-    * [元编程](reading/metaprogramming.livemd)
+  * [元编程](reading/metaprogramming.livemd)
 * 练习
-    * [元数学](exercises/meta_math.livemd)
-    * [自定义断言](exercises/custom_assertions.livemd)
+  * [元数学](exercises/meta_math.livemd)
+  * [自定义断言](exercises/custom_assertions.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 
 ### 队列
 
 * 阅读
-    * [队列](reading/queues.livemd)
+  * [队列](reading/queues.livemd)
 
 <!-- livebook:{"break_markdown":true} -->
 

@@ -79,7 +79,7 @@ flowchart LR
 在下面的 Elixir 单元中，创建一个字符串 `"Hello, world!"`。这是每个程序员的入门仪式。
 
 ```elixir
-
+"Hello, world!"
 ```
 
 ## 多行字符串
@@ -139,7 +139,7 @@ IO.puts(string)
 </details>
 
 ```elixir
-
+"Hi " <> "Peter"
 ```
 
 ### 字符串插值
@@ -177,7 +177,9 @@ IO.puts(string)
 </details>
 
 ```elixir
-answer = nil
+x = 10
+answer = "I have: \n #{x - 1} classmates."
+IO.puts(answer)
 ```
 
 ## 转义字符
@@ -201,7 +203,7 @@ IO.puts(string)
 ```
 
 ```elixir
-string = "If you don't escape using backslash \\, then #{} doesn't appear"
+string = "If you don't escape using backslash \\, then \#{} doesn't appear"
 
 IO.puts(string)
 ```

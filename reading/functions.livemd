@@ -196,42 +196,42 @@ double.(10 ** 2 - 1)
 
 让我们逐步分解函数执行的过程，以下是幻灯片。
 
-<!-- livebook:{"attrs":{"source":"frames =     [\n      \"\n  First, we define the `double` function and call it.\n  ```elixir\n  double = fn number -> number * 2 end\n  double.(3)\n  ```\n  \",\n      \"\n  The `double` function executes in place of the `double.(call)` with `number` bound to `3`.\n  ```elixir\n  double = fn number -> number * 2 end\n  fn 3 -> 3 * 2 end\n  ```\n  \",\n      \"\n  The function evaluates the function body between the `->` and the `end`\n  ```elixir\n  double = fn number -> number * 2 end\n  3 * 2\n  ```\n  \",\n      \"\n  `3` * `2` is `6`, so the function call returns `6`.\n  ```elixir\n  double = fn number -> number * 2 end\n  6\n  ```\n  \"\n    ]\n\nSmartAnimation.new(0..Enum.count(frames) - 1, fn i ->\n    Enum.at(frames, i) |> Kino.Markdown.new()\nend)","title":"Function Flow"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJmcmFtZXMgPSAgICAgW1xuICAgICAgXCJcbiAgRmlyc3QsIHdlIGRlZmluZSB0aGUgYGRvdWJsZWAgZnVuY3Rpb24gYW5kIGNhbGwgaXQuXG4gIGBgYGVsaXhpclxuICBkb3VibGUgPSBmbiBudW1iZXIgLT4gbnVtYmVyICogMiBlbmRcbiAgZG91YmxlLigzKVxuICBgYGBcbiAgXCIsXG4gICAgICBcIlxuICBUaGUgYGRvdWJsZWAgZnVuY3Rpb24gZXhlY3V0ZXMgaW4gcGxhY2Ugb2YgdGhlIGBkb3VibGUuKGNhbGwpYCB3aXRoIGBudW1iZXJgIGJvdW5kIHRvIGAzYC5cbiAgYGBgZWxpeGlyXG4gIGRvdWJsZSA9IGZuIG51bWJlciAtPiBudW1iZXIgKiAyIGVuZFxuICBmbiAzIC0+IDMgKiAyIGVuZFxuICBgYGBcbiAgXCIsXG4gICAgICBcIlxuICBUaGUgZnVuY3Rpb24gZXZhbHVhdGVzIHRoZSBmdW5jdGlvbiBib2R5IGJldHdlZW4gdGhlIGAtPmAgYW5kIHRoZSBgZW5kYFxuICBgYGBlbGl4aXJcbiAgZG91YmxlID0gZm4gbnVtYmVyIC0+IG51bWJlciAqIDIgZW5kXG4gIDMgKiAyXG4gIGBgYFxuICBcIixcbiAgICAgIFwiXG4gIGAzYCAqIGAyYCBpcyBgNmAsIHNvIHRoZSBmdW5jdGlvbiBjYWxsIHJldHVybnMgYDZgLlxuICBgYGBlbGl4aXJcbiAgZG91YmxlID0gZm4gbnVtYmVyIC0+IG51bWJlciAqIDIgZW5kXG4gIDZcbiAgYGBgXG4gIFwiXG4gICAgXVxuXG5TbWFydEFuaW1hdGlvbi5uZXcoMC4uRW51bS5jb3VudChmcmFtZXMpIC0gMSwgZm4gaSAtPlxuICAgIEVudW0uYXQoZnJhbWVzLCBpKSB8PiBLaW5vLk1hcmtkb3duLm5ldygpXG5lbmQpIiwidGl0bGUiOiJGdW5jdGlvbiBGbG93In0","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ````elixir
-frames = [
-  "
-  首先，我们定义 `double` 函数并调用它。
+frames =     [
+      "
+  First, we define the `double` function and call it.
   ```elixir
   double = fn number -> number * 2 end
   double.(3)
   ```
   ",
-  "
-  `double` 函数在 `double.(call)` 的位置执行，`number` 绑定为 `3`。
+      "
+  The `double` function executes in place of the `double.(call)` with `number` bound to `3`.
   ```elixir
   double = fn number -> number * 2 end
   fn 3 -> 3 * 2 end
   ```
   ",
-  "
-  函数在 `->` 和 `end` 之间评估函数体。
+      "
+  The function evaluates the function body between the `->` and the `end`
   ```elixir
   double = fn number -> number * 2 end
   3 * 2
   ```
   ",
-  "
-  `3` * `2` 是 `6`，所以函数调用返回 `6`。
+      "
+  `3` * `2` is `6`, so the function call returns `6`.
   ```elixir
   double = fn number -> number * 2 end
   6
   ```
   "
-]
+    ]
 
-SmartAnimation.new(0..(Enum.count(frames) - 1), fn i ->
-  Enum.at(frames, i) |> Kino.Markdown.new()
+SmartAnimation.new(0..Enum.count(frames) - 1, fn i ->
+    Enum.at(frames, i) |> Kino.Markdown.new()
 end)
 ````
 
@@ -282,7 +282,8 @@ is_even? = fn int -> rem(int, 2) == 0 end
 在下面输入你的解决方案。
 
 ```elixir
-
+is_even = fn number -> rem(number, 2) == 0 end
+is_even.(3)
 ```
 
 ## 多参数函数
@@ -309,7 +310,7 @@ to_list.(1, 2, 3, 4, 5)
 
 <!-- livebook:{"break_markdown":true} -->
 
-### 函数的元数
+### 函数的元数(Arity)
 
 函数接受的参数数量称为 **元数**。
 
@@ -342,7 +343,8 @@ calculate_force = fn mass, acceleration -> mass * acceleration end
 在下面输入你的解决方案。
 
 ```elixir
-
+calculate_force = fn mass, accelearation -> mass * accelearation end
+calculate_force.(10, 10)
 ```
 
 ## 简写语法
@@ -388,7 +390,8 @@ subtract = &(&1 - &2)
 在下面输入你的解决方案。
 
 ```elixir
-
+substract = &(&1 - &2)
+substract.(1,1)
 ```
 
 ### 你的回合
@@ -414,7 +417,8 @@ multiply_three = &(&1 * &2 * &3)
 在下面输入你的解决方案。
 
 ```elixir
-
+multiply_three = &(&1 * &2 * &3)
+multiply_three.(2, 2, 2)
 ```
 
 ## 一等函数
@@ -501,7 +505,9 @@ call_with_10_and_20 = fn callback -> callback.(10, 20) end
 在下面输入你的解决方案。
 
 ```elixir
-call_with_10_and_20 = nil
+add = fn int1, int2 -> int1 + int2 end
+call_with_10_and_20 = fn op -> op.(10 ,20) end
+call_with_10_and_20.(add)
 ```
 
 ## 管道操作符
@@ -610,7 +616,11 @@ multiply = fn int1, int2 -> int1 * int2 end
 在下面输入你的解决方案。
 
 ```elixir
+add = fn int1, int2 -> int1 + int2 end
+subtract = fn int1, int2 -> int1 - int2 end
+multiply = fn int1, int2 -> int1 * int2 end
 
+10 |> add.(2) |> multiply.(5) |> subtract.(4)
 ```
 
 ## 提交你的进度

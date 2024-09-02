@@ -83,7 +83,7 @@ flowchart LR
 
 Computerphile 对递归进行了详细的解释。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Mv9NEXX1VHc\")","title":"Computerphile: Recursion"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9TXY5TkVYWDFWSGNcIikiLCJ0aXRsZSI6IkNvbXB1dGVycGhpbGU6IFJlY3Vyc2lvbiJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=Mv9NEXX1VHc")
@@ -99,7 +99,7 @@ YouTube.new("https://www.youtube.com/watch?v=Mv9NEXX1VHc")
 defmodule Forever do
   def run do
     run()
-  end
+    end
 end
 
 Forever.run()
@@ -146,13 +146,15 @@ Forever.run()
 你会注意到 **进程** 的内存消耗会增加，最终单元会中止。你可能需要点击 **连接** 按钮以重新连接 Elixir 运行时。
 
 ```elixir
-# defmodule Body do
-#   def recursion([head | tail]) do
-#     recursion(tail ++ tail) ++ [head]
-#   end
-# end
+defmodule Body do
+  def recursion([head | tail]) do
+    # recursion([head | tail]) # This is OK
+    # [head] ++ recursion(tail ++ tail) # Not OK!
+    # recursion(tail ++ tail) ++ [head]
+  end
+end
 
-# Body.recursion([1,2,3])
+Body.recursion([1,2,3])
 ```
 
 确保你注释掉上面的代码，否则 Livebook 会不断断开连接。
@@ -251,7 +253,17 @@ end
 
 ```elixir
 defmodule CountDown do
+  def count(0) do
+    IO.puts(0)
+  end
+  
+  def count(int) do
+    IO.puts(int)
+    count(int-1)
+  end
 end
+
+CountDown.count(3)
 ```
 
 ### 你的回合
@@ -314,6 +326,18 @@ end
 
 ```elixir
 defmodule CountBetween do
+  @doc """
+  iex> CountBetween.count(10, 9)
+  """
+  
+  def count(start, finish) do
+    IO.puts(start)
+    unless start == finish do
+      offset = if start<finish do 1 else -1 end
+      IO.puts("offset: #{offset}")
+      count(start+offset, finish)
+    end
+  end
 end
 ```
 

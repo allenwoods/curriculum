@@ -84,7 +84,9 @@ high = 1
 在下面输入您的解决方案。
 
 ```elixir
-
+low = 0
+normal = 0
+high = 0
 ```
 
 ## 高牌
@@ -104,7 +106,7 @@ initial_count + high
 在下面输入您的解决方案。
 
 ```elixir
-
+high = high + 1
 ```
 
 ## 低牌
@@ -124,7 +126,7 @@ initial_count + low
 在下面输入您的解决方案。
 
 ```elixir
-
+low = low + 1
 ```
 
 ## 多张牌
@@ -146,7 +148,9 @@ initial_count + high * 5 + low * 2 + normal * 2
 在下面输入您的解决方案。
 
 ```elixir
-
+high = high + 5
+low = low + 2
+normal = normal + 2
 ```
 
 ## 奖励：确定牌值
@@ -188,7 +192,7 @@ Enum.sum(cards)
 在下面输入您的解决方案。
 
 ```elixir
-
+random_card = Enum.random(1..13)
 ```
 
 ## 提交您的进度

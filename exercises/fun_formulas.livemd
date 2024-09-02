@@ -50,7 +50,7 @@ Mix.install([
 (7 / 10) * 100 # 70.0
 ```
 
-使用算术运算符来确定我们完成了 `12` 个中的 `42` 个项目的**百分比**。
+使用算术运算符来确定我们完成了  `42` 个项目中的`12`个时的**百分比**。
 
 <details style="background-color: lightgreen; padding: 1rem; margin: 1rem 0;">
 <summary>示例解决方案</summary>
@@ -67,7 +67,7 @@ total = 42
 在下面输入你的解决方案。
 
 ```elixir
-
+(12/42)*100
 ```
 
 ## 火箭飞船
@@ -93,7 +93,9 @@ mass * acceleration
 在下面输入你的解决方案。
 
 ```elixir
-
+mass = 10
+acceleration = 9.8
+force = mass * acceleration
 ```
 
 ## 你应该给多少小费？

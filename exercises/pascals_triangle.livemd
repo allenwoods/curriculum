@@ -160,9 +160,14 @@ end
 </details>
 
 ```elixir
+# Enum.map([[1,2], [2, 3]], )
+```
+
+```elixir
 defmodule Pascal do
   @doc ~S"""
   生成`n`行的帕斯卡三角形。
+  这个方法虽然不高效，但具有很好的可读性
 
   ## 示例
 
@@ -172,9 +177,19 @@ defmodule Pascal do
       iex> Pascal.of(5)
       [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]
   """
+  def row(1), do: [1]
+  def row(2), do: [1, 1]
+  def row(n) do
+    row = Enum.chunk_every(row(n - 1), 2, 1, :discard) |> Enum.map(fn [a, b] -> a + b end)
+    [1 | row] ++ [1]
+  end 
+
   def of(n) do
+    Enum.map(1..n, &row/1)
   end
 end
+
+Pascal.of(5)
 ```
 
 ## 提交你的进度

@@ -112,7 +112,7 @@ datetime = ~U[2000-10-01 12:30:10Z]
 
 本阅读旨在作为处理日期、时间和时区的入门。你需要查阅文档并进行自己的研究以深入了解。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=-5wpm-gesOY\")","title":"时间和时区"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9LTV3cG0tZ2VzT1lcIikiLCJ0aXRsZSI6IuaXtumXtOWSjOaXtuWMuiJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=-5wpm-gesOY")

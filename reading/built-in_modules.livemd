@@ -274,7 +274,7 @@ map = %{}
 list = [1, 2, 3]
 tuple = {1, 2, 3}
 
-""
+"#{inspect(tuple)}"
 ```
 
 ## Integer 模块
@@ -468,7 +468,7 @@ flowchart TB
 </details>
 
 ```elixir
-"Hello"
+String.contains?("Hello", "lo")
 ```
 
 使用 [String.capitalize/2](https://hexdocs.pm/elixir/String.html#capitalize/2) 将 `"hello"` 大写为 `"Hello"`。
@@ -484,7 +484,7 @@ flowchart TB
 </details>
 
 ```elixir
-"hello"
+String.capitalize("hello")
 ```
 
 使用 [String.upcase/2](https://hexdocs.pm/elixir/String.html#upcase/2) 将 `"hello"` 大写为 `"HELLO"`。
@@ -532,7 +532,7 @@ flowchart TB
 </details>
 
 ```elixir
-"have,a,great,day"
+String.split("have,a,great,day", "a")
 ```
 
 使用 [String.trim/1](https://hexdocs.pm/elixir/String.html#trim/1) 从字符串 `"  hello!  "` 中删除空格。
@@ -548,7 +548,7 @@ flowchart TB
 </details>
 
 ```elixir
-"  hello!  "
+String.trim("  hello!  ")
 ```
 
 ## List 模块
@@ -904,6 +904,11 @@ MyIO.inspect("world")
 
 ```elixir
 MyIO.inspect("world", label: "hello")
+```
+
+```elixir
+test_map = [{:a, "A"}, {:b, "B"}] # Not for map
+Keyword.get(test_map, :a)
 ```
 
 ## 你的回合：关键字练习

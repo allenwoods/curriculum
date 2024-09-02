@@ -166,7 +166,18 @@ end
 </details>
 
 ```elixir
+defmodule TestString do
+  @spec call :: String.t
+  def call() do
+    "Hello"
+  end
+end
+
+```
+
+```elixir
 defmodule FunctionSpecs do
+  @spec do_nothing() :: list
   def do_nothing do
     nil
   end
