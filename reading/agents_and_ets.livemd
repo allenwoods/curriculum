@@ -392,7 +392,7 @@ SlowFib.of(10)
 
 我们可以通过将每个输入/输出保存在缓存中来提高性能，这样我们就不必一次又一次地重新计算相同的值。你可以将这个缓存视为一个输入和输出的表。对于每个输入，我们存储计算出的输出，而不是重新执行计算。
 
-<!-- livebook:{"attrs":{"source":"defmodule Fib do\n  def get(n) do\n    sequence =\n      Stream.unfold({1, 1}, fn {a, b} ->\n        {a, {b, a + b}}\n      end)\n      |> Enum.take(n)\n\n    [0 | sequence]\n  end\nend\n\nFib.get(150)\n|> Enum.with_index()\n|> Enum.map(fn {value, index} -> %{input: index, output: value} end)\n|> Kino.DataTable.new()","title":"Fib 缓存"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJkZWZtb2R1bGUgRmliIGRvXG4gIGRlZiBnZXQobikgZG9cbiAgICBzZXF1ZW5jZSA9XG4gICAgICBTdHJlYW0udW5mb2xkKHsxLCAxfSwgZm4ge2EsIGJ9IC0+XG4gICAgICAgIHthLCB7YiwgYSArIGJ9fVxuICAgICAgZW5kKVxuICAgICAgfD4gRW51bS50YWtlKG4pXG5cbiAgICBbMCB8IHNlcXVlbmNlXVxuICBlbmRcbmVuZFxuXG5GaWIuZ2V0KDE1MClcbnw+IEVudW0ud2l0aF9pbmRleCgpXG58PiBFbnVtLm1hcChmbiB7dmFsdWUsIGluZGV4fSAtPiAle2lucHV0OiBpbmRleCwgb3V0cHV0OiB2YWx1ZX0gZW5kKVxufD4gS2luby5EYXRhVGFibGUubmV3KCkiLCJ0aXRsZSI6IkZpYiDnvJPlrZgifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 defmodule Fib do

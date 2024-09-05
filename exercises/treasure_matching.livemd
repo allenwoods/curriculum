@@ -153,6 +153,12 @@ defmodule Sum do
   iex> Sum.list([1, 2, 3])
   6
   """
+  def list([head | tail]) do
+    case tail do
+      [] -> head
+      _ -> head + list(tail)
+    end
+  end
 end
 ```
 

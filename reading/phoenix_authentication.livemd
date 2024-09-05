@@ -81,7 +81,7 @@ Mix.install([
 
 Computerphile 有一段关于哈希算法和安全性的精彩概述视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=b4b8ktEV4Bg&ab_channel=Computerphile\")","title":"Hashing Algorithms and Security - Computerphile"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9YjRiOGt0RVY0QmcmYWJfY2hhbm5lbD1Db21wdXRlcnBoaWxlXCIpIiwidGl0bGUiOiJIYXNoaW5nIEFsZ29yaXRobXMgYW5kIFNlY3VyaXR5IC0gQ29tcHV0ZXJwaGlsZSJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=b4b8ktEV4Bg&ab_channel=Computerphile")

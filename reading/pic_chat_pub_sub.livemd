@@ -162,8 +162,6 @@ end
 
 每当在`"messages"`主题上发生与提供实时更新相关的事件时，我们希望向我们的PubSub系统广播消息。每当我们创建、更新或删除`Message`记录时，我们都会广播一条消息。
 
-<!-- livebook:{"force_markdown":true} -->
-
 ### 保存消息
 
 每当我们创建或更新新消息时，在`"messages"`主题上广播一个`"new"`或`"edit"`事件。

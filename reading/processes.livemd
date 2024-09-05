@@ -48,7 +48,7 @@ Mix.install([
 
 关于进程的介绍、它们如何在底层工作以及为什么这很重要，我们推荐 Sasa Juric 的精彩演讲：“Erlang 的灵魂”。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=JvBT4XBdoUE\")","title":"The Soul of Erlang and Elixir • Sasa Juric • GOTO 2019"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9SnZCVDRYQmRvVUVcIikiLCJ0aXRsZSI6IlRoZSBTb3VsIG9mIEVybGFuZyBhbmQgRWxpeGlyIOKAoiBTYXNhIEp1cmljIOKAoiBHT1RPIDIwMTkifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=JvBT4XBdoUE")
@@ -222,7 +222,9 @@ Process.link(pid1)
 完成后请注释掉你的解决方案，以避免持续崩溃 Livebook！
 
 ```elixir
-
+# pid1 = spawn(fn -> raise "哎呀" end)
+# Process.link(pid1)
+# "我不会运行，因为上面的代码崩溃了"
 ```
 
 ## 消息传递
@@ -265,7 +267,16 @@ send(pid1, "消息")
 使用 `IO.puts` 输出消息的有效载荷，其中 `"world"` 是有效载荷。
 
 ```elixir
+pid2 = spawn(fn ->
+  receive do
+    {:hello, payload} -> IO.puts("#{payload}!")
+    _ -> IO.puts("What?")
+  end
+end)
+```
 
+```elixir
+send(pid2, {:hell, "world"})
 ```
 
 ## 状态
@@ -293,16 +304,16 @@ flowchart LR
 
 ```elixir
 defmodule ServerProcess do
-  def loop do
+  def loop2 do # loop or any func name
     IO.puts("调用了 #{Enum.random(1..10)}")
 
     receive do
-      "消息" -> loop()
+      "消息" -> loop2()
     end
   end
 end
 
-server_process = spawn(fn -> ServerProcess.loop() end)
+server_process = spawn(fn -> ServerProcess.loop2() end)
 ```
 
 我们使用了 [Enum.random/1](https://hexdocs.pm/elixir/Enum.html#random/1) 来显示进程继续循环并接收消息。
@@ -367,6 +378,7 @@ defmodule Counter do
 
     receive do
       :increment -> loop(state + 1)
+      :decrement -> loop(state - 1)
     end
   end
 end
@@ -377,7 +389,7 @@ counter_process = spawn(fn -> Counter.loop() end)
 你应该能够向生成的 `Counter` 发送 `:decrement` 消息。取消注释并评估下面的代码以测试你的解决方案。
 
 ```elixir
-# send(counter_process, :decrement)
+send(counter_process, :decrement)
 ```
 
 ## 提交你的进度

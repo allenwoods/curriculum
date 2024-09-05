@@ -160,8 +160,6 @@ def registration_changeset(user, attrs, opts \\ []) do
 end
 ```
 
-<!-- livebook:{"force_markdown":true} -->
-
 ### 添加订阅复选框
 
 在注册用户时添加一个复选框，以便他们可以选择接收电子邮件通知。
@@ -448,7 +446,7 @@ Oban 还提供了 [Oban.Testing.assert_enqueued/2](https://hexdocs.pm/oban/Oban.
 
 如果您想了解更多关于测试 Oban 的信息，这里有一个很棒的视频供您观看。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=PZ48omi0NKU&ab_channel=ElixirConf\")","title":"ElixirConf 2021 - Parker Selbert - Testing Oban Jobs From the Inside Out"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9UFo0OG9taTBOS1UmYWJfY2hhbm5lbD1FbGl4aXJDb25mXCIpIiwidGl0bGUiOiJFbGl4aXJDb25mIDIwMjEgLSBQYXJrZXIgU2VsYmVydCAtIFRlc3RpbmcgT2JhbiBKb2JzIEZyb20gdGhlIEluc2lkZSBPdXQifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=PZ48omi0NKU&ab_channel=ElixirConf")

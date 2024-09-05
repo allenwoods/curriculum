@@ -102,7 +102,10 @@ Supervisor.start_link(children, strategy: :one_for_one)
 </details>
 
 ```elixir
-
+children = [
+  %{id: :worker1, start: {Worker, :start_link, ["initial state"]}}
+]
+Supervisor.start_link(children, strategy: :one_for_one)
 ```
 
 使用 [Supervisor.start_link/3](https://hexdocs.pm/elixir/Supervisor.html#start_link/3) 函数启动一个监督者，三个 `Worker` 子进程，使用 **map** 语法。

@@ -85,15 +85,13 @@ defmodule WordCount do
       [2, 2]
   """
   def individual_count(documents) do
-    doc_counts = Enum.map(documents, fn doc ->
+    Enum.map(documents, fn doc ->
       Task.async(fn -> doc
       |> String.split(" ", trim: true)
       |> Enum.count()
-      end
       )
     end
     )
-    Task.await_many(doc_counts)
   end
 
   @doc """
@@ -104,7 +102,6 @@ defmodule WordCount do
   4
   """
   def total_count(documents) do
-    Enum.sum(individual_count(documents))
   end
 end
 ```

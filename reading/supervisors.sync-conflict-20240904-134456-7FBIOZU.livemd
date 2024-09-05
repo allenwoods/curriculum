@@ -100,8 +100,8 @@ end
 如果我们使用 [Process.exit/2](https://hexdocs.pm/elixir/Process.html#exit/2) 以 `:exit` 原因手动退出进程，情况也是如此。取消注释并运行以下代码以查看它崩溃当前的 Livebook 进程，然后重新注释代码。
 
 ```elixir
-{:ok, pid} = GenServer.start(UnsupervisedWorker, []) # 没有link就不会带崩livebook
-Process.exit(pid, :exit)
+# {:ok, pid} = GenServer.start_link(UnsupervisedWorker, [])
+# Process.exit(pid, :exit)
 ```
 
 如果您想了解更多关于容错和错误处理的信息，Joe Armstrong 创建了一个关于该主题的精彩视频。
@@ -112,7 +112,7 @@ Process.exit(pid, :exit)
 YouTube.new("https://www.youtube.com/watch?v=ZOsvgwOR6G0&ab_channel=KentComputing")
 ```
 
-## 监督者 Supervisor
+## 监督者
 
 我们可以使用 `监督者` 来监控进程并在它们崩溃时重新启动它们，而不是崩溃父进程。
 
@@ -120,7 +120,7 @@ YouTube.new("https://www.youtube.com/watch?v=ZOsvgwOR6G0&ab_channel=KentComputin
 
 我们为什么要重启进程？好吧，大多数技术问题都是状态的结果。我们的系统进入了一个不良状态，无法恢复。重新启动系统可以清除状态，并且通常可以解决问题。使用 [监督者](https://hexdocs.pm/elixir/Supervisor.html) 就像为您的应用程序添加一个自动开关。
 
-一个 [监督者（Supervisor）](https://hexdocs.pm/elixir/Supervisor.html) 监控一个或多个子进程。我们通常将这些进程称为 **工作者（Worker）**。
+一个 [监督者](https://hexdocs.pm/elixir/Supervisor.html) 监控一个或多个子进程。我们通常将这些进程称为 **工作者**。
 [监督者](https://hexdocs.pm/elixir/Supervisor.html) 可以使用不同的策略来重启其子工作者。`:one_for_one` 策略单独重启任何崩溃的工作者。
 
 <!-- livebook:{"break_markdown":true} -->
@@ -184,7 +184,6 @@ children = [
 
 ```elixir
 Kino.Process.sup_tree(supervisor_pid)
-
 ```
 
 当我们杀死监督树下的一个进程时，它将被重新启动。仅供演示，您可以使用 [：c.pid/3](https://www.erlang.org/doc/man/c.html#pid-3) 函数手动创建上图中的 `pid`，其中 `727` 应该是上图中的一个 pid。
@@ -206,8 +205,7 @@ Process.exit(pid, :exit)
 重新评估上面的图表，您应该看到一个新的 `Worker` 进程以不同的 pid 启动。重复此过程以杀死监督者下的每个进程并查看它们被重新启动。
 
 ```elixir
-pid = :c.pid(0, 351, 0) # 执行后重新生成Keno的Process图，其中的pid会被改变
-Process.exit(pid, :exit)
+
 ```
 
 ## 重启策略
@@ -363,8 +361,7 @@ children = [
 取消注释并运行下面的单元格以查看崩溃的时间线，然后重新注释它。
 
 ```elixir
-{:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one, max_restarts: 5)
-supervisor_pid
+# {:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_one, max_restarts: 5)
 ```
 
 ### 一对全
@@ -387,7 +384,7 @@ supervisor_pid
 # {:ok, supervisor_pid} = Supervisor.start_link(children, strategy: :one_for_all, max_restarts: 5)
 ```
 
-### 一对剩余 :rest_for_one
+### 一对一
 
 一对一的工作方式就像一排多米诺骨牌，只有在崩溃进程之后定义的子进程会被重启。
 
@@ -459,7 +456,7 @@ children = [
 取消注释以下代码以查看崩溃时间线，然后重新注释它。
 
 ```elixir
-Supervisor.start_link(children, strategy: :one_for_one)
+# Supervisor.start_link(children, strategy: :one_for_one)
 ```
 
 ## 进一步阅读

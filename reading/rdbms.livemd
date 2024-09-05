@@ -45,7 +45,7 @@ Mix.install([
 
 这是 Linux Academy 的一篇很好的入门文章。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=Tk1t3WKK-ZY\")","title":"PostgreSQL"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9VGsxdDNXS0stWllcIikiLCJ0aXRsZSI6IlBvc3RncmVTUUwifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=Tk1t3WKK-ZY")
@@ -70,9 +70,9 @@ YouTube.new("https://www.youtube.com/watch?v=Tk1t3WKK-ZY")
 
 <!-- livebook:{"break_markdown":true} -->
 
-| id  | user_id | title             | content                                         |
-| --- | ------- | ----------------- | ----------------------------------------------- |
-| 3   | 1       | Rhino Encounter   | 今天，我与犀牛搏斗。                          |
+| id  | user_id | title             | content                                          |
+| --- | ------- | ----------------- | ------------------------------------------------ |
+| 3   | 1       | Rhino Encounter   | 今天，我与犀牛搏斗。                   |
 | 4   | 2       | Multiverse Theory | 蜘蛛宇宙是多元宇宙的一个子集吗？ |
 
 ## PostgreSQL 入门
@@ -224,7 +224,7 @@ You are now connected to database "example" as user "postgres".
 
 关于 SQL 语法的入门，这里有 Danielle Thé 的一段很好的视频。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=27axs9dO7AE\")","title":"SQL"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9MjdheHM5ZE83QUVcIikiLCJ0aXRsZSI6IlNRTCJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=27axs9dO7AE")
@@ -375,7 +375,7 @@ SELECT * FROM users u WHERE u.id = 1
 
 Livebook 提供了 [智能单元](https://www.youtube.com/watch?v=4hVIxyHxwK8&ab_channel=ElixirConf)，可以连接到我们的 PostgreSQL 数据库。例如，以下智能单元应该能够成功连接到你的 `example` 数据库，如果你使用了默认的 `postgres` 用户。
 
-<!-- livebook:{"attrs":{"database":"example","hostname":"localhost","password":"postgres","port":5432,"type":"postgres","username":"postgres","variable":"conn"},"chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJkYXRhYmFzZSI6ImV4YW1wbGUiLCJob3N0bmFtZSI6ImxvY2FsaG9zdCIsInBhc3N3b3JkIjoicG9zdGdyZXMiLCJwb3J0Ijo1NDMyLCJ0eXBlIjoicG9zdGdyZXMiLCJ1c2VybmFtZSI6InBvc3RncmVzIiwidmFyaWFibGUiOiJjb25uIn0","chunks":null,"kind":"Elixir.KinoDB.ConnectionCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 opts = [
@@ -391,7 +391,7 @@ opts = [
 
 一旦连接，这些智能单元可以对我们的数据库进行 SQL 查询。这里你应该能看到你的用户表。
 
-<!-- livebook:{"attrs":{"connection":{"type":"postgres","variable":"conn"},"query":"select * from users","result_variable":"result2","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjb25uZWN0aW9uIjp7InR5cGUiOiJwb3N0Z3JlcyIsInZhcmlhYmxlIjoiY29ubiJ9LCJxdWVyeSI6InNlbGVjdCAqIGZyb20gdXNlcnMiLCJyZXN1bHRfdmFyaWFibGUiOiJyZXN1bHQyIiwidGltZW91dCI6bnVsbH0","chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result2 = Postgrex.query!(conn, "select * from users", [])
@@ -403,7 +403,7 @@ result2 = Postgrex.query!(conn, "select * from users", [])
 
 使用以下 SQL 智能单元在用户表中创建一个新用户。重新评估上面的智能单元以查看表中的新用户。
 
-<!-- livebook:{"attrs":{"cache_query":true,"connection":{"type":"postgres","variable":"conn"},"query":"","result_variable":"result3","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjYWNoZV9xdWVyeSI6dHJ1ZSwiY29ubmVjdGlvbiI6eyJ0eXBlIjoicG9zdGdyZXMiLCJ2YXJpYWJsZSI6ImNvbm4ifSwicXVlcnkiOiIiLCJyZXN1bHRfdmFyaWFibGUiOiJyZXN1bHQzIiwidGltZW91dCI6bnVsbH0","chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result3 = Postgrex.query!(conn, "", [])
@@ -411,7 +411,7 @@ result3 = Postgrex.query!(conn, "", [])
 
 使用以下 SQL 智能单元在条目表中创建一个新条目，该条目具有指向你之前创建的同一用户的外键。
 
-<!-- livebook:{"attrs":{"connection":{"type":"postgres","variable":"conn"},"query":"","result_variable":"result4","timeout":null},"chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjb25uZWN0aW9uIjp7InR5cGUiOiJwb3N0Z3JlcyIsInZhcmlhYmxlIjoiY29ubiJ9LCJxdWVyeSI6IiIsInJlc3VsdF92YXJpYWJsZSI6InJlc3VsdDQiLCJ0aW1lb3V0IjpudWxsfQ","chunks":null,"kind":"Elixir.KinoDB.SQLCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 result4 = Postgrex.query!(conn, "", [])

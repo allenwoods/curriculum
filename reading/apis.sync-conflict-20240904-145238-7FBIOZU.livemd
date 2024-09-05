@@ -90,7 +90,7 @@ https://www.fakedomaindoesnotexist.com/fake/domain?greeting=hello&fake=true
 
 ### HTTP 请求方法
 
-[HTTP（超文本传输协议）](https://developer.mozilla.org/en-US/docs/Web/HTTP) 是用于在 Web 上传输数据的协议。[HTTP 请求方法](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)，指示要对识别的资源执行的操作。
+[HTTP（超文本传输协议）](https://developer.mozilla.org/en-US/docs/Web/HTTP) 是用于在 Web 上传输数据的协议。[HTTP 请求方法](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)，也称为动词，指示要对识别的资源执行的操作。
 
 ```mermaid
 flowchart LR

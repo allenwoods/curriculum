@@ -64,7 +64,17 @@ end
 </details>
 
 ```elixir
+defmodule Zero do
+  use GenServer
 
+  @impl true
+  def init(_opts) do
+    {:ok, 0}
+  end
+end
+
+{:ok, pid} = GenServer.start_link(Zero, "init_arg")
+:sys.get_state(pid)
 ```
 
 使用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 将你的 `Zero` [GenServer](https://hexdocs.pm/elixir/GenServer.html) 作为命名进程启动。
@@ -79,7 +89,8 @@ GenServer.start_link(Zero, "init_arg", [name: :my_name])
 </details>
 
 ```elixir
-
+GenServer.start_link(Zero, "init_arg", [name: :my_zero])
+:sys.get_state(:my_zero)
 ```
 
 创建一个 `SimpleCounter` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，其状态初始为 `0`。实现一个 [GenServer.handle_call/3](https://hexdocs.pm/elixir/GenServer.html#handle_call/3) 回调函数，该函数接受 `:increment` 消息并将状态增加 `1`，并返回 `:ok`。
@@ -112,7 +123,23 @@ GenServer.call(pid, :increment)
 </details>
 
 ```elixir
+defmodule SimpleCounter do
+  use GenServer
 
+  @impl true
+  def init(_opts) do
+    {:ok, 0}
+  end
+
+  @impl true
+  def handle_call(:increment, _from, state) do
+    {:reply, :ok, state+1}
+  end
+end
+
+{:ok, pid} = GenServer.start_link(SimpleCounter, [])
+GenServer.call(pid, :increment)
+:sys.get_state(pid)
 ```
 
 创建一个 `InitialState` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，其初始状态可以配置。调用 [GenServer.start_link/3](https://hexdocs.pm/elixir/GenServer.html#start_link/3) 来生成一个具有初始状态的 `State` GenServer。使用 `:sys.get_state/1` 确认状态与配置的状态匹配。
@@ -138,7 +165,18 @@ end
 </details>
 
 ```elixir
+defmodule InitialState do
+  use GenServer
 
+  @impl true
+  def init(state) do
+    {:ok, state}
+  end
+
+end
+
+{:ok, pid} = GenServer.start_link(InitialState, ["A"])
+:sys.get_state(pid)
 ```
 
 创建一个 `State` 模块。
@@ -197,7 +235,15 @@ State.set(pid, "updated state")
 </details>
 
 ```elixir
+defmodule Set do
+  use GenServer
 
+  def init(init_state) do
+    {:ok, init_state}
+  end
+
+  
+end
 ```
 
 创建一个最小的 `Named` [GenServer](https://hexdocs.pm/elixir/GenServer.html)，可以使用 `Named.start_link/1` 启动并配置为命名进程。启动一个 `Named` 进程，并使用 [GenServer.whereis/1](https://hexdocs.pm/elixir/GenServer.html#whereis/1) 和/或 [Process.whereis/1](https://hexdocs.pm/elixir/Process.html#whereis/1) 找到命名进程的 pid。

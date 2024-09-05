@@ -70,7 +70,7 @@ Supervisor.which_children(supervisor_pid)
 
 我们还可以在以下图表中看到这一点。
 
-<!-- livebook:{"attrs":{"source":"Kino.Process.sup_tree(supervisor_pid)","title":"监视器可视化"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJLaW5vLlByb2Nlc3Muc3VwX3RyZWUoc3VwZXJ2aXNvcl9waWQpIiwidGl0bGUiOiLnm5Hop4blmajlj6/op4bljJYifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 Kino.Process.sup_tree(supervisor_pid)
@@ -97,7 +97,7 @@ Task.await(task)
 ```elixir
 tasks =
   Enum.map(1..5, fn int ->
-    task =
+    _task =
       Task.Supervisor.async(MyTaskSupervisor, fn ->
         IO.puts("任务开始")
         Process.sleep(30000)
@@ -109,7 +109,7 @@ tasks =
 
 评估下面的图表以查看在 `MyTaskSupervisor` 进程下生成的任务。
 
-<!-- livebook:{"attrs":{"source":"Kino.Process.sup_tree(supervisor_pid)","title":"监视器可视化"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJLaW5vLlByb2Nlc3Muc3VwX3RyZWUoc3VwZXJ2aXNvcl9waWQpIiwidGl0bGUiOiLnm5Hop4blmajlj6/op4bljJYifQ","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 Kino.Process.sup_tree(supervisor_pid)
@@ -121,15 +121,15 @@ Kino.Process.sup_tree(supervisor_pid)
 Task.await_many(tasks)
 ```
 
-## 火并忘任务
+## Async任务
 
-`Task.Supervisor.start_child/2` 允许我们启动一个 **火并忘** 任务，该任务将执行一些工作而不返回响应。
+`Task.Supervisor.start_child/2` 允许我们启动一个 **Async** 任务，该任务将执行一些工作而不返回响应。
 
 ```elixir
 Task.Supervisor.start_child(MyTaskSupervisor, fn ->
-  IO.puts("火并忘任务开始")
+  IO.puts("Async任务开始")
   Process.sleep(60000)
-  IO.puts("火并忘任务完成")
+  IO.puts("Async任务完成")
 end)
 ```
 

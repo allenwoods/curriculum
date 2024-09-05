@@ -128,7 +128,7 @@ end
 defmodule CounterServer do
   use GenServer
 
-  @impl true
+  @impl true # Only for annote this is impl for behavior, better add them
   def init(_init_arg) do
     {:ok, 0}
   end
@@ -136,6 +136,11 @@ defmodule CounterServer do
   @impl true
   def handle_cast(:increment, state) do
     {:noreply, state + 1}
+  end
+
+  @impl true
+  def handle_cast(:decrement, state) do
+    {:noreply, state - 1}
   end
 
   @impl true
@@ -151,6 +156,9 @@ end
 
 ```elixir
 {:ok, pid} = GenServer.start_link(CounterServer, [])
+```
+
+```elixir
 GenServer.cast(pid, :increment)
 GenServer.call(pid, :get_count)
 ```
@@ -161,6 +169,7 @@ GenServer.call(pid, :get_count)
 Kino.Process.render_seq_trace(fn ->
   {:ok, pid} = GenServer.start_link(CounterServer, [])
   GenServer.cast(pid, :increment)
+  GenServer.cast(pid, :decrement)
   GenServer.call(pid, :get_count)
 end)
 ```
@@ -295,13 +304,13 @@ defmodule SlowCounter do
 
   def handle_call(:slow_increment, _from, state) do
     Process.sleep(2000)
-    IO.puts("完成同步增加")
+    IO.puts("完成同步增加 #{Time.utc_now()}")
     {:reply, state + 1, state + 1}
   end
 
   def handle_cast(:slow_increment, state) do
     Process.sleep(2000)
-    IO.puts("完成异步增加")
+    IO.puts("完成异步增加 #{Time.utc_now()}")
     {:noreply, state + 1}
   end
 end
@@ -311,7 +320,7 @@ end
 
 ```elixir
 {:ok, pid} = GenServer.start_link(SlowCounter, [])
-GenServer.call(pid, :slow_increment)
+GenServer.call(pid, :slow_increment) # 看右下角！
 IO.puts("已评估")
 ```
 
@@ -319,7 +328,7 @@ IO.puts("已评估")
 
 ```elixir
 {:ok, pid} = GenServer.start_link(SlowCounter, [])
-GenServer.cast(pid, :slow_increment)
+GenServer.cast(pid, :slow_increment) # 看右下角！
 IO.puts("已评估")
 ```
 

@@ -67,6 +67,7 @@ end
 
 ```elixir
 defmodule TodoList do
+  @storage "todolist"
   @moduledoc """
   Documentation for `TodoList`
   """
@@ -79,6 +80,11 @@ defmodule TodoList do
       []
   """
   def list do
+    case File.read(@storage) do
+      {:ok, list} -> :erlang.binary_to_term(list)
+      # other operations will create the storage if it does not yet exist.
+      _ -> []
+    end
   end
 
   @doc """
@@ -92,6 +98,8 @@ defmodule TodoList do
       ["task 2", "task 1"]
   """
   def add(item) do
+    new_list = [item | list()]
+    File.write(@storage, :erlang.term_to_binary(new_list))
   end
 
   @doc """
@@ -105,8 +113,28 @@ defmodule TodoList do
       ["task 2", "task 1"]
   """
   def complete(item) do
+    new_list = list() -- [item]
+    File.write(@storage, :erlang.term_to_binary(new_list))
   end
 end
+
+
+```
+
+```elixir
+TodoList.list()
+```
+
+```elixir
+TodoList.add("task 1")
+TodoList.add("task 2")
+TodoList.list()
+```
+
+```elixir
+{:ok, file} = File.open("todolist")
+
+IO.read(file, :line) |> IO.inspect()
 ```
 
 ## 提交你的进展

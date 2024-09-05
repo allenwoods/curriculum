@@ -235,7 +235,15 @@ end
 
 ```elixir
 defmodule Say do
-  def hello(name) do
+  @doc """
+  iex> Say.hello("Stephen")
+  "Hello, Stephen!"
+
+  iex> Say.hello(123)
+  ** (FunctionClauseError) no function clause matching in Say.hello/1
+  """
+  def hello(name) when is_binary(name) do
+    "Hello, #{name}!"
   end
 end
 ```
@@ -279,7 +287,9 @@ end
 
 ```elixir
 defmodule Percent do
-  def display(percent) do
+  defguard is_percent(num) when is_number(num) and num > 0 and num <= 100
+  def display(percent) when is_percent(percent)do
+    "#{percent}%"
   end
 end
 ```

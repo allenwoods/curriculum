@@ -62,7 +62,7 @@ HTML 定义了许多 HTML 元素。例如，以下是一个 [HTML 段落元素](
 
 这里是 Fireship 提供的 HTML 简要概述。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=ok-plXXHlWw\")","title":"Hidden Cell"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9b2stcGxYWEhsV3dcIikiLCJ0aXRsZSI6IkhpZGRlbiBDZWxsIn0","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=ok-plXXHlWw")
@@ -1187,13 +1187,13 @@ Flex 和 Grid 是使用 CSS 创建响应式布局的两种非常强大的方式�
 
 要了解有关 Flexbox 的更多信息，我们建议您从 Fireship 提供的这两个快速入门开始。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=K74l26pE4YA&ab_channel=Fireship\")","title":"Flexbox"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9Szc0bDI2cEU0WUEmYWJfY2hhbm5lbD1GaXJlc2hpcFwiKSIsInRpdGxlIjoiRmxleGJveCJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=K74l26pE4YA&ab_channel=Fireship")
 ```
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=uuOXPWCh-6o&ab_channel=Fireship\")","title":"Grid"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9dXVPWFBXQ2gtNm8mYWJfY2hhbm5lbD1GaXJlc2hpcFwiKSIsInRpdGxlIjoiR3JpZCJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=uuOXPWCh-6o&ab_channel=Fireship")

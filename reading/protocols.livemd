@@ -193,7 +193,15 @@ end
 </details>
 
 ```elixir
-
+defimpl Adder, for: List do
+  @doc """
+  iex> Adder.add([1], [2])
+  [1, 2]
+  """
+  def add(list1, list2) do
+    list1 ++ list2
+  end
+end
 ```
 
 ## 结构上的协议
@@ -270,12 +278,16 @@ end
 </details>
 
 ```elixir
-
+defimpl Sound, for: Dog do
+  def say(_dog) do
+    "Woof!"
+  end
+end
 ```
 
 有关更多信息，可以观看Kevin Rockwood的演讲。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=sJvfCE6PFxY\")","title":"Kevin Rockwood | A Practical Guide to Elixir Protocols"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9c0p2ZkNFNlBGeFlcIikiLCJ0aXRsZSI6IktldmluIFJvY2t3b29kIHwgQSBQcmFjdGljYWwgR3VpZGUgdG8gRWxpeGlyIFByb3RvY29scyJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=sJvfCE6PFxY")

@@ -332,7 +332,7 @@ end
 
 ```elixir
 <%= form_for @changeset, Routes.user_path(@conn, :create), fn f -> %>
-  名称: <%= text_input f, :name %>
+  name: <%= text_input f, :name %>
 <% end %>
 ```
 

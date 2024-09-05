@@ -110,6 +110,7 @@ defmodule Blog.Posts do
   alias Blog.Repo
 
   alias Blog.Posts.Post
+  # alias Blog.Posts.Post, as: MyPost #也可以指定其他别名
 
   def list_posts do
     Repo.all(Post)

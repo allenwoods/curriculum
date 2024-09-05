@@ -62,7 +62,7 @@ Elixir 生态系统中的许多项目仍将使用 Phoenix 1.6 或更早版本。
 
 [Chris McCord](http://chrismccord.com/) 是 Phoenix 的创建者，他有一个很好的视频来演示 Phoenix 的强大功能。您可以跟随视频，在仅 15 分钟内构建一个 Twitter 克隆应用程序。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=MZvmYaFkNJI\")","title":"在 15 分钟内使用 LiveView 构建实时 Twitter 克隆"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9TVp2bVlhRmtOSklcIikiLCJ0aXRsZSI6IuWcqCAxNSDliIbpkp/lhoXkvb/nlKggTGl2ZVZpZXcg5p6E5bu65a6e5pe2IFR3aXR0ZXIg5YWL6ZqGIn0","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=MZvmYaFkNJI")

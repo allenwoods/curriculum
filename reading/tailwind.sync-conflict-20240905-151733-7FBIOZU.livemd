@@ -146,7 +146,7 @@ h1 {
 
 ![](files/tailwind_button_example.png)
 
-<!-- livebook:{"attrs":"eyJodG1sIjoiPGJ1dHRvbiBjbGFzcz1cImZvbnQtYm9sZCB1bmRlcmxpbmUgdGV4dC0zeGxcIj5cbiAg54K55Ye75oiR77yBXG48L2J1dHRvbj4ifQ","chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJodG1sIjoiPGJ1dHRvbiBjbGFzcz1cIlwiPueCueWHu+aIke+8gTwvYnV0dG9uPiJ9","chunks":null,"kind":"Elixir.Kino.TailwindPlayground","livebook_object":"smart_cell"} -->
 
 ```elixir
 Kino.nothing()

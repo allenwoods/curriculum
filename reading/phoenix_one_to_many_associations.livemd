@@ -437,8 +437,6 @@ def create(conn, %{"comment" => comment_params}) do
 end
 ```
 
-<!-- livebook:{"force_markdown":true} -->
-
 ### URL或查询参数
 
 如果请求是使用URL参数或查询参数发送的，则帖子id将单独处理，如下所示：

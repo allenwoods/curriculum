@@ -381,7 +381,7 @@ patch 和 redirect/navigate 具有不同的目的。
 
 ### 处理参数
 
-每当发生patch事件时，都会在挂载后调用 [handle_params/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_params/3) 回调。
+每当发生补丁事件时，都会在挂载后调用 [handle_params/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_params/3) 回调。
 
 <!-- livebook:{"force_markdown":true} -->
 

@@ -73,7 +73,7 @@ defmodule CounterServerTest do
 
   test "Counter receives :increment call" do
     {:ok, pid} = GenServer.start_link(CounterServer, 0)
-    GenServer.call(pid, :increment)
+    GenServer.call(pid, :increment) # 此处与CounterServer的实现耦合了
     assert :sys.get_state(pid) == 1
   end
 end
@@ -111,7 +111,7 @@ defmodule CounterClientTest do
 
   test "increment/1" do
     {:ok, pid} = CounterClient.start_link([])
-    CounterClient.increment(pid)
+    CounterClient.increment(pid) # 与Server实现解藕，只与行为有关
     assert CounterClient.get_count(pid) == 1
   end
 end
@@ -187,7 +187,7 @@ defmodule CounterMapExampleTest do
   use ExUnit.Case
 
   test "handle_call :increment" do
-    {:ok, pid} = GenServer.start_link(CounterMapExample, 0)
+    {:ok, pid} = GenServer.start_link(CounterMapExample, 0) # 竟然说的是这个实现耦合😓
     GenServer.call(pid, :increment)
     assert :sys.get_state(pid) == 1
   end
@@ -198,7 +198,7 @@ ExUnit.run()
 
 有关测试 [GenServer](https://hexdocs.pm/elixir/GenServer.html) 的更多信息，Tyler Young 有一场很棒的演讲。
 
-<!-- livebook:{"attrs":{"source":"YouTube.new(\"https://www.youtube.com/watch?v=EZFLPG7V7RM\")","title":"Testing GenServers"},"chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJzb3VyY2UiOiJZb3VUdWJlLm5ldyhcImh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9RVpGTFBHN1Y3Uk1cIikiLCJ0aXRsZSI6IlRlc3RpbmcgR2VuU2VydmVycyJ9","chunks":null,"kind":"Elixir.HiddenCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 YouTube.new("https://www.youtube.com/watch?v=EZFLPG7V7RM")

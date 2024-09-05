@@ -294,12 +294,12 @@
 
 <!-- livebook:{"break_markdown":true} -->
 
-### 主管基础和容错
+### Supervisor基础和容错
 
 * 阅读
-  * [主管](reading/supervisors.livemd)
+  * [Supervisor](reading/supervisors.livemd)
 * 练习
-  * 演练：[主管](exercises/supervisor_drills.livemd)
+  * 演练：[Supervisor](exercises/supervisor_drills.livemd)
   * [受监管的堆栈](exercises/supervised_stack.livemd)
   * [游戏：受监管的分数跟踪器](exercises/games_supervised_score_tracker.livemd)
 
@@ -309,7 +309,7 @@
 
 * 阅读
   * [任务](reading/task.livemd)
-  * [任务主管](reading/task_supervisor.livemd)
+  * [任务Supervisor](reading/task_supervisor.livemd)
 * 练习
   * 演练：[任务](exercises/task_drills.livemd)
   * [并发单词计数](exercises/concurrent_word_count.livemd)

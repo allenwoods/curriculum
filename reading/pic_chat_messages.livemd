@@ -345,8 +345,6 @@ end
 </.table>
 ```
 
-<!-- livebook:{"force_markdown":true} -->
-
 ### 模态框
 
 包含 `FormComponent` 直播组件的模态框在 `:new` 和 `:edit` 实时操作中渲染。

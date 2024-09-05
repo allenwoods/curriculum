@@ -55,9 +55,9 @@ spawn_pid =
 
 [Task](https://hexdocs.pm/elixir/Task.html) 也是符合 OTP 的，这意味着它遵循某些 OTP 约定，这些约定改善了错误处理，并允许它们在监督者下启动。
 
-## 火忘
+## Async
 
-我们可以使用 [Task.start/1](https://hexdocs.pm/elixir/Task.html#start/1) 创建一个新的短暂进程，该进程在其函数执行时结束。这是一个 **火忘** 进程，不会阻塞调用进程或返回响应。
+我们可以使用 [Task.start/1](https://hexdocs.pm/elixir/Task.html#start/1) 创建一个新的短暂进程，该进程在其函数执行时结束。这是一个 **Async** 进程，不会阻塞调用进程或返回响应。
 
 ```elixir
 {:ok, task_pid} = Task.start(fn -> IO.puts("任务运行！") end)
@@ -78,7 +78,9 @@ task =
     Process.sleep(1000)
     "响应！"
   end)
+```
 
+```elixir
 Task.await(task)
 ```
 
@@ -108,7 +110,7 @@ Task.await(task1) |> IO.inspect(label: "任务 1 响应")
 Task.await(task2) |> IO.inspect(label: "任务 2 响应")
 ```
 
-配备多核处理器的计算机可以并行执行这些并发计算，这可能使我们的程序更快。实际上，这比这要复杂一些，但这是一个合理的心理模型，以理解为什么并发对提高性能是有用的。
+配备多核处理器的计算机可以并行执行这些并发计算，这可能使我们的程序更快。实际上比这要复杂一些，但这是一个合理的心智模型，以理解为什么并发对提高性能是有用的。
 
 在这里，我们使用 **par** 框来演示并行发生的操作。
 
@@ -248,7 +250,8 @@ Task.await_many([task1, task2], 7000)
 `await/2` 该任务并将超时值更改为一秒。等待任务应该崩溃。
 
 ```elixir
-
+task_one_sec = Task.async(fn -> Process.sleep(2000) end)
+Task.await(task_one_sec, 1000)
 ```
 
 ## 深入阅读

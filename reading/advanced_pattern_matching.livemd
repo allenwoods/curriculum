@@ -151,9 +151,7 @@ end
 
 创建一个 `case` 语句，返回一个 2 元组中的第一个元素，或一个 2 元组中的第一个元素。
 
-```elixir
-
-```
+<!-- livebook:{"break_markdown":true} -->
 
 使用模式匹配确保 `Check.must_have_elements!/1` 函数在调用时返回 true，当传入的列表有多个元素时，否则会导致 [FunctionClauseError](https://hexdocs.pm/elixir/FunctionClauseError.html)。
 
@@ -184,9 +182,9 @@ defmodule Check do
       true
 
       iex> Check.must_have_elements!([])
-      ** (FunctionClauseError) 在 Check.must_have_elements!/1 中没有匹配的函数子句
+      ** (FunctionClauseError) no function clause matching in Check.must_have_elements!/1
   """
-  def must_have_elements!(list) do
+  def must_have_elements!([_head | _tail] = _list) do
     true
   end
 end
@@ -290,8 +288,16 @@ defmodule Greeter do
 
       iex> Greeter.hello(["Swamy", "Jeff", "Jeremy"])
       "大家好!"
+      
+      iex> Greeter.hello(["Swamy", "Jeff", "Jeremy", "Alice"])
+      "大家好!"
   """
   def hello(names) do
+    case names do
+      [p1] -> "嗨 #{p1}!"
+      [p1, p2] -> "嗨 #{p1}, 你好 #{p2}!"
+      _ -> "大家好!"
+    end
   end
 end
 ```
@@ -354,7 +360,11 @@ end)
 </details>
 
 ```elixir
-
+[{:double, 2}, {:halve, 10}, {:double, 4}] #-> [4, 5, 8]
+|> Enum.map(fn 
+  {:double, int} -> int * 2
+  {:halve, int} -> div(int,2)
+end)
 ```
 
 ## 模式匹配与 if
@@ -397,7 +407,7 @@ end
 MessageNestedIfExample.send(%{is_admin: true}, "")
 ```
 
-嵌套的 `if` 语句通常是一个提示，表明我们应该考虑替代实现。
+**嵌套的 `if` 语句通常是一个提示，表明我们应该考虑替代实现。**
 
 让我们看看如何使用模式匹配解决这个问题。
 
@@ -520,7 +530,7 @@ actual = {"hello", "hi"}
 expected = {"hello"}
 actual = {"hello", "hi"}
 
-expected = actual
+^expected = actual
 ```
 
 ## 深入阅读

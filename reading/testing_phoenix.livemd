@@ -306,7 +306,7 @@ Enum.into(attrs, %{
 
 <!-- livebook:{"force_markdown":true} -->
 
-`````elixir
+```elixir
 test "list_posts/1 filters posts by partial and case-insensitive title" do
   post = post_fixture(title: "Title")
 
@@ -329,9 +329,7 @@ test "list_posts/1 filters posts by partial and case-insensitive title" do
   # empty
   assert Posts.list_posts("") == [post]
 end
-`````
-  
-<!-- livebook:{"force_markdown":true} -->
+```
 
 ### 控制器测试
 

@@ -54,7 +54,7 @@ Mix.install([
 例如，我们有 [File.ls/1](https://hexdocs.pm/elixir/File.html#ls/1) 函数，它列出当前路径中的文件夹和文件。
 
 ```elixir
-File.ls!()
+  File.ls!()
 ```
 
 这模仿了 `ls` 命令，该命令也列出 Linux 和 macOS 中当前目录中的文件。
@@ -139,7 +139,7 @@ File.ls()
 要清理文件，请取消注释以下代码以删除它。
 
 ```elixir
-# File.rm("file.txt")
+File.rm("file.txt")
 ```
 
 现在文件应该不再存在。让我们使用 [File.exists?/2](https://hexdocs.pm/elixir/File.html#exists?/2) 检查。
@@ -207,6 +207,7 @@ Path.join(path1, path2)
 Bang 函数在失败时会引发错误。
 
 ```elixir
+# File.ls("invalid") -> {:error, :enoent}
 File.ls!("invalid")
 ```
 
